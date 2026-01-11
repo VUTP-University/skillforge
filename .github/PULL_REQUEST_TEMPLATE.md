@@ -14,11 +14,15 @@ Closes: #ISSUE_NUMBER
 ### 🧪 Testing
 <!-- Describe how you tested your changes (or explain why testing is not applicable). -->
 
+---
+
 ### 🎓 Learning Reflection
 <!-- Answer briefly:
 - What did you learn while working on this PR?
 - What challenges did you face?
 - What would you do differently next time? -->
+
+---
 
 ### 📸 Screenshots / Logs (if applicable)
 <!-- Add screenshots, logs, or output if relevant. -->

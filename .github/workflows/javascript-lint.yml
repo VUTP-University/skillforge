@@ -1,0 +1,61 @@
+name: JavaScript/TypeScript Linting
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  lint-javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check for package.json
+        id: check-package
+        run: |
+          if [ -f "package.json" ] || find . -name "package.json" -type f | grep -q .; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check-package.outputs.found == 'true'
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci || npm install
+          else
+            package_dir=$(find . -name "package.json" -type f | head -1 | xargs dirname)
+            cd "$package_dir"
+            npm ci || npm install
+          fi
+
+      - name: Run ESLint
+        if: steps.check-package.outputs.found == 'true'
+        run: |
+          echo "🔍 Running ESLint on JavaScript/TypeScript files..."
+          if [ -f "package.json" ]; then
+            npx eslint . --ext .js,.jsx,.ts,.tsx
+          else
+            package_dir=$(find . -name "package.json" -type f | head -1 | xargs dirname)
+            cd "$package_dir"
+            npx eslint . --ext .js,.jsx,.ts,.tsx
+          fi
+
+      - name: Skip linting
+        if: steps.check-package.outputs.found == 'false'
+        run: |
+          echo "✅ No package.json found, skipping JavaScript linting"
