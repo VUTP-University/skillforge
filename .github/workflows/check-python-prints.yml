@@ -1,0 +1,42 @@
+name: Check for print() in Python files
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-prints:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Look for print() in Python files
+        run: |
+          echo "🔍 Scanning for 'print(' in Python files..."
+          # Find all added/modified Python files in the PR
+          git fetch --unshallow
+          git fetch origin master
+          changed_files=$(git diff --name-only origin/master...HEAD -- '*.py')
+
+          if [ -z "$changed_files" ]; then
+            echo "✅ No Python files changed."
+            exit 0
+          fi
+
+          echo "Changed Python files:"
+          echo "$changed_files"
+
+          # Search for 'print(' in changed files
+          found=$(grep -nH "print(" $changed_files || true)
+
+          if [ -n "$found" ]; then
+            echo "❌ Found print statements:"
+            echo "$found"
+            exit 1
+          else
+            echo "✅ No print statements found."
+          fi
