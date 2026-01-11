@@ -48,11 +48,11 @@ jobs:
         run: |
           echo "🔍 Running ESLint on JavaScript/TypeScript files..."
           if [ -f "package.json" ]; then
-            npx eslint . --ext .js,.jsx,.ts,.tsx || echo "⚠️ Linting issues found"
+            npx eslint . --ext .js,.jsx,.ts,.tsx
           else
             package_dir=$(find . -name "package.json" -type f | head -1 | xargs dirname)
             cd "$package_dir"
-            npx eslint . --ext .js,.jsx,.ts,.tsx || echo "⚠️ Linting issues found"
+            npx eslint . --ext .js,.jsx,.ts,.tsx
           fi
 
       - name: Skip linting

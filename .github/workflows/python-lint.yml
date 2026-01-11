@@ -31,8 +31,4 @@ jobs:
       - name: Run Ruff linter
         run: |
           echo "🔍 Running Ruff linter on Python files..."
-          ruff check . --output-format=github || true
-          
-      - name: Check Ruff results
-        run: |
-          ruff check . --exit-non-zero-on-fix
+          ruff check . --output-format=github --exit-non-zero-on-fix
