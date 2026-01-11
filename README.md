@@ -1,6 +1,6 @@
 # SkillForge
 
-> A collaborative learning platform developed by Universidad Tecnológica de Panamá (UTP) students
+> A collaborative learning platform developed by Universtity of Telecommunications and Post (UTP) students
 
 ## 📖 About
 
@@ -19,6 +19,7 @@ SkillForge is a university project designed to teach students real-world softwar
 ### Prerequisites
 
 - Git installed on your machine
+- Docker setup
 - Python 3.x (for backend development)
 - Node.js 20+ (for frontend development)
 - A GitHub account
@@ -63,7 +64,7 @@ This project enforces code quality through:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3 - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Team
 
@@ -74,8 +75,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [GitHub Repository](https://github.com/VUTP-University/skillforge)
 - [Issue Tracker](https://github.com/VUTP-University/skillforge/issues)
-- [GitHub Projects Board](https://github.com/VUTP-University/skillforge/projects)
+- [GitHub Project Board]([https://github.com/VUTP-University/skillforge/projects](https://github.com/orgs/VUTP-University/projects/6))
 
 ---
-
-Made with ❤️ by UTP Students
