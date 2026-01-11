@@ -204,9 +204,9 @@ The repository setup is successful when:
 ## 🔗 Quick Links
 
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - How to contribute
-- [Branch Protection Guide](.github/branch-protection.md) - Setting up branch rules
-- [Project Setup Guide](.github/project-setup.md) - Managing GitHub Projects
-- [Labels Guide](.github/labels-guide.md) - Using labels effectively
+- [Branch Protection Guide](branch-protection.md) - Setting up branch rules
+- [Project Setup Guide](project-setup.md) - Managing GitHub Projects
+- [Labels Guide](labels-guide.md) - Using labels effectively
 
 ## 📞 Support
 
