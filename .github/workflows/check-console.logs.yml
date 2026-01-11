@@ -1,0 +1,40 @@
+name: Check for console.log() in JS files
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-console-logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Look for console.log() in JS/TS files
+        run: |
+          echo "🔍 Scanning for 'console.log(' in JS/TS files..."
+          git fetch --unshallow
+          git fetch origin master
+          changed_files=$(git diff --name-only origin/master...HEAD -- '*.js' '*.jsx' '*.ts' '*.tsx')
+
+          if [ -z "$changed_files" ]; then
+            echo "✅ No JS/TS files changed."
+            exit 0
+          fi
+
+          echo "Changed JS/TS files:"
+          echo "$changed_files"
+
+          found=$(grep -nH "console\.log(" $changed_files || true)
+
+          if [ -n "$found" ]; then
+            echo "❌ Found console.log statements:"
+            echo "$found"
+            exit 1
+          else
+            echo "✅ No console.log statements found."
+          fi
