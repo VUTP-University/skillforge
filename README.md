@@ -42,7 +42,7 @@ We welcome contributions from all UTP students! Please read our [CONTRIBUTING.md
 
 ### Quick Contribution Guide
 
-1. **Fork** the repository
+1. **Fork** the repository [Only if you are not a member of the organization. All members have write access and can clone and work with this repo)
 2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
 3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
 4. **Push** to the branch (`git push origin feature/AmazingFeature`)
