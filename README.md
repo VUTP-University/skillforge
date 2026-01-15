@@ -34,6 +34,30 @@ git clone https://github.com/VUTP-University/skillforge.git
 cd skillforge
 
 # Follow specific setup instructions in backend/frontend directories (when available)
+
+# Activating virtual environment (venv)
+
+# Windows OS:
+# First installation and activation
+cd backend
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+
+# Subsequent activations
+cd backend
+.\venv\Scripts\activate
+
+# UNIX based OS (MAC or any Linux)
+# First installation and activation
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Subsequent activations
+cd backend
+source venv/bin/activate
 ```
 
 ## 🤝 Contributing
