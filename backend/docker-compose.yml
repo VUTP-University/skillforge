@@ -4,17 +4,16 @@ services:
     container_name: skillforge-db
     hostname: skillforge-db
     environment:
-        POSTGRES_USER: ${SKILLFORGE_POSTGRES_USER}
-        POSTGRES_PASSWORD: ${SKILLFORGE_POSTGRES_PASSWORD}
-        POSTGRES_DB: ${SKILLFORGE_POSTGRES_DBNAME}
-        TZ: ${SKILLFORGE_TIMEZONE}
+      POSTGRES_USER: ${SKILLFORGE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${SKILLFORGE_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${SKILLFORGE_POSTGRES_DBNAME}
+      TZ: ${SKILLFORGE_TIMEZONE}
     ports:
-        - "${SKILLFORGE_POSTGRES_PORT}"
+      - "${SKILLFORGE_POSTGRES_PORT}:5432"
     volumes:
-        - skillforge-db:/var/lib/postgresql/data
+      - skillforge-db:/var/lib/postgresql/data
     networks:
-        - skillforge
-
+      - skillforge
 
 volumes:
   skillforge-db:
