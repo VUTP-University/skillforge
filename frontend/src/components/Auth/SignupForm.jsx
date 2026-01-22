@@ -8,7 +8,7 @@ export default function SignupForm() {
     firstName: "",
     lastName: "",
     email: "",
-    password: ""
+    password: "",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -33,16 +33,19 @@ export default function SignupForm() {
     // Call the signup service to create the user
     try {
       const result = await signup(form);
-      
+
       if (result.success) {
         navigate("/", {
-          state: { showModal: true, modalMessage: "Your account was created successfully!" },
+          state: {
+            showModal: true,
+            modalMessage: "Your account was created successfully!",
+          },
         });
       } else {
         setError(result.message || "Signup failed");
       }
     } catch (err) {
-      setError("An error occurred while signing up.");
+      setError(err.message || "An error occurred while signing up.");
     }
   };
 
@@ -197,6 +200,7 @@ export default function SignupForm() {
           </div>
         </div>
       </div>
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
 }

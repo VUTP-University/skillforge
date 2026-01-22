@@ -21,7 +21,7 @@ export default function Navbar() {
         setAvatarUrl(url);
       });
     }
-  }, [token]);
+  }, [token, userId]);
 
   return (
     <nav className="p-0 flex justify-between items-center navbar_bg">

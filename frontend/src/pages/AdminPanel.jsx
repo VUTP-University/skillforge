@@ -12,16 +12,9 @@ import QuestsLogs from "../components/Admin/QuestsLogs";
 
 const AdminPanel = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
-  const [quests, setQuests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
 
 
   const renderSection = () => {
-    // if (loading) return <p>Loading quests...</p>;
-    // if (error) return <p className="text-red-500">{error}</p>;
-
     switch (activeSection) {
       case "add_quest":
         return <AddQuest />;

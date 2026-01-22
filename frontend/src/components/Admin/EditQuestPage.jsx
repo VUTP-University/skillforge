@@ -98,7 +98,7 @@ const EditQuestPage = ({ questId, onBack }) => {
       const isTokenValid = await checkValidToken(response.status);
 
       if (isTokenValid) {
-        const data = await response.json();
+        await response.json();
 
         if (response.ok) {
           sessionStorage.setItem("questUpdateMessage", "Quest updated successfully!");

@@ -27,10 +27,12 @@ const ProfileMain = ({ user, setModalOpen, setModalMessage }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const updatedUser = await updateUser(user.id, formData);
+      await updateUser(user.id, formData);
+  
       setModalMessage("Profile updated successfully!");
       setModalOpen(true);
     } catch (err) {
+      console.error(err);
       setModalMessage("Failed to update profile.");
       setModalOpen(true);
     }

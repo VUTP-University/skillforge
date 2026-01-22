@@ -46,9 +46,11 @@ const NewBoss = () => {
       });
 
       const isTokenValid = await checkValidToken(response.status);
+      
+      let data = null;
 
       if (isTokenValid) {
-        const data = await response.json();
+        data = await response.json();
 
         if (response.ok) {
           setModalMessage("Boss created successfully!");
