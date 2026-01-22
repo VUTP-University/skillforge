@@ -60,6 +60,8 @@ const AddQuest = () => {
 
       const isTokenValid = await checkValidToken(response.status);
 
+      let data = null;
+      
       if (isTokenValid) {
         const data = await response.json();
 

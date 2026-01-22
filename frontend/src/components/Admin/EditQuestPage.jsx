@@ -199,58 +199,58 @@ const EditQuestPage = ({ questId, onBack }) => {
             }
           />
         </div>
-        
-        {/* Quest Inputs and Outputs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-        {/* Repeat this block for each test case (0 to 9) */}
-        {[...Array(10)].map((_, index) => (
-          <React.Fragment key={index}>
-            {/* Input field */}
-            <div className="flex flex-col space-y-2">
-              <label
-                htmlFor={`input_${index}`}
-                className={`text-m font-semibold ${
-                  index < 2 ? "text-red-500" : "text-cyan-400"
-                }`}
-              >
-                Input {index}
-                {index < 2 && " (Required)"}
-              </label>
-              <textarea
-                id={`input_${index}`}
-                name={`input_${index}`}
-                rows={3}
-                className="rounded-lg block w-full h-12 p-2.5 primary_text_area"
-                value={formData[`input_${index}`] || ""}
-                onChange={handleChange}
-                required={index < 2}
-              />
-            </div>
 
-            {/* Output field */}
-            <div className="flex flex-col space-y-2">
-              <label
-                htmlFor={`output_${index}`}
-                className={`text-m font-semibold  ${
-                  index < 2 ? "text-red-500" : "text-cyan-400"
-                }`}
-              >
-                Output {index}
-                {index < 2 && " (Required)"}
-              </label>
-              <textarea
-                id={`output_${index}`}
-                name={`output_${index}`}
-                rows={3}
-                className="rounded-lg block w-full h-12 p-2.5 primary_text_area"
-                value={formData[`output_${index}`] || ""}
-                onChange={handleChange}
-                required={index < 2}
-              />
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
+        {/* Quest Inputs and Outputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+          {/* Repeat this block for each test case (0 to 9) */}
+          {[...Array(10)].map((_, index) => (
+            <React.Fragment key={index}>
+              {/* Input field */}
+              <div className="flex flex-col space-y-2">
+                <label
+                  htmlFor={`input_${index}`}
+                  className={`text-m font-semibold ${
+                    index < 2 ? "text-red-500" : "text-cyan-400"
+                  }`}
+                >
+                  Input {index}
+                  {index < 2 && " (Required)"}
+                </label>
+                <textarea
+                  id={`input_${index}`}
+                  name={`input_${index}`}
+                  rows={3}
+                  className="rounded-lg block w-full h-12 p-2.5 primary_text_area"
+                  value={formData[`input_${index}`] || ""}
+                  onChange={handleChange}
+                  required={index < 2}
+                />
+              </div>
+
+              {/* Output field */}
+              <div className="flex flex-col space-y-2">
+                <label
+                  htmlFor={`output_${index}`}
+                  className={`text-m font-semibold  ${
+                    index < 2 ? "text-red-500" : "text-cyan-400"
+                  }`}
+                >
+                  Output {index}
+                  {index < 2 && " (Required)"}
+                </label>
+                <textarea
+                  id={`output_${index}`}
+                  name={`output_${index}`}
+                  rows={3}
+                  className="rounded-lg block w-full h-12 p-2.5 primary_text_area"
+                  value={formData[`output_${index}`] || ""}
+                  onChange={handleChange}
+                  required={index < 2}
+                />
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
 
         {/* Example Solution */}
         <div className="mb-4 mt-4">
@@ -267,8 +267,14 @@ const EditQuestPage = ({ questId, onBack }) => {
           />
         </div>
 
-        <button type="submit" className="px-4 py-2 rounded primary_button">
-          Update Quest
+        <button
+          type="submit"
+          disabled={submitting}
+          className={`px-4 py-2 rounded primary_button ${
+            submitting ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {submitting ? "Updating..." : "Update Quest"}
         </button>
 
         {message && <p className="mt-4">{message}</p>}

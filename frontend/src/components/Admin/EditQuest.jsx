@@ -10,6 +10,7 @@ const EditQuest = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
   const fetchQuests = async () => {
     try {
       const questsData = await getAllQuests();
@@ -24,6 +25,15 @@ const EditQuest = () => {
   useEffect(() => {
     fetchQuests();
   }, []);
+
+  if (loading) {
+    return <div className="p-10 text-white">Loading quests...</div>;
+  }
+
+  if (error) {
+    return <div className="p-10 text-red-400">Error: {error}</div>;
+  }
+
 
   const handleQuestClick = (questId) => {
     setSelectedQuestId(questId);
