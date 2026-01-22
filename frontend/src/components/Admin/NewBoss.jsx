@@ -28,6 +28,8 @@ const NewBoss = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let data;
+
     try {
       const response = await fetch(`${UNDERWORLD_API_URL}/bosses`, {
         method: 'POST',
@@ -47,8 +49,6 @@ const NewBoss = () => {
 
       const isTokenValid = await checkValidToken(response.status);
       
-      let data = null;
-
       if (isTokenValid) {
         data = await response.json();
 
@@ -56,15 +56,16 @@ const NewBoss = () => {
           setModalMessage("Boss created successfully!");
           setModalOpen(true);
         } else {
-          setModalMessage("Boss creation failed: " + (data.message || "Unknown error"));
+          setModalMessage("Boss creation failed: " + (data?.message || "Unknown error"));
           setModalOpen(true);
         }
       } else {
-        setModalMessage("Boss creation failed: " + (data.message || "Unknown error"));
+        setModalMessage("Boss creation failed: " + (data?.message || "Unknown error"));
         setModalOpen(true);
       }
     } catch (error) {
-      setModalMessage("Boss creation failed: " + (data.message || "Unknown error"));
+      console.error("Error creating boss:", error);
+      setModalMessage("Boss creation failed: " + (data?.message || "Unknown error"));
       setModalOpen(true);
     }
   };

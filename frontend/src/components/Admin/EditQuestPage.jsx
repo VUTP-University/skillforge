@@ -112,6 +112,7 @@ const EditQuestPage = ({ questId, onBack }) => {
         setModalOpen(true);
       }
     } catch (error) {
+      console.error("Error updating quest:", error);
       setModalMessage("An error occurred.");
       setModalOpen(true);
     }
