@@ -3,7 +3,6 @@ import { format } from "date-fns";
 
 const UserStats = ( {user} ) => {
   if (!user) return null;
-  console.log("User " + user.first_name);
   const formatDate = (dateString) => {
     if (!dateString) return 'Invalid date';
 
