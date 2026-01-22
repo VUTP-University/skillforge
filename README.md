@@ -60,6 +60,19 @@ cd backend
 source venv/bin/activate
 ```
 
+```bash
+# Installing and running the React+Vite frontend
+
+# Prerequisite: 
+# Make sure Node.js 20+ is installed
+# Make sure npm is installed
+
+cd frontend
+npm install -D # Install dependencies
+npm run dev   # Start the development server
+
+```
+
 ## 🤝 Contributing
 
 We welcome contributions from all UTP students! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) guide to learn about our development process, how to propose changes, and how to submit pull requests.
