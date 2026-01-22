@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import QuestsTable  from "../components/Quests/QuestsTable";

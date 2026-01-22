@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Layout/Navbar";
 import ProfileHeader from "../components/UserProfile/ProfileHeader";

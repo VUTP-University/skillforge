@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+
 import plugin from 'tailwindcss/plugin'
 
 /** @type {import('tailwindcss').Config} */

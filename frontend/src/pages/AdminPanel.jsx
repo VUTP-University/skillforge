@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import React, {useState, useEffect} from "react";
 import Navbar from "../components/Layout/Navbar";
 import { getAllQuests } from "../services/questsServices";

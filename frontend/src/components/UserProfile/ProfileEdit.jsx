@@ -1,4 +1,6 @@
 // ProfileEdit.js
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 import React, { useState } from 'react';
 
 const ProfileEdit = () => {
@@ -18,6 +20,7 @@ const ProfileEdit = () => {
 
   return (
     <div>PROFILE EDIT SECTION</div>
+
     // <div className="mt-8 p-6 bg-white rounded-lg shadow-md">
     //   <h3 className="text-2xl font-semibold">Edit Profile</h3>
     //   <div className="mt-4">
