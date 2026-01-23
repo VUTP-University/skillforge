@@ -34,6 +34,30 @@ git clone https://github.com/VUTP-University/skillforge.git
 cd skillforge
 
 # Follow specific setup instructions in backend/frontend directories (when available)
+
+# Activating virtual environment (venv)
+
+# Windows OS:
+# First installation and activation
+cd backend
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+
+# Subsequent activations
+cd backend
+.\venv\Scripts\activate
+
+# UNIX based OS (MAC or any Linux)
+# First installation and activation
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Subsequent activations
+cd backend
+source venv/bin/activate
 ```
 
 ## 🤝 Contributing
@@ -42,7 +66,7 @@ We welcome contributions from all UTP students! Please read our [CONTRIBUTING.md
 
 ### Quick Contribution Guide
 
-1. **Fork** the repository
+1. **Fork** the repository [Only if you are not a member of the organization. All members have write access and can clone and work with this repo)
 2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
 3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
 4. **Push** to the branch (`git push origin feature/AmazingFeature`)
