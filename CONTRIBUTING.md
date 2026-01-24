@@ -22,13 +22,13 @@ This project serves as a learning platform for UTP students to:
 
 ### 1. Setting Up Your Environment
 
-1. **Fork the repository** to your GitHub account
-2. **Clone your fork** locally:
+1. **Fork the repository** to your GitHub account **ONLY** if you are not a member of the VUTP GitHub organization
+2. **Clone the repo** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/skillforge.git
+   git clone https://github.com/VUTP-University/skillforge.git # or replace VUTP-University with your username if repo si forked
    cd skillforge
    ```
-3. **Add upstream remote**:
+3. **Add upstream remote**: # Only for forks
    ```bash
    git remote add upstream https://github.com/VUTP-University/skillforge.git
    ```
