@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
-from models/user import User
+from models.user import User
 from extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Auth Blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -28,10 +29,10 @@ def register():
 
     #Validate and hash password
     User.validate_password(password)
-    User.set_password(password)
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
 
-    new_user = User(email=email, password=password, username=username)
+    new_user = User(email=email, password=hashed_password, username=username)
 
     db.session.add(new_user)
     db.session.commit()

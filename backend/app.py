@@ -11,6 +11,14 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
+    from routes.auth_routes import auth_bp
+    app.register_blueprint(auth_bp)
+
+    with app.app_context():
+        from models.user import User
+        from models.user_stats import UserStats
+        db.create_all()
+
     return app
 
 
