@@ -1,9 +1,12 @@
 import logging
-from backend.extensions import db
+
 from flask import Blueprint, jsonify, request
-from backend.models.user import User
-from backend.models.user_stats import UserStats
 from werkzeug.security import generate_password_hash
+
+from backend.extensions import db
+from backend.models.user import User
+from backend.models.user_role import UserRole
+from backend.models.user_stats import UserStats
 
 # Auth Blueprint
 auth_bp = Blueprint("auth", __name__)
@@ -41,10 +44,11 @@ def register():
 
     hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
 
-    # Create new user and user stats
+    # Create new user, user stats, and user role
     try:
         new_user = User(email=email, password=hashed_password, username=username)
         new_user.stats = UserStats()
+        new_user.role = UserRole(user_id=new_user.id, role="User")
     except Exception as e:
         db.session.rollback()
         logger.error("Error creating new user: %s", e)

@@ -19,6 +19,7 @@ class User(db.Model):
 
     Relationships:
         stats (UserStats): One-to-one relationship with UserStats.
+        role (UserRole): One-to-one relationship with UserRole.
     """
 
     __tablename__ = "users"
@@ -37,6 +38,9 @@ class User(db.Model):
     # ------------
     stats = db.relationship(
         "UserStats", backref="user", uselist=False, cascade="all, delete-orphan"
+    )
+    role = db.relationship(
+        "UserRole", backref="user", uselist=False, cascade="all, delete-orphan"
     )
 
     def __init__(self, email, password, username):
