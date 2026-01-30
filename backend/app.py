@@ -1,7 +1,6 @@
-from flask import Flask
 from config import Config
 from extensions import db, jwt, migrate
-from models.user_stats import UserStats
+from flask import Flask
 
 
 def create_app():
