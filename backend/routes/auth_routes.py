@@ -1,8 +1,8 @@
 import logging
-from extensions import db
+from backend.extensions import db
 from flask import Blueprint, jsonify, request
-from models.user import User
-from models.user_stats import UserStats
+from backend.models.user import User
+from backend.models.user_stats import UserStats
 from werkzeug.security import generate_password_hash
 
 # Auth Blueprint
