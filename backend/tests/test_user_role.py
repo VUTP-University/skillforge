@@ -4,40 +4,37 @@ from backend.models.user import User
 from backend.models.user_role import UserRole
 
 
-def test_user_role_creation(app):
-    """Test creating a UserRole for a user"""
+@pytest.fixture
+def user(app):
+    """Fixture to create a test user"""
     with app.app_context():
-        # Create a user
         user = User(
             email="test@example.com", password="Test123!@#", username="testuser"
         )
         user.set_password("Test123!@#")
         db.session.add(user)
         db.session.commit()
+        yield user
 
-        # Create a role for the user
-        role = UserRole(id=user.id, role="User")
+
+def test_user_role_creation(app, user):
+    """Test creating a UserRole for a user"""
+    with app.app_context():
+        # Create a role for the user with a specific role value
+        role = UserRole(id=user.id, role="Admin")
         db.session.add(role)
         db.session.commit()
 
         # Verify the role was created
         retrieved_role = UserRole.query.filter_by(id=user.id).first()
         assert retrieved_role is not None
-        assert retrieved_role.role == "User"
+        assert retrieved_role.role == "Admin"
         assert retrieved_role.id == user.id
 
 
-def test_user_role_relationship(app):
+def test_user_role_relationship(app, user):
     """Test the 1:1 relationship between User and UserRole"""
     with app.app_context():
-        # Create a user
-        user = User(
-            email="test@example.com", password="Test123!@#", username="testuser"
-        )
-        user.set_password("Test123!@#")
-        db.session.add(user)
-        db.session.commit()
-
         # Create a role for the user
         role = UserRole(id=user.id, role="Admin")
         db.session.add(role)
@@ -81,17 +78,9 @@ def test_user_role_cascade_delete(app):
         assert retrieved_role is None
 
 
-def test_user_role_default_value(app):
+def test_user_role_default_value(app, user):
     """Test that UserRole has a default value of 'User'"""
     with app.app_context():
-        # Create a user
-        user = User(
-            email="test@example.com", password="Test123!@#", username="testuser"
-        )
-        user.set_password("Test123!@#")
-        db.session.add(user)
-        db.session.commit()
-
         # Create a role without specifying the role field
         role = UserRole(id=user.id)
         db.session.add(role)
@@ -102,17 +91,9 @@ def test_user_role_default_value(app):
         assert retrieved_role.role == "User"
 
 
-def test_user_role_primary_key_type(app):
+def test_user_role_primary_key_type(app, user):
     """Test that UserRole uses String(36) for primary key to match User.id"""
     with app.app_context():
-        # Create a user (id is UUID string)
-        user = User(
-            email="test@example.com", password="Test123!@#", username="testuser"
-        )
-        user.set_password("Test123!@#")
-        db.session.add(user)
-        db.session.commit()
-
         # Verify user.id is a string UUID
         assert isinstance(user.id, str)
         assert len(user.id) == 36  # UUID format

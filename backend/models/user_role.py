@@ -17,4 +17,4 @@ class UserRole(db.Model):
         db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
     role = db.Column(db.String(50), default="User", nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
