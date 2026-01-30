@@ -1,6 +1,6 @@
-from flask import Flask
 from config import Config
 from extensions import db, jwt, migrate
+from flask import Flask
 
 
 def create_app():
@@ -10,6 +10,13 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
+
+    from routes.auth_routes import auth_bp
+
+    app.register_blueprint(auth_bp)
+
+    with app.app_context():
+        db.create_all()
 
     return app
 
