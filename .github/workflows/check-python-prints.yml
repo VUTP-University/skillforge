@@ -31,7 +31,7 @@ jobs:
           echo "$changed_files"
 
           # Search for 'print(' in changed files
-          found=$(grep -nH "print(" $changed_files || true)
+          found=$(grep -nH -E '(^|[^a-zA-Z0-9_])print\s*\(' $changed_files || true)
 
           if [ -n "$found" ]; then
             echo "❌ Found print statements:"
