@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from models.user import User
 from extensions import db
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 # Auth Blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -20,12 +20,12 @@ def register():
     # Check if username already exists
     existing_user = User.query.filter_by(username=data['username']).first()
     if existing_user:
-        return jsonify({'error': 'Username already taken'}), 409
+        return jsonify({"error": "Username already taken"}), 409
     
     # Check if email already exists
     existing_email = User.query.filter_by(email=data['email']).first()
     if existing_email:
-        return jsonify({'error': 'Email already registered'}), 409
+        return jsonify({"error": "Email already registered"}), 409
 
     #Validate and hash password
     User.validate_password(password)

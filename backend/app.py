@@ -1,7 +1,7 @@
 from flask import Flask
 from config import Config
 from extensions import db, jwt, migrate
-
+from models.user_stats import UserStats
 
 def create_app():
     app = Flask(__name__)
@@ -15,8 +15,6 @@ def create_app():
     app.register_blueprint(auth_bp)
 
     with app.app_context():
-        from models.user import User
-        from models.user_stats import UserStats
         db.create_all()
 
     return app
