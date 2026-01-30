@@ -38,7 +38,7 @@ def register():
     except ValueError as ve:
         logger.error("Password validation error: %s", ve)
         return jsonify({"error": "Password does not meet criteria!"}), 400
-    
+
     hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
 
     # Create new user and user stats
