@@ -5,14 +5,13 @@ from flask import Flask
 
 def create_app(config_object=None):
     app = Flask(__name__)
-    
+
     # Default config
     app.config.from_object(Config)
-    
+
     # Override config (for tests)
     if config_object:
         app.config.update(config_object)
-
 
     db.init_app(app)
     jwt.init_app(app)
