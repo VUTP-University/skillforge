@@ -1,0 +1,17 @@
+{
+    "valid_user": {
+      "username": "testuser",
+      "email": "testuser@example.com",
+      "password": "StrongP@ssw0rd"
+    },
+    "weak_password": {
+      "username": "weakuser",
+      "email": "weak@example.com",
+      "password": "weak"
+    },
+    "missing_fields": {
+      "username": "",
+      "email": "missing@example.com",
+      "password": ""
+    }
+  }

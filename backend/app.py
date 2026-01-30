@@ -1,5 +1,5 @@
-from config import Config
-from extensions import db, jwt, migrate
+from backend.config import Config
+from backend.extensions import db, jwt, migrate
 from flask import Flask
 
 
@@ -11,7 +11,7 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
-    from routes.auth_routes import auth_bp
+    from backend.routes.auth_routes import auth_bp
 
     app.register_blueprint(auth_bp)
 
