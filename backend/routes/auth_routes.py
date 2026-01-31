@@ -3,7 +3,8 @@ from backend.extensions import db
 from flask import Blueprint, jsonify, request
 from backend.models.user import User
 from backend.models.user_stats import UserStats
-from werkzeug.security import generate_password_hash
+from backend.services import generate_token
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Auth Blueprint
 auth_bp = Blueprint("auth", __name__)
@@ -48,9 +49,35 @@ def register():
     except Exception as e:
         db.session.rollback()
         logger.error("Error creating new user: %s", e)
-        return jsonify({"error": "Error creating newuser"}), 500
+        return jsonify({"error": "Error creating new user"}), 500
 
     db.session.add(new_user)
     db.session.commit()
 
     return jsonify({"msg": "User registered successfully"}), 201
+
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    if (not username and not email) or not password:
+        return jsonify({"msg": "Missing required fields"}), 400
+
+    if username:
+        user = User.query.filter_by(username=username).first()
+    else:
+        user = User.query.filter_by(email=email).first()
+        
+
+    if user and check_password_hash(user.password, password):
+        token = generate_token(identity=user.id)
+        return jsonify({"token": token,
+                        "user_id": user.id,
+                        "email": user.email,
+                        "username": user.username}), 200
+    
+    return jsonify({"msg": "Invalid credentials"}), 401
