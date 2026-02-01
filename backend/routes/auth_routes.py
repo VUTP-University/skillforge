@@ -1,9 +1,10 @@
 import logging
 from backend.extensions import db
 from flask import Blueprint, jsonify, request
+from sqlalchemy import or_
 from backend.models.user import User
 from backend.models.user_stats import UserStats
-from backend.services import generate_token
+from backend.services import create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Auth Blueprint
@@ -44,7 +45,8 @@ def register():
 
     # Create new user and user stats
     try:
-        new_user = User(email=email, password=hashed_password, username=username)
+        new_user = User(email=email, password=hashed_password,
+                        username=username)
         new_user.stats = UserStats()
     except Exception as e:
         db.session.rollback()
@@ -60,30 +62,29 @@ def register():
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    username = data.get("username")
-    email = data.get("email")
+    identifier = data.get("identifier")
     password = data.get("password")
 
-    if (not username and not email) or not password:
+    if not identifier or not password:
         return jsonify({"msg": "Missing required fields"}), 400
 
-    if username:
-        user = User.query.filter_by(username=username).first()
-    else:
-        user = User.query.filter_by(email=email).first()
-
-    if user and check_password_hash(user.password, password):
-        token = generate_token(identity=user.id)
-        return (
-            jsonify(
-                {
-                    "token": token,
-                    "user_id": user.id,
-                    "email": user.email,
-                    "username": user.username,
-                }
-            ),
-            200,
+    user = User.query.filter(
+        or_(
+            User.username == identifier,
+            User.email == identifier,
         )
+    ).first()
 
-    return jsonify({"msg": "Invalid credentials"}), 401
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    access_token = create_access_token(identity=str(user.id))
+
+    return jsonify({
+        "access_token": access_token,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+    }), 200
