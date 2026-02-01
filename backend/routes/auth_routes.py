@@ -45,8 +45,7 @@ def register():
 
     # Create new user and user stats
     try:
-        new_user = User(email=email, password=hashed_password,
-                        username=username)
+        new_user = User(email=email, password=hashed_password, username=username)
         new_user.stats = UserStats()
     except Exception as e:
         db.session.rollback()
@@ -80,11 +79,16 @@ def login():
 
     access_token = create_access_token(identity=str(user.id))
 
-    return jsonify({
-        "access_token": access_token,
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-        }
-    }), 200
+    return (
+        jsonify(
+            {
+                "access_token": access_token,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                },
+            }
+        ),
+        200,
+    )
