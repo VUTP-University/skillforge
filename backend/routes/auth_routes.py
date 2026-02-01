@@ -1,9 +1,13 @@
 import logging
-from backend.extensions import db
+
 from flask import Blueprint, jsonify, request
+from sqlalchemy import or_
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from backend.extensions import db
 from backend.models.user import User
 from backend.models.user_stats import UserStats
-from werkzeug.security import generate_password_hash
+from backend.services import create_access_token
 
 # Auth Blueprint
 auth_bp = Blueprint("auth", __name__)
@@ -48,9 +52,51 @@ def register():
     except Exception as e:
         db.session.rollback()
         logger.error("Error creating new user: %s", e)
-        return jsonify({"error": "Error creating newuser"}), 500
+        return jsonify({"error": "Error creating new user"}), 500
 
     db.session.add(new_user)
     db.session.commit()
 
     return jsonify({"msg": "User registered successfully"}), 201
+
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    try:
+        data = request.get_json()
+        if data is None:
+            raise ValueError("Request must contain JSON")
+    except Exception:
+        return jsonify({"msg": "Unsupported request format"}), 415
+
+    identifier = data.get("identifier")
+    password = data.get("password")
+
+    if not identifier or not password:
+        return jsonify({"msg": "Missing required fields"}), 400
+
+    user = User.query.filter(
+        or_(
+            User.username == identifier,
+            User.email == identifier,
+        )
+    ).first()
+
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    access_token = create_access_token(identity=str(user.id))
+
+    return (
+        jsonify(
+            {
+                "access_token": access_token,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                },
+            }
+        ),
+        200,
+    )
