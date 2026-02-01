@@ -1,11 +1,13 @@
 import logging
-from backend.extensions import db
+
 from flask import Blueprint, jsonify, request
 from sqlalchemy import or_
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from backend.extensions import db
 from backend.models.user import User
 from backend.models.user_stats import UserStats
 from backend.services import create_access_token
-from werkzeug.security import generate_password_hash, check_password_hash
 
 # Auth Blueprint
 auth_bp = Blueprint("auth", __name__)
@@ -60,7 +62,13 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
+    try:
+        data = request.get_json()
+        if data is None:
+            raise ValueError("Request must contain JSON")
+    except Exception:
+        return jsonify({"msg": "Unsupported request format"}), 415
+
     identifier = data.get("identifier")
     password = data.get("password")
 
