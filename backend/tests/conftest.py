@@ -1,5 +1,7 @@
 import json
+
 import pytest
+
 from backend.app import create_app
 from backend.extensions import db
 
@@ -17,6 +19,11 @@ def app():
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            "SECRET_KEY": "secret",
+            "JWT_SECRET_KEY": "secret",
+            "JWT_ACCESS_TOKEN_EXPIRES": 3600,
+            "JWT_REFRESH_TOKEN_EXPIRES": 86400,
+            "JWT_TOKEN_LOCATION": ["cookies"],
         }
     )
 
