@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@codemirror/basic-setup": "^0.20.0",
-    "@codemirror/lang-cpp": "^6.0.2",
+    "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.3",
     "@codemirror/lang-python": "^6.2.0",
