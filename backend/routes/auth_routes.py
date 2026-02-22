@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from backend.extensions import db
 from backend.models.user import User
 from backend.models.user_stats import UserStats
-from backend.services import create_access_token
+from flask_jwt_extended import create_access_token
 
 # Auth Blueprint
 auth_bp = Blueprint("auth", __name__)
@@ -62,12 +62,9 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    try:
-        data = request.get_json()
-        if data is None:
-            raise ValueError("Request must contain JSON")
-    except Exception:
-        return jsonify({"msg": "Unsupported request format"}), 415
+    data = request.get_json()
+    if not data:
+        return jsonify({"msg": "Request must contain JSON"}), 415
 
     identifier = data.get("identifier")
     password = data.get("password")
@@ -87,16 +84,11 @@ def login():
 
     access_token = create_access_token(identity=str(user.id))
 
-    return (
-        jsonify(
-            {
-                "access_token": access_token,
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                },
-            }
-        ),
-        200,
-    )
+    return jsonify({
+        "access_token": access_token,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+    }), 200
