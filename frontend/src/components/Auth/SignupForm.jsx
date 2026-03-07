@@ -2,6 +2,9 @@ import { useState } from "react";
 import { signup } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 
+// Custom images
+import heroAvatar from "../../assets/img/hero_avatar.png";
+
 function EyeIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -26,7 +29,7 @@ const BrandLogo = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
       </svg>
     </div>
-    <span className="text-lg font-bold text-white tracking-tight">SkillForge</span>
+    <span className="text-lg font-bold text-white tracking-tight primary_text">Skill Forge</span>
   </div>
 );
 
@@ -37,7 +40,7 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
       </svg>
     ),
-    label: "Free to start — no credit card required",
+    label: "Always free, forever. No credit card required.",
   },
   {
     icon: (
@@ -53,7 +56,7 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
       </svg>
     ),
-    label: "Earn certificates to showcase your skills",
+    label: "Earn badges and compete with others",
   },
 ];
 
@@ -122,12 +125,12 @@ export default function SignupForm() {
 
         <div className="space-y-10">
           <div>
-            <h1 className="text-5xl font-bold text-white leading-tight mb-5">
+            <h1 className="text-5xl font-bold text-white leading-tight mb-5 primary_text">
               Start your journey.
               <br />
               <span className="text-[#03e9f4]">Level up fast.</span>
             </h1>
-            <p className="text-white/45 text-base leading-relaxed max-w-sm">
+            <p className="text-white/45 text-base leading-relaxed max-w-sm normal_text normal_text--medium">
               Create your free account and unlock a world of skills, projects, and a community that grows with you.
             </p>
           </div>
@@ -138,32 +141,38 @@ export default function SignupForm() {
                 <div className="w-8 h-8 rounded-lg bg-[#03e9f4]/10 border border-[#03e9f4]/15 flex items-center justify-center flex-shrink-0">
                   {feature.icon}
                 </div>
-                <span className="text-white/60 text-sm">{feature.label}</span>
+                <span className="text-white/60 text-sm normal_text normal_text--small">{feature.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-white/20 text-xs">© 2026 SkillForge. All rights reserved.</p>
+        <p className="text-white/20 text-xs normal_text normal_text--small">© 2026 Skill Forge. All rights reserved.</p>
       </div>
 
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
-        <div className="w-full max-w-[420px]">
+        <div className="w-full max-w-[420px] relative z-10">
+        <img
+          src={heroAvatar}
+          alt=""
+          aria-hidden="true"
+          className="absolute bottom-[-5%] right-[-55%] w-80 opacity-[0.5] pointer-events-none select-none object-contain"
+        />
           {/* Mobile logo */}
           <div className="flex lg:hidden mb-10">
             <BrandLogo />
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">Create an account</h2>
-            <p className="text-white/40 text-sm">It's free and only takes a minute.</p>
+            <h2 className="text-3xl font-bold text-white mb-2 primary_text">Create an account</h2>
+            <p className="text-white/40 text-sm normal_text normal_text--small">It's free and only takes a minute.</p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Username */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                 Username
               </label>
               <input
@@ -180,7 +189,7 @@ export default function SignupForm() {
             {/* First + Last name side by side */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+                <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                   First name
                 </label>
                 <input
@@ -194,7 +203,7 @@ export default function SignupForm() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+                <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                   Last name
                 </label>
                 <input
@@ -211,7 +220,7 @@ export default function SignupForm() {
 
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                 Email address
               </label>
               <input
@@ -227,7 +236,7 @@ export default function SignupForm() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                 Password
               </label>
               <div className="relative">
@@ -260,7 +269,7 @@ export default function SignupForm() {
                 required
                 className="w-4 h-4 mt-0.5 rounded accent-[#03e9f4] cursor-pointer flex-shrink-0"
               />
-              <label htmlFor="agree-terms" className="text-sm text-white/35 cursor-pointer select-none leading-snug">
+              <label htmlFor="agree-terms" className="text-sm text-white/35 cursor-pointer select-none leading-snug normal_text normal_text--small">
                 I agree to the{" "}
                 <a href="#" className="text-[#647eff] hover:text-[#8b9fff] transition-colors link_text">
                   Terms of Service
@@ -301,7 +310,7 @@ export default function SignupForm() {
               )}
             </button>
 
-            <p className="text-center text-sm text-white/30 pt-1">
+            <p className="text-center text-sm text-white/30 pt-1 normal_text normal_text--small">
               Already have an account?{" "}
               <a href="/" className="text-[#647eff] hover:text-[#8b9fff] transition-colors font-medium link_text">
                 Sign in here

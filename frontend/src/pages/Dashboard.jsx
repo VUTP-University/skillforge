@@ -104,11 +104,11 @@ export default function Dashboard() {
               <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest mb-3">
                 Dashboard
               </p>
-              <h1 className="text-4xl font-bold text-white mb-3 leading-tight">
+              <h1 className="text-4xl font-bold text-white mb-3 leading-tight normal_text normal_text--large">
                 Welcome back,{" "}
                 <span className="text-[#03e9f4]">{displayName}</span>
               </h1>
-              <p className="text-white/40 text-sm leading-relaxed max-w-lg">
+              <p className="text-white/40 text-sm leading-relaxed max-w-lg normal_text normal_text--medium">
                 Pick up where you left off. Your quests are waiting — keep
                 pushing your limits and climbing the leaderboard.
               </p>
@@ -128,7 +128,7 @@ export default function Dashboard() {
                   <p className="text-[#03e9f4] text-2xl font-bold leading-none">
                     {stat.value}
                   </p>
-                  <p className="text-white/35 text-[11px] mt-1.5 font-medium">
+                  <p className="text-white/35 text-[11px] mt-1.5 font-medium normal_text normal_text--small">
                     {stat.label}
                   </p>
                 </div>
