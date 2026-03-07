@@ -4,6 +4,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "../Layout/Modal";
 
+// Custom images
+import heroAvatar from "../../assets/img/hero_avatar.png";
+
 function EyeIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -28,7 +31,7 @@ const BrandLogo = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
       </svg>
     </div>
-    <span className="text-lg font-bold text-white tracking-tight">SkillForge</span>
+    <span className="text-lg font-bold text-white tracking-tight primary_text">Skill Forge</span>
   </div>
 );
 
@@ -39,7 +42,7 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
       </svg>
     ),
-    label: "500+ interactive courses across all levels",
+    label: "Variety of challenging quests to build real skills",
   },
   {
     icon: (
@@ -47,7 +50,7 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
       </svg>
     ),
-    label: "Real-world projects & coding challenges",
+    label: "Real time review and AI powered feedback on your code",
   },
   {
     icon: (
@@ -55,7 +58,7 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
       </svg>
     ),
-    label: "Vibrant community of 10,000+ developers",
+    label: "Progress tracking, achievements and leaderboards to keep you motivated",
   },
 ];
 
@@ -113,13 +116,13 @@ export default function LoginForm() {
 
         <div className="space-y-10">
           <div>
-            <h1 className="text-5xl font-bold text-white leading-tight mb-5">
+            <h1 className="text-5xl font-bold text-white leading-tight mb-5 primary_text">
               Master skills.
               <br />
               <span className="text-[#03e9f4]">Build the future.</span>
             </h1>
-            <p className="text-white/45 text-base leading-relaxed max-w-sm">
-              Join thousands of learners advancing their careers through interactive, hands-on courses.
+            <p className="text-white/45 text-base leading-relaxed max-w-sm normal_text normal_text--medium">
+              Solve challenging coding quests, get real-time feedback, and track your progress. Join a community of learners and level up your skills with SkillForge.
             </p>
           </div>
 
@@ -129,32 +132,39 @@ export default function LoginForm() {
                 <div className="w-8 h-8 rounded-lg bg-[#03e9f4]/10 border border-[#03e9f4]/15 flex items-center justify-center flex-shrink-0">
                   {feature.icon}
                 </div>
-                <span className="text-white/60 text-sm">{feature.label}</span>
+                <span className="text-white/60 text-sm normal_text normal_text--small">{feature.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-white/20 text-xs">© 2026 SkillForge. All rights reserved.</p>
+        <p className="text-white/20 text-xs normal_text normal_text--small">© 2026 Skill Forge. All rights reserved.</p>
       </div>
 
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
-        <div className="w-full max-w-[400px]">
+        {/* Hero avatar — decorative background, sits behind the form */}
+        <img
+          src={heroAvatar}
+          alt=""
+          aria-hidden="true"
+          className="absolute bottom-[20%] right-[8%] w-80 opacity-[0.5] pointer-events-none select-none object-contain"
+        />
+        <div className="w-full max-w-[400px] relative z-10">
           {/* Mobile logo */}
           <div className="flex lg:hidden mb-10">
             <BrandLogo />
           </div>
 
           <div className="mb-10">
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
-            <p className="text-white/40 text-sm">Sign in to continue your learning journey.</p>
+            <h2 className="text-3xl font-bold text-white mb-2 primary_text">Welcome back</h2>
+            <p className="text-white/40 text-sm normal_text normal_text--medium">Sign in to continue your learning journey.</p>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+              <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                 Email address
               </label>
               <input
@@ -171,7 +181,7 @@ export default function LoginForm() {
             {/* Password */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest">
+                <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-widest normal_text normal_text--small">
                   Password
                 </label>
                 <a
@@ -210,7 +220,7 @@ export default function LoginForm() {
                 type="checkbox"
                 className="w-4 h-4 rounded accent-[#03e9f4] cursor-pointer"
               />
-              <label htmlFor="remember-me" className="text-sm text-white/35 cursor-pointer select-none">
+              <label htmlFor="remember-me" className="text-sm text-white/35 cursor-pointer select-none normal_text normal_text--small">
                 Remember me
               </label>
             </div>
@@ -221,7 +231,7 @@ export default function LoginForm() {
                 <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
-                <span className="text-red-400 text-sm">{error}</span>
+                <span className="text-red-400 text-sm normal_text normal_text--small">{error}</span>
               </div>
             )}
 
@@ -244,7 +254,7 @@ export default function LoginForm() {
               )}
             </button>
 
-            <p className="text-center text-sm text-white/30 pt-1">
+            <p className="text-center text-sm text-white/30 pt-1 normal_text normal_text--small">
               Don't have an account?{" "}
               <a href="/signup" className="text-[#647eff] hover:text-[#8b9fff] transition-colors font-medium link_text">
                 Register here
