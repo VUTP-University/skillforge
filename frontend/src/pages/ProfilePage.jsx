@@ -65,7 +65,7 @@ const ProfilePage = () => {
           {/* Left column: ProfileHeader + Achievements */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
             <ProfileHeader user={user} avatarUrl={avatarUrl} />
-            <Achievements />
+            {/* <Achievements /> */}
           </div>
 
           {/* Right column: ProfileMain + UserStats */}

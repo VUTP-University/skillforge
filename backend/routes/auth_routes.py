@@ -1,6 +1,7 @@
 import logging
+import os
 
-from flask import Blueprint, jsonify, make_response, request
+from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -20,6 +21,21 @@ from backend.models.user_stats import UserStats
 auth_bp = Blueprint("auth", __name__)
 
 logger = logging.getLogger(__name__)
+
+
+def _set_default_avatar(user) -> None:
+    """Assign skill_forge_logo.png as the user's initial avatar."""
+    avatar_path = os.path.join(
+        current_app.root_path,          # backend/
+        "..", "frontend", "src", "assets", "img", "skill_forge_logo.png",
+    )
+    avatar_path = os.path.normpath(avatar_path)
+    try:
+        with open(avatar_path, "rb") as f:
+            user.avatar = f.read()
+            user.avatar_mime = "image/png"
+    except OSError:
+        logger.warning("Default avatar not found at %s — user created without avatar", avatar_path)
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -51,6 +67,7 @@ def register():
     try:
         new_user = User(email=email, password=hashed_password, username=username)
         new_user.stats = UserStats()
+        _set_default_avatar(new_user)
     except Exception as e:
         db.session.rollback()
         logger.error("Error creating new user: %s", e)
