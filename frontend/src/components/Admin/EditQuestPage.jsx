@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { editQuestById } from "../../services/questsServices";
 import CodeEditor from "../Layout/CodeEditor";
 import Modal from "../Layout/Modal";
-import { checkValidToken } from "../../services/authService";
+import { authFetch, checkValidToken } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 
 
 const EditQuestPage = ({ questId, onBack }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     quest_name: "",
     quest_language: "",
@@ -23,8 +25,6 @@ const EditQuestPage = ({ questId, onBack }) => {
   const [submitting, setSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const userId = localStorage.getItem("user_id");
-  const token = localStorage.getItem("token");
   const QUESTS_API = import.meta.env.VITE_QUESTS_SERVICE_URL;
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const EditQuestPage = ({ questId, onBack }) => {
         language: formData.quest_language,
         difficulty: formData.quest_difficulty,
         quest_name: formData.quest_name,
-        quest_author: userId,
+        quest_author: user?.id,
         condition: formData.quest_condition,
         example_solution: formData.example_solution,
         function_template: formData.function_template,
@@ -86,12 +86,8 @@ const EditQuestPage = ({ questId, onBack }) => {
         payload[`output_${i}`] = formData[`output_${i}`] || "";
       }
 
-      const response = await fetch(`${QUESTS_API}/quests/${questId}`, {
+      const response = await authFetch(`${QUESTS_API}/quests/${questId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
 

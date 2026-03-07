@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from "../Layout/Modal";
-import { checkValidToken } from '../../services/authService';
+import { authFetch, checkValidToken } from '../../services/authService';
 
 const NewBoss = () => {
   const UNDERWORLD_API_URL = import.meta.env.VITE_UNDERWORLD_SERVICE_URL;
@@ -31,12 +31,8 @@ const NewBoss = () => {
     let data;
 
     try {
-      const response = await fetch(`${UNDERWORLD_API_URL}/bosses`, {
+      const response = await authFetch(`${UNDERWORLD_API_URL}/bosses`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
         body: JSON.stringify({
           boss_name: formData.boss_name,
           boss_title: formData.boss_title,

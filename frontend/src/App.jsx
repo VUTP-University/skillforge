@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -6,30 +7,42 @@ import ProfilePage from "./pages/Profilepage";
 import LanguageQuestsPage from "./pages/LanguageQuestsPage";
 import QuestPage from "./pages/QuestPage";
 import AdminPanel from "./pages/AdminPanel";
-import Navbar from "./components/Layout/Navbar";
 import EditQuestPage from "./components/Admin/EditQuestPage";
 import UnderworldPage from "./pages/Underworld/Underworld";
 import BossChallengePage from "./pages/Underworld/BossChallenge";
+import LoadingSpinner from "./components/Layout/LoadingSpinner";
+
+/**
+ * Redirect to login if the user is not authenticated.
+ * Shows nothing (spinner) while the auth state is being resolved on first load.
+ */
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingSpinner />;
+  if (!user) return <Navigate to="/" replace />;
+  return children;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        {/* Users Routes */}
-        <Route path="/profile" element={<ProfilePage />} />
-        {/* Quests Routes */}
-        <Route path="/quests/:language" element={<LanguageQuestsPage />} />
-        <Route path="/quest/:questId" element={<QuestPage />} />
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/admin/edit_quest/:questId" element={<EditQuestPage />} />
-        {/* Underworld Routes */}
-        <Route path="/underworld" element={<UnderworldPage />} />
-        <Route path="/underworld/challenge/:bossId" element={<BossChallengePage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Protected routes */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/quests/:language" element={<ProtectedRoute><LanguageQuestsPage /></ProtectedRoute>} />
+          <Route path="/quest/:questId" element={<ProtectedRoute><QuestPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin/edit_quest/:questId" element={<ProtectedRoute><EditQuestPage /></ProtectedRoute>} />
+          <Route path="/underworld" element={<ProtectedRoute><UnderworldPage /></ProtectedRoute>} />
+          <Route path="/underworld/challenge/:bossId" element={<ProtectedRoute><BossChallengePage /></ProtectedRoute>} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
