@@ -24,7 +24,8 @@ def test_register_duplicate_username(client, test_data):
     client.post("/api/register", json=test_data["valid_user"])
 
     res = client.post(
-        "/api/register", json={**test_data["valid_user"], "email": "another@example.com"}
+        "/api/register",
+        json={**test_data["valid_user"], "email": "another@example.com"},
     )
 
     assert res.status_code == 409

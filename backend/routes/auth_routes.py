@@ -26,8 +26,13 @@ logger = logging.getLogger(__name__)
 def _set_default_avatar(user) -> None:
     """Assign skill_forge_logo.png as the user's initial avatar."""
     avatar_path = os.path.join(
-        current_app.root_path,          # backend/
-        "..", "frontend", "src", "assets", "img", "skill_forge_logo.png",
+        current_app.root_path,  # backend/
+        "..",
+        "frontend",
+        "src",
+        "assets",
+        "img",
+        "skill_forge_logo.png",
     )
     avatar_path = os.path.normpath(avatar_path)
     try:
@@ -35,7 +40,9 @@ def _set_default_avatar(user) -> None:
             user.avatar = f.read()
             user.avatar_mime = "image/png"
     except OSError:
-        logger.warning("Default avatar not found at %s — user created without avatar", avatar_path)
+        logger.warning(
+            "Default avatar not found at %s — user created without avatar", avatar_path
+        )
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -105,14 +112,16 @@ def login():
     refresh_token = create_refresh_token(identity=str(user.id))
 
     response = make_response(
-        jsonify({
-            "msg": "Login successful",
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-            },
-        }),
+        jsonify(
+            {
+                "msg": "Login successful",
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                },
+            }
+        ),
         200,
     )
     # Tokens are stored in HttpOnly cookies — never exposed to JavaScript
@@ -146,8 +155,13 @@ def me():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-    }), 200
+    return (
+        jsonify(
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+            }
+        ),
+        200,
+    )
