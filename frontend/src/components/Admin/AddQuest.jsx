@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import "github-markdown-css/github-markdown.css";
 import CodeEditor from "../Layout/CodeEditor";
 import Modal from "../Layout/Modal";
-import { checkValidToken } from "../../services/authService";
+import { authFetch, checkValidToken } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 
 const AddQuest = () => {
-  const userId = localStorage.getItem("userId");
+  const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const QUEST_API = import.meta.env.VITE_QUESTS_SERVICE_URL;
@@ -36,7 +37,7 @@ const AddQuest = () => {
         language: formData.quest_language,
         difficulty: formData.quest_difficulty,
         quest_name: formData.quest_name,
-        quest_author: userId,
+        quest_author: user?.id,
         condition: formData.quest_condition,
         function_template: formData.function_template,
         example_solution: formData.example_solution,
@@ -49,12 +50,8 @@ const AddQuest = () => {
         payload[`output_${i}`] = formData[`output_${i}`] || "";
       }
       
-      const response = await fetch(`${QUEST_API}/quests`, {
+      const response = await authFetch(`${QUEST_API}/quests`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
         body: JSON.stringify(payload),
       });
 

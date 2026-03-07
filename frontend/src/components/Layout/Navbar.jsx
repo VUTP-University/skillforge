@@ -4,34 +4,35 @@ import { getAvatarUrl } from "../../services/useAvatarUrl";
 import "../../assets/styling/navbar.css";
 import { FiSettings } from "react-icons/fi";
 import skillForgeLogo from "../../assets/img/skill_forge_logo.png";
-
-
+import { useAuth } from "../../context/AuthContext";
 
 const USER_API = import.meta.env.VITE_USERS_SERVICE_URL;
 
 export default function Navbar() {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+  const { user, logout } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState(null);
 
-
   useEffect(() => {
-    if (userId) {
-      getAvatarUrl(userId, token, USER_API).then((url) => {
+    if (user?.id) {
+      getAvatarUrl(user.id, null, USER_API).then((url) => {
         setAvatarUrl(url);
       });
     }
-  }, [token, userId]);
+  }, [user]);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <nav className="p-0 flex justify-between items-center navbar_bg">
       <div className="font-bold text-lg">
         <Link to="/dashboard" className="p-0 flex flow-row secondary_text">
-        <img src={skillForgeLogo} alt="Skill Forge Logo" className="w-12 h-12 inline-block ml-2 mr-4" />
-        <p className="p-0 secondary_text">Skill Forge</p>
+          <img src={skillForgeLogo} alt="Skill Forge Logo" className="w-12 h-12 inline-block ml-2 mr-4" />
+          <p className="p-0 secondary_text">Skill Forge</p>
         </Link>
       </div>
-      <div className="space-x-5 flex flex-row">
+      <div className="space-x-5 flex flex-row items-center">
         <Link to="/admin" className="text-xl">
           <FiSettings className="text-2xl w-10 h-10" title="Admin Panel" />
         </Link>
@@ -44,6 +45,15 @@ export default function Navbar() {
             />
           )}
         </Link>
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="text-sm px-3 py-1 rounded secondary_text hover:opacity-75"
+            title="Log out"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );

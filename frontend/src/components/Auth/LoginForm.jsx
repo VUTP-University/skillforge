@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "../Layout/Modal";
 
 export default function LoginForm() {
   const location = useLocation();
+  const { login: authLogin } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [form, setForm] = useState({ email: "", password: "" });
@@ -22,13 +22,10 @@ export default function LoginForm() {
     setError(null);
 
     try {
+      // Tokens are stored in HttpOnly cookies by the backend — never in localStorage
       const response = await login(form);
-      localStorage.setItem("token", response.access_token);
-      localStorage.setItem("refresh_token", response.refresh_token)
-      localStorage.setItem("userId", response.user_id);
-      // alert("Login successful"); // Debug only!
+      authLogin(response.user);
       navigate("/dashboard");
-
     } catch (err) {
       setError(err.message);
     }

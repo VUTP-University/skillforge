@@ -1,15 +1,22 @@
 import logging
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, make_response, request
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
+    set_access_cookies,
+    set_refresh_cookies,
+    unset_jwt_cookies,
+)
 from sqlalchemy import or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from backend.extensions import db
 from backend.models.user import User
 from backend.models.user_stats import UserStats
-from flask_jwt_extended import create_access_token
 
-# Auth Blueprint
 auth_bp = Blueprint("auth", __name__)
 
 logger = logging.getLogger(__name__)
@@ -22,21 +29,17 @@ def register():
     email = data.get("email")
     password = data.get("password")
 
-    # Check if fields are empty
     if not username or not email or not password:
         return jsonify({"msg": "Missing required fields"}), 400
 
-    # Check if username already exists
     existing_user = User.query.filter_by(username=data["username"]).first()
     if existing_user:
         return jsonify({"error": "Username already taken"}), 409
 
-    # Check if email already exists
     existing_email = User.query.filter_by(email=data["email"]).first()
     if existing_email:
         return jsonify({"error": "Email already registered"}), 409
 
-    # Validate and hash password
     try:
         User.validate_password(password)
     except ValueError as ve:
@@ -45,7 +48,6 @@ def register():
 
     hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
 
-    # Create new user and user stats
     try:
         new_user = User(email=email, password=hashed_password, username=username)
         new_user.stats = UserStats()
@@ -64,7 +66,7 @@ def register():
 def login():
     data = request.get_json()
     if not data:
-        return jsonify({"msg": "Request must contain JSON"}), 415
+        return jsonify({"msg": "Unsupported request format"}), 415
 
     identifier = data.get("identifier")
     password = data.get("password")
@@ -83,12 +85,52 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+
+    response = make_response(
+        jsonify({
+            "msg": "Login successful",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+            },
+        }),
+        200,
+    )
+    # Tokens are stored in HttpOnly cookies — never exposed to JavaScript
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+    return response
+
+
+@auth_bp.route("/logout", methods=["POST"])
+def logout():
+    response = make_response(jsonify({"msg": "Logout successful"}), 200)
+    unset_jwt_cookies(response)
+    return response
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity)
+    response = make_response(jsonify({"msg": "Token refreshed"}), 200)
+    set_access_cookies(response, access_token)
+    return response
+
+
+@auth_bp.route("/me", methods=["GET"])
+@jwt_required()
+def me():
+    user_id = get_jwt_identity()
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
     return jsonify({
-        "access_token": access_token,
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-        }
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
     }), 200
