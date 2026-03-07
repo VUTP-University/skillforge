@@ -88,8 +88,8 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    if not data:
+    data = request.get_json(silent=True)
+    if data is None:
         return jsonify({"msg": "Unsupported request format"}), 415
 
     identifier = data.get("identifier")
