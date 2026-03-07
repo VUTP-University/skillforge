@@ -16,6 +16,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from backend.extensions import db
 from backend.models.user import User
+from backend.models.user_role import UserRole
 from backend.models.user_stats import UserStats
 
 auth_bp = Blueprint("auth", __name__)
