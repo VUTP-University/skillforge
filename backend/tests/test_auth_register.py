@@ -39,7 +39,7 @@ def test_register_user_role(client, app, test_data):
     """
     Test registration and User role assignment.
     """
-    res = client.post("/register", json=test_data["valid_user"])
+    res = client.post("/api/register", json=test_data["valid_user"])
     assert res.status_code == 201
 
     with app.app_context():

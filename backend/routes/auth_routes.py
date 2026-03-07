@@ -75,6 +75,7 @@ def register():
     try:
         new_user = User(email=email, password=hashed_password, username=username)
         new_user.stats = UserStats()
+        new_user.role = UserRole()
         _set_default_avatar(new_user)
     except Exception as e:
         db.session.rollback()
