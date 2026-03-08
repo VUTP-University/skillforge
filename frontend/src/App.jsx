@@ -35,6 +35,14 @@ function PublicRoute({ children }) {
   return children;
 }
 
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingSpinner />;
+  if (!user) return <Navigate to="/" replace />;
+  if (user.role !== "Admin") return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -49,8 +57,8 @@ export default function App() {
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/quests/:language" element={<ProtectedRoute><LanguageQuestsPage /></ProtectedRoute>} />
           <Route path="/quest/:questId" element={<ProtectedRoute><QuestPage /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
-          <Route path="/admin/edit_quest/:questId" element={<ProtectedRoute><EditQuestPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+          <Route path="/admin/edit_quest/:questId" element={<AdminRoute><EditQuestPage /></AdminRoute>} />
           <Route path="/underworld" element={<ProtectedRoute><UnderworldPage /></ProtectedRoute>} />
           <Route path="/underworld/challenge/:bossId" element={<ProtectedRoute><BossChallengePage /></ProtectedRoute>} />
         </Routes>

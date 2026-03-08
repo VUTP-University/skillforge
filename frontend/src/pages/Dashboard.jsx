@@ -187,10 +187,10 @@ export default function Dashboard() {
                       <h3 className="text-white font-bold text-base leading-tight">
                         {lang.name}
                       </h3>
-                      <p className="text-white/45 text-xs mt-1 normal_text normal_text--small">
+                      <p className="text-white/75 text-xs mt-1">
                         {lang.description}
                       </p>
-                      <div className="flex items-center gap-1.5 mt-3.5 text-white/35 group-hover:text-white/65 transition-colors duration-200 text-xs font-medium normal_text normal_text--small">
+                      <div className="flex items-center gap-1.5 mt-3.5 text-white/75 group-hover:text-white/65 transition-colors duration-200 text-xs font-medium">
                         <span>Start quest</span>
                         <ArrowIcon />
                       </div>

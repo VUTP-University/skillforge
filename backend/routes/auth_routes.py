@@ -121,11 +121,13 @@ def login():
                     "id": user.id,
                     "username": user.username,
                     "email": user.email,
+                    "role": user.role.role if user.role else "User",
                 },
             }
         ),
         200,
     )
+    
     # Tokens are stored in HttpOnly cookies — never exposed to JavaScript
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
@@ -156,13 +158,13 @@ def me():
     user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
-
     return (
         jsonify(
             {
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
+                "role": user.role.role if user.role else "User",
             }
         ),
         200,
