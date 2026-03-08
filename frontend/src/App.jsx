@@ -14,7 +14,7 @@ import LoadingSpinner from "./components/Layout/LoadingSpinner";
 
 /**
  * Redirect to login if the user is not authenticated.
- * Shows nothing (spinner) while the auth state is being resolved on first load.
+ * Shows a spinner while the auth state is being resolved on first load.
  */
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -23,14 +23,26 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+/**
+ * Redirect to dashboard if the user is already authenticated.
+ * Prevents authenticated users from seeing the login/signup pages.
+ * Shows a spinner while auth state is resolving to avoid a flash of the form.
+ */
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingSpinner />;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          {/* Public routes — redirect to dashboard if already authenticated */}
+          <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
 
           {/* Protected routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -79,13 +79,26 @@ export async function logout() {
 
 /**
  * Fetch the currently authenticated user from the backend.
- * Returns the user object or null if not authenticated.
+ * If the access token is expired (401), attempts a silent refresh before
+ * giving up. Returns the user object or null if not authenticated.
  */
 export async function getCurrentUser() {
-  const res = await fetch(`${API_BASE}/me`, {
+  let res = await fetch(`${API_BASE}/me`, {
     method: 'GET',
     credentials: 'include',
   });
+
+  if (res.status === 401) {
+    // Access token expired — try to get a new one from the refresh token
+    const refreshed = await refreshToken();
+    if (!refreshed) return null;
+    // Retry with the fresh access token cookie
+    res = await fetch(`${API_BASE}/me`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+  }
+
   if (!res.ok) return null;
   return res.json(); // { id, username, email }
 }

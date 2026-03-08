@@ -1,6 +1,10 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Layout/Navbar";
 import { useAuth } from "../context/AuthContext";
+import { getUserById } from "../services/usersService";
+
+const TOTAL_QUESTS = 30; // 11 Python + 7 JS + 8 Java + 4 C#
 
 const languages = [
   {
@@ -24,7 +28,7 @@ const languages = [
     path: "/quests/Java",
     image: "src/assets/img/achievements-icons/Java/java-5.png",
     buttonClass: "java_button",
-    description: "Enterprise & Android",
+    description: "Enterprise, Android & more",
     quests: 8,
   },
   {
@@ -60,7 +64,7 @@ const sections = [
 
 function SectionDivider({ title }) {
   return (
-    <div className="flex items-center gap-4 mb-6">
+    <div className="flex items-center gap-4 mb-6 normal_text normal_text--medium">
       <h2 className="text-lg font-semibold text-white whitespace-nowrap">{title}</h2>
       <div className="flex-1 h-px bg-white/[0.07]" />
     </div>
@@ -85,6 +89,26 @@ export default function Dashboard() {
   const { user } = useAuth();
   const displayName = user?.username || "Adventurer";
 
+  const [userStats, setUserStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getUserById(user.id)
+      .then(setUserStats)
+      .catch(() => setUserStats(null))
+      .finally(() => setStatsLoading(false));
+  }, [user?.id]);
+
+  const xp = userStats?.xp ?? 0;
+  const level = userStats?.level ?? 1;
+  const rank = userStats?.rank ?? "—";
+  const levelPct = userStats?.level_percentage ?? 0;
+  const nextLevelXp = level * 1000;
+  const xpToGo = nextLevelXp - xp;
+  const completed = userStats?.total_solved_quests ?? 0;
+  const completedPct = Math.round((completed / TOTAL_QUESTS) * 100);
+
   return (
     <>
       <Navbar />
@@ -101,31 +125,27 @@ export default function Dashboard() {
           {/* ── Hero ── */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
             <div>
-              <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest mb-3">
-                Dashboard
-              </p>
               <h1 className="text-4xl font-bold text-white mb-3 leading-tight normal_text normal_text--large">
                 Welcome back,{" "}
-                <span className="text-[#03e9f4]">{displayName}</span>
+                <span className="text-[#03e9f4]">{displayName}</span> 
               </h1>
               <p className="text-white/40 text-sm leading-relaxed max-w-lg normal_text normal_text--medium">
-                Pick up where you left off. Your quests are waiting — keep
-                pushing your limits and climbing the leaderboard.
+                Your coding journey continues! Choose a quest to level up your skills, track your progress, and compete on the leaderboard. The adventure awaits!
               </p>
             </div>
 
             {/* Quick stats */}
             <div className="flex gap-3 flex-shrink-0">
               {[
-                { label: "XP Points", value: "1,200" },
-                { label: "Completed", value: "15" },
-                { label: "Rank", value: "#24" },
+                { label: "XP Points", value: statsLoading ? "…" : xp.toLocaleString() },
+                { label: "Completed", value: statsLoading ? "…" : String(completed) },
+                { label: "Rank", value: statsLoading ? "…" : rank },
               ].map((stat) => (
                 <div
                   key={stat.label}
                   className="primary_object border border-white/[0.07] rounded-2xl px-5 py-4 text-center min-w-[88px]"
                 >
-                  <p className="text-[#03e9f4] text-2xl font-bold leading-none">
+                  <p className="text-[#03e9f4] text-2xl font-bold leading-none secondary_text">
                     {stat.value}
                   </p>
                   <p className="text-white/35 text-[11px] mt-1.5 font-medium normal_text normal_text--small">
@@ -143,13 +163,13 @@ export default function Dashboard() {
               {languages.map((lang) => (
                 <Link key={lang.name} to={lang.path}>
                   <div
-                    className={`group relative h-56 rounded-2xl overflow-hidden primary_object border border-white/[0.07] cursor-pointer ${lang.buttonClass}`}
+                    className={`group relative h-45 rounded-2xl overflow-hidden primary_object cursor-pointer ${lang.buttonClass}`}
                   >
                     {/* Background image */}
                     <img
                       src={lang.image}
                       alt={lang.name}
-                      className="absolute inset-0 w-full h-full object-cover opacity-[0.18] group-hover:opacity-[0.28] transition-opacity duration-300"
+                      className="absolute inset-0 w-full h-full object-cover opacity-[0.5] group-hover:opacity-[0.4] transition-opacity duration-400"
                     />
 
                     {/* Bottom gradient */}
@@ -157,7 +177,7 @@ export default function Dashboard() {
 
                     {/* Quest count badge */}
                     <div className="absolute top-3.5 right-3.5 bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg px-2.5 py-1">
-                      <span className="text-white/55 text-[11px] font-medium">
+                      <span className="text-white/55 text-[11px] font-medium normal_text normal_text--small">
                         {lang.quests} quests
                       </span>
                     </div>
@@ -167,10 +187,10 @@ export default function Dashboard() {
                       <h3 className="text-white font-bold text-base leading-tight">
                         {lang.name}
                       </h3>
-                      <p className="text-white/45 text-xs mt-1">
+                      <p className="text-white/45 text-xs mt-1 normal_text normal_text--small">
                         {lang.description}
                       </p>
-                      <div className="flex items-center gap-1.5 mt-3.5 text-white/35 group-hover:text-white/65 transition-colors duration-200 text-xs font-medium">
+                      <div className="flex items-center gap-1.5 mt-3.5 text-white/35 group-hover:text-white/65 transition-colors duration-200 text-xs font-medium normal_text normal_text--small">
                         <span>Start quest</span>
                         <ArrowIcon />
                       </div>
@@ -226,7 +246,9 @@ export default function Dashboard() {
                 <div className="flex items-start justify-between mb-5">
                   <div>
                     <h4 className="text-white font-semibold text-sm">XP Points</h4>
-                    <p className="text-white/35 text-xs mt-1">1,200 / 1,500 XP</p>
+                    <p className="text-white/75 text-xs mt-1">
+                      {statsLoading ? "Loading…" : `${xp.toLocaleString()} / ${nextLevelXp.toLocaleString()} XP`}
+                    </p>
                   </div>
                   <div className="w-9 h-9 rounded-xl bg-[#03e9f4]/10 border border-[#03e9f4]/20 flex items-center justify-center flex-shrink-0">
                     <svg
@@ -246,16 +268,20 @@ export default function Dashboard() {
                 </div>
                 <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full"
+                    className="h-full rounded-full transition-all duration-700"
                     style={{
-                      width: "80%",
+                      width: `${levelPct}%`,
                       background: "linear-gradient(90deg, #03e9f4, #0284c7)",
                     }}
                   />
                 </div>
                 <div className="flex justify-between mt-2.5">
-                  <span className="text-[#03e9f4] text-xs font-medium">80% to next level</span>
-                  <span className="text-white/25 text-xs">300 XP to go</span>
+                  <span className="text-[#03e9f4] text-xs font-medium">
+                    {statsLoading ? "—" : `${levelPct}% to level ${level + 1}`}
+                  </span>
+                  <span className="text-white/75 text-xs">
+                    {statsLoading ? "" : `${xpToGo.toLocaleString()} XP to go`}
+                  </span>
                 </div>
               </div>
 
@@ -264,7 +290,9 @@ export default function Dashboard() {
                 <div className="flex items-start justify-between mb-5">
                   <div>
                     <h4 className="text-white font-semibold text-sm">Completed Challenges</h4>
-                    <p className="text-white/35 text-xs mt-1">15 of 20 completed</p>
+                    <p className="text-white/75 text-xs mt-1">
+                      {statsLoading ? "Loading…" : `${completed} of ${TOTAL_QUESTS} completed`}
+                    </p>
                   </div>
                   <div className="w-9 h-9 rounded-xl bg-[#03e9f4]/10 border border-[#03e9f4]/20 flex items-center justify-center flex-shrink-0">
                     <svg
@@ -284,16 +312,20 @@ export default function Dashboard() {
                 </div>
                 <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full"
+                    className="h-full rounded-full transition-all duration-700"
                     style={{
-                      width: "75%",
+                      width: `${completedPct}%`,
                       background: "linear-gradient(90deg, #03e9f4, #0284c7)",
                     }}
                   />
                 </div>
                 <div className="flex justify-between mt-2.5">
-                  <span className="text-[#03e9f4] text-xs font-medium">75% complete</span>
-                  <span className="text-white/25 text-xs">5 remaining</span>
+                  <span className="text-[#03e9f4] text-xs font-medium">
+                    {statsLoading ? "—" : `${completedPct}% complete`}
+                  </span>
+                  <span className="text-white/75 text-xs">
+                    {statsLoading ? "" : `${TOTAL_QUESTS - completed} remaining`}
+                  </span>
                 </div>
               </div>
             </div>
