@@ -5,6 +5,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from backend.extensions import db
 from backend.models.user import User
+from backend.models.user_stats import UserStats
 
 users_bp = Blueprint("users", __name__)
 logger = logging.getLogger(__name__)
@@ -155,3 +156,30 @@ def update_avatar(user_id):
     db.session.commit()
     logger.info("Avatar updated for user %s", user_id)
     return jsonify({"msg": "Avatar updated"}), 200
+
+
+@users_bp.route("/leaderboard", methods=["GET"])
+@jwt_required()
+def get_leaderboard():
+    results = (
+        db.session.query(User, UserStats)
+        .join(UserStats, User.id == UserStats.id)
+        .order_by(UserStats.xp.desc())
+        .limit(50)
+        .all()
+    )
+
+    leaderboard = [
+        {
+            "position": pos,
+            "user_id": user.id,
+            "username": user.username,
+            "xp": stats.xp,
+            "level": stats.level,
+            "rank": stats.rank,
+            "level_percentage": min(int((stats.xp % 1000) / 10), 100),
+        }
+        for pos, (user, stats) in enumerate(results, start=1)
+    ]
+
+    return jsonify(leaderboard), 200

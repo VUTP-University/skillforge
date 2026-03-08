@@ -8,6 +8,7 @@ import LanguageQuestsPage from "./pages/LanguageQuestsPage";
 import QuestPage from "./pages/QuestPage";
 import AdminPanel from "./pages/AdminPanel";
 import EditQuestPage from "./components/Admin/EditQuestPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import UnderworldPage from "./pages/Underworld/Underworld";
 import BossChallengePage from "./pages/Underworld/BossChallenge";
 import LoadingSpinner from "./components/Layout/LoadingSpinner";
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/quest/:questId" element={<ProtectedRoute><QuestPage /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
           <Route path="/admin/edit_quest/:questId" element={<AdminRoute><EditQuestPage /></AdminRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
           <Route path="/underworld" element={<ProtectedRoute><UnderworldPage /></ProtectedRoute>} />
           <Route path="/underworld/challenge/:bossId" element={<ProtectedRoute><BossChallengePage /></ProtectedRoute>} />
         </Routes>
