@@ -15,6 +15,12 @@ export async function getAvatarUrl(userId) {
   return URL.createObjectURL(blob);
 }
 
+export async function getLeaderboard() {
+  const res = await authFetch(`${USER_API}/leaderboard`);
+  if (!res.ok) throw new Error('Failed to fetch leaderboard');
+  return res.json();
+}
+
 export async function updateUser(userId, formData) {
   const res = await authFetch(`${USER_API}/update_user/${userId}`, {
     method: 'PUT',
