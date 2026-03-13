@@ -1,0 +1,6 @@
+pip~=25.0.1
+wheel~=0.45.1
+zipp~=3.19.2
+platformdirs~=4.2.2
+tomli~=2.0.1
+packaging~=24.2

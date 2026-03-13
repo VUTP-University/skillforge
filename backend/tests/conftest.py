@@ -21,9 +21,8 @@ def app():
             "SQLALCHEMY_TRACK_MODIFICATIONS": False,
             "SECRET_KEY": "secret",
             "JWT_SECRET_KEY": "secret",
-            "JWT_ACCESS_TOKEN_EXPIRES": 3600,
-            "JWT_REFRESH_TOKEN_EXPIRES": 86400,
             "JWT_TOKEN_LOCATION": ["cookies"],
+            "JWT_COOKIE_CSRF_PROTECT": False,  # disable CSRF double-submit in tests
         }
     )
 

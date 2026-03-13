@@ -20,13 +20,18 @@ def test_login_success(client, app):
 
     # Attempt to log in
     res = client.post(
-        "/login", json={"identifier": "testuser", "password": "StrongPassword123!"}
+        "/api/login", json={"identifier": "testuser", "password": "StrongPassword123!"}
     )
     assert res.status_code == 200
     data = res.get_json()
-    assert "access_token" in data
+    # Tokens are now stored in HttpOnly cookies, not returned in the body
+    assert "access_token" not in data
     assert data["user"]["username"] == "testuser"
     assert data["user"]["email"] == "testuser@example.com"
+    # Confirm the access token cookie was set
+    set_cookie_headers = res.headers.getlist("Set-Cookie")
+    assert any("access_token_cookie" in c for c in set_cookie_headers)
+    assert any("refresh_token_cookie" in c for c in set_cookie_headers)
 
 
 def test_login_invalid_credentials(client, app):
@@ -46,7 +51,7 @@ def test_login_invalid_credentials(client, app):
 
     # Attempt to log in with the wrong password
     res = client.post(
-        "/login", json={"identifier": "testuser", "password": "WrongPassword456"}
+        "/api/login", json={"identifier": "testuser", "password": "WrongPassword456"}
     )
     assert res.status_code == 401
     data = res.get_json()
@@ -56,7 +61,7 @@ def test_login_invalid_credentials(client, app):
 def test_login_nonexistent_user(client):
     # Attempt to log in with a username that does not exist
     res = client.post(
-        "/login", json={"identifier": "nonexistentuser", "password": "password123"}
+        "/api/login", json={"identifier": "nonexistentuser", "password": "password123"}
     )
     assert res.status_code == 401
     data = res.get_json()
@@ -65,13 +70,13 @@ def test_login_nonexistent_user(client):
 
 def test_login_missing_fields(client):
     # Attempt to log in with missing fields (only a password provided)
-    res = client.post("/login", json={"password": "password123"})
+    res = client.post("/api/login", json={"password": "password123"})
     assert res.status_code == 400
     data = res.get_json()
     assert "Missing required fields" in data["msg"]
 
     # Attempt to log in with only the identifier provided
-    res2 = client.post("/login", json={"identifier": "testuser"})
+    res2 = client.post("/api/login", json={"identifier": "testuser"})
     assert res2.status_code == 400
     data2 = res2.get_json()
     assert "Missing required fields" in data2["msg"]
@@ -79,13 +84,13 @@ def test_login_missing_fields(client):
 
 def test_login_empty_payload(client):
     # Attempt to log in with no body at all
-    res = client.post("/login", json={})
+    res = client.post("/api/login", json={})
     assert res.status_code == 400
     data = res.get_json()
     assert "Missing required fields" in data["msg"]
 
     # Attempt to log in with no JSON body
-    res2 = client.post("/login")  # No JSON content at all
+    res2 = client.post("/api/login")  # No JSON content at all
     assert res2.status_code == 415  # Unsupported Media Type
     data2 = res2.get_json()
     assert "Unsupported request format" in data2["msg"]

@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @import "tailwindcss";
 
+/* @import url('https://fonts.googleapis.com/css2?family=Galdeano&display=swap'); */
 
 
 :root {
@@ -19,11 +21,11 @@
   --color-accent: #03e9f4;
   --color-text: #03e9f4;
   --color-text-secondary: #ffffff;
-  --color-text-link: #647eff;
+  --color-text-link: #03e9f4;
   --color-primary-object: #ff0303;
   --color-primary-object-snd: #212529;
 
-  --font-primary: "Barlow", sans-serif;
+  --font-primary: "Roboto Slab", serif;
   
 
   font-synthesis: none;
@@ -34,11 +36,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--color-text-link);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--color-accent);
 }
 
 body {
@@ -46,9 +48,6 @@ body {
   padding: 0;
   font-size: 16px;
   line-height: 1.5;
-  color: var(--color-text);
-  background-color: var(--color-primary-object-snd);
-  
 }
 
 h1 {
@@ -97,7 +96,7 @@ button:focus-visible {
 }
 
 .primary_object {
-  /* background: linear-gradient(180deg, #1a1a1ae6 40%);  border: 0px; */
+  background: linear-gradient(180deg, #1a1a1ae6 40%);  border: 0px;
   background: rgba(0, 0, 0, .5);
   background-position: center;
   background-repeat: no-repeat;
@@ -138,6 +137,29 @@ button:focus-visible {
   text-decoration: none;
 }
 
+.normal_text {
+  color: var(--color-text-secondary);
+  font-family: var(--font-primary);
+  font-size: 1em;
+}
+
+.normal_text--small {
+  color: var(--color-text-secondary);
+  font-family: var(--font-primary);
+  font-size: 0.875em;
+}
+
+.normal_text--medium {
+  color: var(--color-text-secondary);
+  font-family: var(--font-primary);
+  font-size: 1.125em;
+}
+
+.normal_text--large {
+  color: var(--color-text-secondary);
+  font-family: var(--font-primary);
+  font-size: 1.5em;
+}
 
 .primary_button {
   /* background-color: var(--color-secondary); */
