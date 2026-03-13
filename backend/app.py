@@ -1,7 +1,5 @@
 import os
-
 from flask import Flask
-
 from backend.config import Config
 from backend.extensions import cors, db, jwt, migrate
 
