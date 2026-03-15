@@ -4,7 +4,6 @@ from backend.config import Config
 from backend.extensions import cors, db, jwt, migrate
 
 
-
 def create_app(config_object=None):
     app = Flask(__name__)
 
