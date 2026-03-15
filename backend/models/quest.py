@@ -23,7 +23,7 @@ class Quest(db.Model):
     function_template = db.Column(db.Text, nullable=False)
 
     # Quest inputs, where input_0 is the null test
-    input_0 = db.Column(db.Text, nullable=True)  # Input for the quest
+    input_0 = db.Column(db.Text, nullable=False)  # Input for the quest
     input_1 = db.Column(db.Text, nullable=True)  # Input for the quest
     input_2 = db.Column(db.Text, nullable=True)  # Input for the quest
     input_3 = db.Column(db.Text, nullable=True)  # Input for the quest
@@ -35,7 +35,7 @@ class Quest(db.Model):
     input_9 = db.Column(db.Text, nullable=True)  # Input for the quest
 
     # Quest outputs, where output_0 is the null test
-    output_0 = db.Column(db.Text, nullable=True)  # Output for the quest
+    output_0 = db.Column(db.Text, nullable=False)  # Output for the quest
     output_1 = db.Column(db.Text, nullable=True)  # Output for the quest
     output_2 = db.Column(db.Text, nullable=True)  # Output for the quest
     output_3 = db.Column(db.Text, nullable=True)  # Output for the quest

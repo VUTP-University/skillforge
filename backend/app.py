@@ -2,6 +2,7 @@ from backend.config import Config
 from backend.extensions import db, jwt, migrate
 from flask import Flask
 
+
 def create_app(config_object=None):
     app = Flask(__name__)
 
