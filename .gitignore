@@ -212,3 +212,6 @@ __marimo__/
 
 # Custom ignore rules
 *.DS_Store
+
+# Ignore DB migrations
+**/migrations/

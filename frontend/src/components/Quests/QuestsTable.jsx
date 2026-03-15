@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import { getCorrectSolutionsByUserId } from "../../services/questsServices";
+import { useAuth } from "../../context/AuthContext";
 
 const QuestsTable = ({ quests, mode, onQuestClick }) => {
-
-  const userId = localStorage.getItem("userId");
+  const { user } = useAuth();
   const [difficultyFilter, setDifficultyFilter] = useState("All");
   const [solvedFilter, setSolvedFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,15 +13,14 @@ const QuestsTable = ({ quests, mode, onQuestClick }) => {
   useEffect(() => {
     const fetchSolvedQuests = async () => {
       try {
-        const solved = await getCorrectSolutionsByUserId(userId); // Fetch solved quests by user ID
-        const solvedQuests = solved.map((s) => s.quest_id);
-        setSolvedQuests(solvedQuests);
+        const solved = await getCorrectSolutionsByUserId(user?.id);
+        setSolvedQuests(solved.map((s) => s.quest_id));
       } catch (err) {
         console.error("Failed to fetch solved quests", err);
       }
     };
     fetchSolvedQuests();
-  }, [userId]);
+  }, [user?.id]);
 
   const filteredQuests = quests
     .map((quest) => ({

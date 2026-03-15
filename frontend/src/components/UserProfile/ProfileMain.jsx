@@ -10,7 +10,7 @@ import InstagramIcon from "../../assets/img/social_media_icons/instagram.png";
 import GithubIcon from "../../assets/img/social_media_icons/github.svg";
 import DiscordIcon from "../../assets/img/social_media_icons/discord.svg";
 import LinkedInIcon from "../../assets/img/social_media_icons/linkedin.png";
-import { checkValidToken } from "../../services/authService";
+import { authFetch, checkValidToken } from "../../services/authService";
 
 const ProfileMain = ({ user, setModalOpen, setModalMessage }) => {
   const [formData, setFormData] = useState({
@@ -48,18 +48,17 @@ const ProfileMain = ({ user, setModalOpen, setModalMessage }) => {
     e.preventDefault();
     if (!avatarFile) return;
 
-    const token = localStorage.getItem("token");
     const form = new FormData();
     form.append("avatar", avatarFile);
 
     try {
-      const res = await fetch(
+      // authFetch sends the JWT cookie automatically; no Authorization header needed
+      const res = await authFetch(
         `${import.meta.env.VITE_USERS_SERVICE_URL}/update_user/${user.id}/avatar`,
         {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          // Do not set Content-Type — the browser sets it with the correct boundary for FormData
+          headers: {},
           body: form,
         }
       );

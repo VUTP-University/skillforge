@@ -12,10 +12,12 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import CodeEditor from "../components/Layout/CodeEditor";
 import { getQuestById } from "../services/questsServices";
 import { getUserById } from "../services/usersService";
-import { checkValidToken } from "../services/authService";
+import { authFetch, checkValidToken } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 
 const QuestPage = () => {
   const { questId } = useParams();
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [quest, setQuest] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -29,8 +31,6 @@ const QuestPage = () => {
   const [executionResults, setExecutionResults] = useState(null);
   const [cooldown, setCooldown] = useState(0);
 
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
   const USER_API = import.meta.env.VITE_USERS_SERVICE_URL;
   const QUEST_API = import.meta.env.VITE_QUESTS_SERVICE_URL;
 
@@ -50,9 +50,11 @@ const QuestPage = () => {
 
   // Fetch user data
   useEffect(() => {
+    if (!authUser?.id) return;
+
     const fetchUserData = async () => {
       try {
-        const userData = await getUserById(userId);
+        const userData = await getUserById(authUser.id);
         setUser(userData);
       } catch (err) {
         console.error("Error fetching user data:", err.message);
@@ -61,68 +63,36 @@ const QuestPage = () => {
 
     const fetchAvatarUrl = async () => {
       try {
-        const response = await fetch(`${USER_API}/users/${userId}/avatar`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const response = await authFetch(`${USER_API}/users/${authUser.id}/avatar`);
         const isTokenValid = await checkValidToken(response.status);
-
-        if (isTokenValid) {
-          if (!response.ok) {
-            throw new Error("Failed to fetch avatar");
-          }
-
-          // Convert blob to object URL
-          const imageBlob = await response.blob();
-          const imageObjectUrl = URL.createObjectURL(imageBlob);
-          setAvatarUrl(imageObjectUrl);
-        } else {
-          throw new Error("Failed to fetch avatar");
-        }
+        if (!isTokenValid) return;
+        if (!response.ok) throw new Error("Failed to fetch avatar");
+        const imageBlob = await response.blob();
+        setAvatarUrl(URL.createObjectURL(imageBlob));
       } catch (err) {
         console.error("Error fetching avatar URL:", err.message);
       }
     };
 
-    if (userId) {
-      fetchUserData();
-      fetchAvatarUrl();
-    }
-  }, [USER_API, userId, token]);
+    fetchUserData();
+    fetchAvatarUrl();
+  }, [USER_API, authUser]);
 
   // Handle loading all the comments
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await fetch(`${QUEST_API}/comments/${questId}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
+        const response = await authFetch(`${QUEST_API}/comments/${questId}`);
         const isTokenValid = await checkValidToken(response.status);
-
-        if (isTokenValid) {
-          if (!response.ok) {
-            throw new Error("Failed to fetch comments");
-          }
-          
-          const data = await response.json();
-          setComments(data);
-        } else {
-          throw new Error("Failed to fetch comments");
-        }
+        if (!isTokenValid) return;
+        if (!response.ok) throw new Error("Failed to fetch comments");
+        setComments(await response.json());
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
     };
     fetchComments();
-  }, [QUEST_API, questId, token]);
+  }, [QUEST_API, questId]);
 
   // Handle comment submission
   const handleCommentSubmit = async () => {
@@ -133,21 +103,15 @@ const QuestPage = () => {
 
     const data = {
       quest_id: questId,
-      user_id: userId,
+      user_id: authUser?.id,
       comment: comment,
     };
 
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    };
-
     try {
-      const response = await fetch(`${QUEST_API}/comments/${questId}`, options);
+      const response = await authFetch(`${QUEST_API}/comments/${questId}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
       const isTokenValid = await checkValidToken(response.status);
 
@@ -187,24 +151,17 @@ const QuestPage = () => {
     }
     const data = {
       quest_id: questId,
-      user_id: userId,
+      user_id: authUser?.id,
       language: language,
       code: code,
       difficulty: quest.difficulty,
     };
 
-
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    };
-
     try {
-      const response = await fetch(`${QUEST_API}/submit/${questId}`, options);
+      const response = await authFetch(`${QUEST_API}/submit/${questId}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
       const isTokenValid = await checkValidToken(response.status);
 
