@@ -127,7 +127,7 @@ def login():
         ),
         200,
     )
-    
+
     # Tokens are stored in HttpOnly cookies — never exposed to JavaScript
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
