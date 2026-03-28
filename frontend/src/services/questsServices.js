@@ -9,7 +9,7 @@ export async function getAllQuests() {
 }
 
 export async function getQuestsByLanguage(language) {
-  const res = await authFetch(`${QUEST_API}/quests/${language}`);
+  const res = await authFetch(`${QUEST_API}/quests?language=${encodeURIComponent(language)}`);
   if (!res.ok) throw new Error('Failed to fetch quests');
   return res.json();
 }

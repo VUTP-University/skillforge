@@ -40,7 +40,7 @@ const QuestsTable = ({ quests, mode, onQuestClick }) => {
       const matchesSearch =
         quest.quest_name.toLowerCase().includes(query) ||
         quest.difficulty.toLowerCase().includes(query) ||
-        quest.quest_author.toLowerCase().includes(query);
+        (quest.quest_author_username || "").toLowerCase().includes(query);
 
       return matchesDifficulty && matchesSolved && matchesSearch;
     });
@@ -141,14 +141,26 @@ const QuestsTable = ({ quests, mode, onQuestClick }) => {
                       </td>
                       <td className="px-5 py-5 border-b text-sm">
                         <Link
-                          to={`/profile/${quest.quest_author}`}
+                          to={`/profile/${quest.quest_author_id}`}
                           className="text-blue-500 hover:underline"
                         >
-                          {quest.quest_author}
+                          {quest.quest_author_username ?? "—"}
                         </Link>
                       </td>
                       <td className="px-5 py-5 border-b text-sm">
-                        {quest.is_solved ? (
+                        {mode === "edit" ? (
+                          quest.status === "Active" ? (
+                            <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                              <span className="absolute inset-0 bg-green-200 opacity-60 rounded-full"></span>
+                              <span className="relative">Active</span>
+                            </span>
+                          ) : (
+                            <span className="relative inline-block px-3 py-1 font-semibold text-red-900 leading-tight">
+                              <span className="absolute inset-0 bg-red-200 opacity-60 rounded-full"></span>
+                              <span className="relative">Inactive</span>
+                            </span>
+                          )
+                        ) : quest.is_solved ? (
                           <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
                             <span className="absolute inset-0 bg-green-200 opacity-60 rounded-full"></span>
                             <span className="relative">Solved</span>

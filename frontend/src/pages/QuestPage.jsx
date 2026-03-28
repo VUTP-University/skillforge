@@ -220,10 +220,10 @@ const QuestPage = () => {
             <p>
               <strong className="text-cyan-400">Author:</strong>{" "}
               <a
-                href={`/profile/${quest.quest_author}`}
+                href={`/profile/${quest.quest_author_id}`}
                 className="text-blue-500"
               >
-                {quest.quest_author}
+                {quest.quest_author_username ?? "—"}
               </a>
             </p>
           </div>

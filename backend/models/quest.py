@@ -9,7 +9,11 @@ class Quest(db.Model):
     difficulty = db.Column(db.String(50), nullable=False)
     quest_name = db.Column(db.String(255), nullable=False)
     solved_times = db.Column(db.Integer, default=0, nullable=True)
-    quest_author = db.Column(db.String(255), nullable=False)
+    quest_author_id = db.Column(
+        db.String(36), db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    quest_author = db.relationship("User", backref="quests", foreign_keys=[quest_author_id])
+    status = db.Column(db.String(20), default="Active", nullable=False)
     created_at = db.Column(
         db.DateTime, default=db.func.current_timestamp(), nullable=False
     )
