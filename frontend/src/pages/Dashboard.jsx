@@ -129,7 +129,7 @@ export default function Dashboard() {
                 Welcome back,{" "}
                 <span className="text-[#03e9f4]">{displayName}</span> 
               </h1>
-              <p className="text-white/40 text-sm leading-relaxed max-w-lg normal_text normal_text--medium">
+              <p className="text-white/40 text-sm leading-relaxed max-w-lg normal_text normal_text--medium text-justify">
                 Your coding journey continues! Choose a quest to level up your skills, track your progress, and compete on the leaderboard. The adventure awaits!
               </p>
             </div>

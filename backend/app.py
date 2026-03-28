@@ -27,10 +27,12 @@ def create_app(config_object=None):
     )
 
     from backend.routes.auth_routes import auth_bp
+    from backend.routes.quest_routes import quest_bp
     from backend.routes.users_routes import users_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api")
     app.register_blueprint(users_bp, url_prefix="/api")
+    app.register_blueprint(quest_bp, url_prefix="/api")
 
     with app.app_context():
         db.create_all()

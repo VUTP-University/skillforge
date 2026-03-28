@@ -37,7 +37,7 @@ const AddQuest = () => {
         language: formData.quest_language,
         difficulty: formData.quest_difficulty,
         quest_name: formData.quest_name,
-        quest_author: user?.id,
+        quest_author_id: user?.id,
         condition: formData.quest_condition,
         function_template: formData.function_template,
         example_solution: formData.example_solution,
