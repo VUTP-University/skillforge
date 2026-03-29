@@ -13,7 +13,7 @@
     "@tailwindcss/vite": "^4.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^4.1.5"
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@codemirror/basic-setup": "^0.20.0",
