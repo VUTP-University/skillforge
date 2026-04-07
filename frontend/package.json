@@ -48,6 +48,6 @@
     "remarkable": "^2.0.1",
     "showdown": "^2.1.0",
     "turndown": "^7.2.2",
-    "vite": "^6.4.1"
+    "vite": "^6.4.2"
   }
 }
