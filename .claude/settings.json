@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:2000/api/v2/execute -H 'Content-Type: application/json' -d '{\"\"\"\"language\"\"\"\":\"\"\"\"csharp.net\"\"\"\",\"\"\"\"version\"\"\"\":\"\"\"\"*\"\"\"\",\"\"\"\"files\"\"\"\":[{\"\"\"\"name\"\"\"\":\"\"\"\"solution.cs\"\"\"\",\"\"\"\"content\"\"\"\":\"\"\"\"using System;\\\\nConsole.WriteLine\\(2+2\\);\"\"\"\"}],\"\"\"\"compile_timeout\"\"\"\":90000,\"\"\"\"run_timeout\"\"\"\":3000}')",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}
