@@ -6,6 +6,7 @@ import Users from "./pages/Users";
 import AdminDashboard from "./pages/AdminDashboard";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
 import QuestForm from "./pages/QuestForm";
+import LanguageQuestsPage from "./pages/LanguageQuestsPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -122,6 +123,14 @@ function AppLayout() {
                 <RoleRoute roles={["moderator", "admin"]}>
                   <ModeratorDashboard />
                 </RoleRoute>
+              }
+            />
+            <Route
+              path="/quests/:language"
+              element={
+                <ProtectedRoute>
+                  <LanguageQuestsPage />
+                </ProtectedRoute>
               }
             />
             <Route

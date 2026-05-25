@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getQuests } from "../services/questService";
 
 import pythonImg     from "../assets/img/achievements-icons/Python/python-6.png";
 import jsImg         from "../assets/img/achievements-icons/JavaScript/javascript-1.png";
@@ -12,10 +14,10 @@ import triviaImg     from "../assets/img/construction_worker.png";
 const TOTAL_QUESTS = 30;
 
 const LANGUAGES = [
-  { name: "Python",     path: "#", image: pythonImg, description: "Data, automation & beyond",   quests: 11 },
-  { name: "JavaScript", path: "#", image: jsImg,     description: "Build the modern web",         quests: 7  },
-  { name: "Java",       path: "#", image: javaImg,   description: "Enterprise, Android & more",   quests: 8  },
-  { name: "C#",         path: "#", image: csImg,     description: "Games, apps & cloud",          quests: 4  },
+  { slug: "python",     name: "Python",     image: pythonImg, description: "Data, automation & beyond"  },
+  { slug: "javascript", name: "JavaScript", image: jsImg,     description: "Build the modern web"        },
+  { slug: "java",       name: "Java",       image: javaImg,   description: "Enterprise, Android & more"  },
+  { slug: "csharp",     name: "C#",         image: csImg,     description: "Games, apps & cloud"         },
 ];
 
 const SECTIONS = [
@@ -53,6 +55,20 @@ export default function Home() {
   const { user } = useAuth();
   const displayName = user?.username || "Adventurer";
 
+  const [questCounts, setQuestCounts] = useState({});
+  const [totalLive, setTotalLive]     = useState(null);
+
+  useEffect(() => {
+    getQuests().then((quests) => {
+      const counts = quests.reduce((acc, q) => {
+        acc[q.language] = (acc[q.language] ?? 0) + 1;
+        return acc;
+      }, {});
+      setQuestCounts(counts);
+      setTotalLive(quests.length);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="space-y-14">
 
@@ -72,7 +88,7 @@ export default function Home() {
         {/* Quick stats */}
         <div className="flex gap-3 flex-shrink-0">
           {[
-            { label: "Quests",    value: String(TOTAL_QUESTS) },
+            { label: "Quests",    value: totalLive !== null ? String(totalLive) : String(TOTAL_QUESTS) },
             { label: "Languages", value: "4"  },
             { label: "Your Rank", value: "—"  },
           ].map((s) => (
@@ -99,7 +115,7 @@ export default function Home() {
         <SectionDivider title="Choose Your Quest" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {LANGUAGES.map((lang) => (
-            <Link key={lang.name} to={lang.path} style={{ textDecoration: "none" }}>
+            <Link key={lang.slug} to={`/quests/${lang.slug}`} style={{ textDecoration: "none" }}>
               <div
                 className="group relative rounded-2xl overflow-hidden cursor-pointer"
                 style={{
@@ -137,7 +153,7 @@ export default function Home() {
 
                 {/* Quest count badge */}
                 <div className="absolute top-3.5 right-3.5 badge badge-cyan">
-                  {lang.quests} quests
+                  {questCounts[lang.slug] ?? "—"} quests
                 </div>
 
                 {/* Content */}
