@@ -1,0 +1,678 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════
+   SKILLFORGE — DESIGN SYSTEM
+   Navy · Cyan · Medieval Typography
+   ═══════════════════════════════════════════════════ */
+
+@theme {
+  /* Core backgrounds */
+  --color-bg:      #0b1221;
+  --color-panel:   #0d1728;
+  --color-panel-2: #111f35;
+
+  /* Cyan — the SkillForge signature accent */
+  --color-cyan:        #03e9f4;
+  --color-cyan-dim:    rgba(3, 233, 244, 0.12);
+  --color-cyan-glow:   rgba(3, 233, 244, 0.08);
+  --color-cyan-border: rgba(3, 233, 244, 0.25);
+
+  /* Indigo / purple (links) */
+  --color-indigo:   #647eff;
+  --color-indigo-2: #8b9fff;
+
+  /* Text */
+  --color-text:  rgba(255, 255, 255, 0.87);
+  --color-sub:   rgba(255, 255, 255, 0.45);
+  --color-dim:   rgba(255, 255, 255, 0.22);
+  --color-faint: rgba(255, 255, 255, 0.10);
+
+  /* Borders */
+  --color-border:   rgba(255, 255, 255, 0.07);
+  --color-border-2: rgba(255, 255, 255, 0.13);
+
+  /* Error */
+  --color-error-bg:     rgba(239, 68, 68, 0.10);
+  --color-error-border: rgba(239, 68, 68, 0.25);
+  --color-error-text:   #f87171;
+
+  /* ── Medieval typography ── */
+  --font-brand:   "Cinzel Decorative", Georgia, serif;  /* logo only  */
+  --font-heading: "Cinzel", Georgia, serif;              /* headings, labels, buttons, nav */
+  --font-body:    "Crimson Text", Georgia, serif;        /* paragraphs, descriptions */
+}
+
+/* ═══════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════ */
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    line-height: 1.65;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* All headings use Cinzel */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    color: #fff;
+  }
+
+  ::selection {
+    background: rgba(3, 233, 244, 0.22);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(3, 233, 244, 0.6);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  a {
+    color: var(--color-cyan);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  button { cursor: pointer; }
+  input, textarea, select { font-family: var(--font-body); }
+
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+}
+
+/* ═══════════════════════════════════════════════════
+   COMPONENTS
+   ═══════════════════════════════════════════════════ */
+
+@layer components {
+
+  /* ─── Font helpers ─────────────────────────────── */
+
+  .font-brand   { font-family: var(--font-brand); }
+  .font-heading { font-family: var(--font-heading); }
+  .font-body    { font-family: var(--font-body); }
+
+  /* ─── Text colour helpers ───────────────────────── */
+
+  .text-sub    { color: var(--color-sub); }
+  .text-dim    { color: var(--color-dim); }
+  .text-cyan   { color: var(--color-cyan); }
+  .text-indigo { color: var(--color-indigo); }
+
+
+  /* ─── Input ────────────────────────────────────── */
+
+  .sf-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.5rem;            /* slightly tighter than before */
+    padding: 0.72rem 1rem;
+    color: #fff;
+    font-size: 1rem;                  /* Crimson Text reads well at 1rem */
+    font-family: var(--font-body);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    line-height: 1.4;
+  }
+
+  .sf-input::placeholder {
+    color: rgba(255, 255, 255, 0.20);
+    font-style: italic;
+  }
+
+  .sf-input:hover:not(:focus):not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .sf-input:focus {
+    border-color: rgba(3, 233, 244, 0.50);
+    box-shadow: 0 0 0 3px rgba(3, 233, 244, 0.08);
+  }
+
+  .sf-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .sf-input.error {
+    border-color: rgba(239, 68, 68, 0.50);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+  }
+
+  /* Password visibility toggle wrapper */
+  .sf-input-wrap { position: relative; }
+  .sf-input-wrap .sf-input { padding-right: 2.75rem; }
+
+  .sf-input-icon-btn {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+  }
+
+  .sf-input-icon-btn:hover { color: rgba(255, 255, 255, 0.60); }
+
+
+  /* ─── Label — Cinzel gives it the arcane feel ───── */
+
+  .sf-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: rgba(255, 255, 255, 0.40);
+    margin-bottom: 0.4rem;
+  }
+
+
+  /* ─── Buttons ──────────────────────────────────── */
+
+  /* Primary — glowing cyan with Cinzel text */
+  .sf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.72rem 1.5rem;
+    border-radius: 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.45);
+    color: var(--color-cyan);
+    border: 1px solid rgba(3, 233, 244, 0.20);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .sf-btn:hover:not(:disabled) {
+    background-color: var(--color-cyan);
+    color: #0a1020;
+    border-color: var(--color-cyan);
+    box-shadow:
+      0 0 5px  #03e9f4,
+      0 0 25px #03e9f4,
+      0 0 50px rgba(3, 233, 244, 0.35);
+  }
+
+  .sf-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 0 8px rgba(3, 233, 244, 0.3);
+  }
+
+  .sf-btn:disabled {
+    background: rgba(0, 0, 0, 0.3);
+    color: rgba(3, 233, 244, 0.30);
+    border-color: rgba(3, 233, 244, 0.08);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Ghost — used in navbar */
+  .sf-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.38rem 0.875rem;
+    border-radius: 0.375rem;
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.50);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .sf-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  /* Danger */
+  .sf-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.38rem 0.875rem;
+    border-radius: 0.375rem;
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    color: rgba(248, 113, 113, 0.65);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 100%;
+  }
+
+  .sf-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.07);
+    color: #f87171;
+  }
+
+
+  /* ─── Alert banners ────────────────────────────── */
+
+  .sf-error {
+    background: var(--color-error-bg);
+    border: 1px solid var(--color-error-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--color-error-text);
+    font-size: 0.95rem;            /* Crimson Text body size */
+    font-family: var(--font-body);
+  }
+
+  .sf-success {
+    background: rgba(34, 197, 94, 0.10);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: #4ade80;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+  }
+
+
+  /* ─── Cards ────────────────────────────────────── */
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.875rem;
+  }
+
+  .glass-card-elevated {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 0.875rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-card {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.875rem;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+    min-width: 84px;
+    backdrop-filter: blur(8px);
+  }
+
+
+  /* ─── Auth form card ───────────────────────────── */
+  /* Glass background + subtle medieval corner ornaments */
+
+  .auth-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 0.5rem;
+    padding: 2.5rem;
+    position: relative;
+    backdrop-filter: blur(12px);
+    box-shadow:
+      0 0 60px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(3, 233, 244, 0.05);
+  }
+
+  /* Outer corner ornaments in cyan */
+  .auth-card::before,
+  .auth-card::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: rgba(3, 233, 244, 0.35);
+  }
+
+  .auth-card::before {
+    top: 6px; left: 6px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+
+  .auth-card::after {
+    bottom: 6px; right: 6px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+
+  /* Additional corners via JS-inserted spans (see Login/Register JSX) */
+  .corner-tr {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 12px; height: 12px;
+    border-top: 1px solid rgba(3, 233, 244, 0.35);
+    border-right: 1px solid rgba(3, 233, 244, 0.35);
+  }
+
+  .corner-bl {
+    position: absolute;
+    bottom: 6px; left: 6px;
+    width: 12px; height: 12px;
+    border-bottom: 1px solid rgba(3, 233, 244, 0.35);
+    border-left: 1px solid rgba(3, 233, 244, 0.35);
+  }
+
+
+  /* ─── Ornate divider — cyan tinted ─────────────── */
+
+  .divider-ornate {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: rgba(3, 233, 244, 0.30);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    font-family: var(--font-body);
+  }
+
+  .divider-ornate::before,
+  .divider-ornate::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(3, 233, 244, 0.20),
+      transparent
+    );
+  }
+
+
+  /* ─── Progress bar ─────────────────────────────── */
+
+  .progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #03e9f4, #0284c7);
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+
+  /* ─── Badge ────────────────────────────────────── */
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+
+  .badge-cyan {
+    background: rgba(3, 233, 244, 0.10);
+    border-color: rgba(3, 233, 244, 0.25);
+    color: var(--color-cyan);
+  }
+
+  .badge-red {
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #f87171;
+  }
+
+
+  /* ─── Spinner ──────────────────────────────────── */
+
+  .sf-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(3, 233, 244, 0.2);
+    border-top-color: var(--color-cyan);
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+
+  /* ─── Dot grid ─────────────────────────────────── */
+
+  .dot-grid {
+    background-image: radial-gradient(circle, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+
+  /* ─── Navbar ───────────────────────────────────── */
+
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: 56px;
+    backdrop-filter: blur(12px);
+    background: rgba(11, 18, 33, 0.82);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 1px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .navbar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  /* Nav links use Cinzel */
+  .nav-link {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    text-decoration: none;
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover  { color: rgba(255, 255, 255, 0.90); }
+  .nav-link.active { color: var(--color-cyan); }
+
+  /* Mobile drawer */
+  .mobile-drawer {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(9, 15, 28, 0.98);
+    backdrop-filter: blur(16px);
+  }
+
+  .mobile-link {
+    display: block;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.375rem;
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .mobile-link:hover  { color: #fff; background: rgba(255, 255, 255, 0.04); }
+  .mobile-link.active { color: var(--color-cyan); background: rgba(3, 233, 244, 0.08); }
+
+
+  /* ─── Auth page layout ─────────────────────────── */
+
+  .auth-page {
+    min-height: 100vh;
+    display: flex;
+    background: linear-gradient(135deg, #0d1520 0%, #141e30 50%, #0a1628 100%);
+  }
+
+  .auth-left {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3.5rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+  }
+
+  @media (min-width: 1024px) {
+    .auth-left { display: flex; width: 46%; }
+  }
+
+  .auth-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+
+  /* ─── Section divider — uses Cinzel ────────────── */
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-divider h2 {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.50);
+    white-space: nowrap;
+  }
+
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+
+  /* ─── Page wrapper ─────────────────────────────── */
+
+  .page-wrapper {
+    min-height: calc(100vh - 56px);
+    background: linear-gradient(180deg, #141e30 0%, #0d1824 100%);
+    position: relative;
+  }
+
+  .page-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+
+  /* ─── Avatar initials ──────────────────────────── */
+
+  .avatar-initials {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(3, 233, 244, 0.12);
+    border: 1px solid rgba(3, 233, 244, 0.30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-cyan);
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+
+  /* ─── Responsive ───────────────────────────────── */
+
+  @media (max-width: 640px) {
+    .page-inner   { padding: 1.5rem 1rem; }
+    .auth-right   { padding: 2rem 1rem; }
+    .navbar-inner { padding: 0 1rem; }
+    .auth-card    { padding: 1.75rem 1.25rem; }
+  }
+}
