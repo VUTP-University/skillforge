@@ -3,6 +3,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Users from "./pages/Users";
+import AdminDashboard from "./pages/AdminDashboard";
+import ModeratorDashboard from "./pages/ModeratorDashboard";
+import QuestForm from "./pages/QuestForm";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -35,6 +38,17 @@ function ProtectedRoute({ children }) {
 
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
+  return children;
+}
+
+/* Guards a route by role — redirects home if user lacks the required role */
+function RoleRoute({ children, roles }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!roles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -92,6 +106,38 @@ function AppLayout() {
                 <ProtectedRoute>
                   <Users />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <RoleRoute roles={["admin"]}>
+                  <AdminDashboard />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/moderator"
+              element={
+                <RoleRoute roles={["moderator", "admin"]}>
+                  <ModeratorDashboard />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/admin/quests/new"
+              element={
+                <RoleRoute roles={["admin", "moderator"]}>
+                  <QuestForm />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/admin/quests/:id/edit"
+              element={
+                <RoleRoute roles={["admin", "moderator"]}>
+                  <QuestForm />
+                </RoleRoute>
               }
             />
             <Route path="*" element={<Navigate to="/" replace />} />

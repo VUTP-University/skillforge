@@ -21,12 +21,16 @@ def create_app(config_class=Config):
     jwt.init_app(app)
 
     # Blueprints
-    from .routes.health import health_bp
-    from .routes.users  import users_bp
-    from .routes.auth   import auth_bp
+    from .routes.health  import health_bp
+    from .routes.users   import users_bp
+    from .routes.auth    import auth_bp
+    from .routes.admin   import admin_bp
+    from .routes.quests  import quests_bp
 
-    app.register_blueprint(health_bp, url_prefix="/api")
-    app.register_blueprint(users_bp,  url_prefix="/api/users")
-    app.register_blueprint(auth_bp,   url_prefix="/api/auth")
+    app.register_blueprint(health_bp,  url_prefix="/api")
+    app.register_blueprint(users_bp,   url_prefix="/api/users")
+    app.register_blueprint(auth_bp,    url_prefix="/api/auth")
+    app.register_blueprint(admin_bp,   url_prefix="/api/admin")
+    app.register_blueprint(quests_bp,  url_prefix="/api/quests")
 
     return app

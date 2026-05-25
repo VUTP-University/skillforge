@@ -10,7 +10,7 @@ from flask_jwt_extended import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User
+from app.models import User, UserRole, RoleName
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -40,10 +40,15 @@ def register():
         password_hash=generate_password_hash(password),
     )
     db.session.add(user)
+    db.session.flush()  # populate user.id before creating the role row
+
+    role_record = UserRole(user_id=user.id, role=RoleName.user)
+    db.session.add(role_record)
     db.session.commit()
 
+    claims = {"role": RoleName.user.value}
     response = jsonify({"user": user.to_dict()})
-    set_access_cookies(response, create_access_token(identity=str(user.id)))
+    set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     set_refresh_cookies(response, create_refresh_token(identity=str(user.id)))
     return response, 201
 
@@ -64,8 +69,10 @@ def login():
     if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid credentials"}), 401
 
+    role = user.user_role.role.value if user.user_role else "user"
+    claims = {"role": role}
     response = jsonify({"user": user.to_dict()})
-    set_access_cookies(response, create_access_token(identity=str(user.id)))
+    set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     set_refresh_cookies(response, create_refresh_token(identity=str(user.id)))
     return response
 
@@ -88,6 +95,8 @@ def me():
 @jwt_required(refresh=True)
 def refresh():
     user = db.get_or_404(User, int(get_jwt_identity()))
+    role = user.user_role.role.value if user.user_role else "user"
+    claims = {"role": role}
     response = jsonify({"user": user.to_dict()})
-    set_access_cookies(response, create_access_token(identity=str(user.id)))
+    set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     return response

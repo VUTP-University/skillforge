@@ -85,6 +85,12 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className={desktopLinkCls(isActive("/"))}>Dashboard</Link>
               <Link to="/users" className={desktopLinkCls(isActive("/users"))}>Guild</Link>
+              {(user.role === "moderator" || user.role === "admin") && (
+                <Link to="/moderator" className={desktopLinkCls(isActive("/moderator"))}>Moderator</Link>
+              )}
+              {user.role === "admin" && (
+                <Link to="/admin" className={desktopLinkCls(isActive("/admin"))}>Admin</Link>
+              )}
             </div>
           )}
 
@@ -107,7 +113,7 @@ export default function Navbar() {
                   <div className="text-left leading-none">
                     <p className="text-white text-xs font-semibold">{user.username}</p>
                     <p className="text-xs mt-0.5" style={{ color: "rgba(3,233,244,0.6)", fontSize: "10px" }}>
-                      Member
+                      {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "User"}
                     </p>
                   </div>
                   <ChevronDown className={`text-white/30 transition-transform duration-200 ${userDropOpen ? "rotate-180" : ""}`} />
@@ -211,7 +217,9 @@ export default function Navbar() {
                 </div>
                 <div>
                   <p className="text-white text-sm font-semibold">{user.username}</p>
-                  <p className="text-xs" style={{ color: "rgba(3,233,244,0.60)" }}>Member</p>
+                  <p className="text-xs" style={{ color: "rgba(3,233,244,0.60)" }}>
+                    {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "User"}
+                  </p>
                 </div>
               </div>
             )}
@@ -220,6 +228,12 @@ export default function Navbar() {
               <>
                 <NavLink to="/"      end className={({ isActive }) => mobileLinkCls(isActive)}>Dashboard</NavLink>
                 <NavLink to="/users"     className={({ isActive }) => mobileLinkCls(isActive)}>Guild</NavLink>
+                {(user.role === "moderator" || user.role === "admin") && (
+                  <NavLink to="/moderator" className={({ isActive }) => mobileLinkCls(isActive)}>Moderator</NavLink>
+                )}
+                {user.role === "admin" && (
+                  <NavLink to="/admin" className={({ isActive }) => mobileLinkCls(isActive)}>Admin</NavLink>
+                )}
                 <div style={{ height: "1px", background: "rgba(255,255,255,0.06)", margin: "0.5rem 0" }} />
                 <NavLink to="/profile"   className={({ isActive }) => mobileLinkCls(isActive)}>View Profile</NavLink>
                 <button
