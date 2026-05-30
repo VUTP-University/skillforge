@@ -28,6 +28,15 @@ XP_BY_DIFFICULTY = {
     Difficulty.abyssal: 100,
 }
 
+_RANK_THRESHOLDS = [
+    (41, "Grand Master"),
+    (26, "Master"),
+    (16, "Expert"),
+    (8,  "Journeyman"),
+    (4,  "Apprentice"),
+    (1,  "Novice"),
+]
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -36,15 +45,32 @@ class User(db.Model):
     username      = db.Column(db.String(80), unique=True, nullable=False)
     email         = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False, default="")
+    avatar        = db.Column(db.String(100), nullable=True)
+    total_xp      = db.Column(db.Integer, default=0, nullable=False)
     created_at    = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
 
-    user_role = db.relationship(
+    user_role   = db.relationship(
         "UserRole", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
+    completions = db.relationship(
+        "QuestCompletion", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    @property
+    def level(self):
+        return (self.total_xp or 0) // 100 + 1
+
+    @property
+    def rank(self):
+        lvl = self.level
+        for threshold, name in _RANK_THRESHOLDS:
+            if lvl >= threshold:
+                return name
+        return "Novice"
 
     def to_dict(self):
         return {
@@ -52,6 +78,10 @@ class User(db.Model):
             "username":   self.username,
             "email":      self.email,
             "role":       self.user_role.role.value if self.user_role else "user",
+            "avatar_url": f"/api/media/avatars/{self.avatar}" if self.avatar else None,
+            "total_xp":   self.total_xp or 0,
+            "level":      self.level,
+            "rank":       self.rank,
             "created_at": self.created_at.isoformat(),
         }
 
@@ -166,3 +196,35 @@ class TestCase(db.Model):
 
     def __repr__(self):
         return f"<TestCase quest={self.quest_id} idx={self.index}>"
+
+
+class QuestCompletion(db.Model):
+    __tablename__ = "quest_completions"
+
+    id           = db.Column(db.Integer, primary_key=True)
+    user_id      = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    quest_id     = db.Column(
+        db.Integer,
+        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    xp_earned    = db.Column(db.Integer, nullable=False)
+    completed_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    user  = db.relationship("User", back_populates="completions")
+    quest = db.relationship("Quest")
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "quest_id", name="uq_user_quest_completion"),
+    )
+
+    def __repr__(self):
+        return f"<QuestCompletion user={self.user_id} quest={self.quest_id}>"

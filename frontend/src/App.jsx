@@ -8,6 +8,7 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import QuestForm from "./pages/QuestForm";
 import LanguageQuestsPage from "./pages/LanguageQuestsPage";
 import QuestSolvePage from "./pages/QuestSolvePage";
+import ProfilePage from "./pages/ProfilePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -107,6 +108,22 @@ function AppLayout() {
               element={
                 <ProtectedRoute>
                   <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users/:userId"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

@@ -18,6 +18,8 @@ api.interceptors.response.use(
   }
 );
 
+export default api;
+
 export const getHealth = () => api.get("/health");
 
 export const getUsers = () => api.get("/users/");

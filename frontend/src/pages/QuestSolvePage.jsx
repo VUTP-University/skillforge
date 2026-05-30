@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
@@ -194,14 +195,17 @@ function HiddenTestRow({ result, n }) {
 
 export default function QuestSolvePage() {
   const { language, questId } = useParams();
-  const navigate = useNavigate();
+  const navigate              = useNavigate();
+  const { user: currentUser, updateUser } = useAuth();
 
   const [quest,      setQuest]      = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [code,       setCode]       = useState(STARTER[language] ?? "");
   const [submitting, setSubmitting] = useState(false);
-  const [results,    setResults]    = useState(null);   // { passed, total, results }
+  const [results,    setResults]    = useState(null);   // { passed, total, results, ... }
   const [submitErr,  setSubmitErr]  = useState(null);
+  const [xpBanner,   setXpBanner]   = useState(null);  // { xp_earned } or null
+  const xpTimerRef                  = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -224,6 +228,12 @@ export default function QuestSolvePage() {
     try {
       const res = await submitQuest(questId, code);
       setResults(res);
+      if (res.first_completion) {
+        setXpBanner({ xp: res.xp_earned });
+        updateUser({ total_xp: (currentUser?.total_xp ?? 0) + res.xp_earned });
+        clearTimeout(xpTimerRef.current);
+        xpTimerRef.current = setTimeout(() => setXpBanner(null), 6000);
+      }
     } catch (err) {
       const msg = err?.response?.data?.error ?? "Submission failed. Please try again.";
       setSubmitErr(msg);
@@ -256,6 +266,31 @@ export default function QuestSolvePage() {
   return (
     <div style={{ width: "100%" }}>
 
+      {/* ── XP earned banner ── */}
+      {xpBanner && (
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: "0.6rem",
+            padding: "0.65rem 1rem", borderRadius: "10px", marginBottom: "1rem",
+            background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.30)",
+            color: "#4ade80",
+          }}
+        >
+          <svg style={{ width: 16, height: 16, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+          </svg>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em" }}>
+            +{xpBanner.xp} XP earned — quest complete!
+          </span>
+          <button
+            onClick={() => setXpBanner(null)}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "rgba(74,222,128,0.60)", cursor: "pointer", fontSize: "1rem", lineHeight: 1 }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* ── Breadcrumb ── */}
       <Link
         to={`/quests/${quest.language}`}
@@ -282,10 +317,15 @@ export default function QuestSolvePage() {
               {quest.xp_reward} XP
             </span>
           </div>
-          {quest.author && (
-            <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.30)", fontStyle: "italic" }}>
+          {quest.author && quest.author_id && (
+            <Link
+              to={`/users/${quest.author_id}`}
+              style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.30)", fontStyle: "italic", textDecoration: "none", transition: "color 0.12s" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.30)")}
+            >
               by {quest.author}
-            </span>
+            </Link>
           )}
         </div>
         <h1 style={{ fontSize: "1.9rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>

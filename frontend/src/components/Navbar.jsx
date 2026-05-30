@@ -27,6 +27,22 @@ function ProfileIcon() {
   );
 }
 
+function AvatarWidget({ avatarUrl, username, size = "2rem", fontSize = "0.75rem" }) {
+  const initials = username?.[0]?.toUpperCase() ?? "?";
+  const [imgErr, setImgErr] = useState(false);
+  if (avatarUrl && !imgErr) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={username}
+        onError={() => setImgErr(true)}
+        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+      />
+    );
+  }
+  return <div className="avatar-initials" style={{ width: size, height: size, fontSize }}>{initials}</div>;
+}
+
 export default function Navbar() {
   const { user, logout }  = useAuth();
   const location          = useLocation();
@@ -35,7 +51,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [userDropOpen, setUserDropOpen] = useState(false);
 
-  const dropRef = useRef(null);
+  const dropRef  = useRef(null);
   const initials = user?.username?.[0]?.toUpperCase() ?? "?";
 
   // Close dropdown on outside click
@@ -107,9 +123,7 @@ export default function Navbar() {
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
                   onMouseLeave={e => { if (!userDropOpen) e.currentTarget.style.background = "transparent"; }}
                 >
-                  <div className="avatar-initials">
-                    {initials}
-                  </div>
+                  <AvatarWidget avatarUrl={user?.avatar_url} username={user?.username} />
                   <div className="text-left leading-none">
                     <p className="text-white text-xs font-semibold">{user.username}</p>
                     <p className="text-xs mt-0.5" style={{ color: "rgba(3,233,244,0.6)", fontSize: "10px" }}>
@@ -212,9 +226,7 @@ export default function Navbar() {
                 className="flex items-center gap-3 px-3 py-3 mb-3 rounded-xl"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <div className="avatar-initials" style={{ width: "2.25rem", height: "2.25rem", fontSize: "0.875rem" }}>
-                  {initials}
-                </div>
+                <AvatarWidget avatarUrl={user?.avatar_url} username={user?.username} size="2.25rem" fontSize="0.875rem" />
                 <div>
                   <p className="text-white text-sm font-semibold">{user.username}</p>
                   <p className="text-xs" style={{ color: "rgba(3,233,244,0.60)" }}>

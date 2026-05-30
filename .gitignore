@@ -219,3 +219,6 @@ __marimo__/
 
 # Ignore PistonAPI packages
 *piston_packages/
+
+# Ignore backend upload files
+backend/uploads/

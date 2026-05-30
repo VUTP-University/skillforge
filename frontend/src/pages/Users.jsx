@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getUsers, deleteUser } from "../services/api";
 
 function AlertIcon() {
@@ -110,12 +111,21 @@ export default function Users() {
                   >
                     <td className="px-5 py-3.5 text-xs text-dim">{u.id}</td>
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="avatar-initials" style={{ width: "1.75rem", height: "1.75rem", fontSize: "0.65rem" }}>
-                          {u.username[0].toUpperCase()}
+                      <Link to={`/users/${u.id}`} style={{ textDecoration: "none" }}>
+                        <div className="flex items-center gap-2.5" style={{ width: "fit-content" }}>
+                          {u.avatar_url ? (
+                            <img src={u.avatar_url} alt={u.username} style={{ width: "1.75rem", height: "1.75rem", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                          ) : (
+                            <div className="avatar-initials" style={{ width: "1.75rem", height: "1.75rem", fontSize: "0.65rem" }}>
+                              {u.username[0].toUpperCase()}
+                            </div>
+                          )}
+                          <span className="text-white text-sm font-medium" style={{ transition: "color 0.12s" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cyan)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                          >{u.username}</span>
                         </div>
-                        <span className="text-white text-sm font-medium">{u.username}</span>
-                      </div>
+                      </Link>
                     </td>
                     <td className="px-5 py-3.5 text-sm text-sub">{u.email}</td>
                     <td className="px-5 py-3.5 text-xs text-dim">
@@ -144,15 +154,19 @@ export default function Users() {
                 key={u.id}
                 className="glass-card p-4 flex items-center justify-between gap-3"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="avatar-initials flex-shrink-0">
-                    {u.username[0].toUpperCase()}
-                  </div>
+                <Link to={`/users/${u.id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0, flex: 1 }}>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt={u.username} style={{ width: "2.25rem", height: "2.25rem", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                  ) : (
+                    <div className="avatar-initials flex-shrink-0">
+                      {u.username[0].toUpperCase()}
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <p className="text-white text-sm font-semibold truncate">{u.username}</p>
                     <p className="text-sub text-xs truncate">{u.email}</p>
                   </div>
-                </div>
+                </Link>
                 <button
                   onClick={() => handleDelete(u.id)}
                   disabled={deletingId === u.id}
