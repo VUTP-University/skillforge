@@ -296,8 +296,14 @@ export default function QuestForm() {
       {/* ── Section 3: Test Cases ── */}
       <div>
         <SectionDivider title="Test Cases" />
+        <p className="text-sub text-xs mb-2" style={{ fontFamily: "var(--font-body)" }}>
+          Test case <strong className="text-white">0</strong> is required and is the only one shown to users.
+          Cases 1–9 are hidden — leave both fields empty to skip.
+        </p>
         <p className="text-sub text-xs mb-5" style={{ fontFamily: "var(--font-body)" }}>
-          Test case <strong className="text-white">0</strong> is required. Cases 1–9 are optional — leave both fields empty to skip.
+          <strong className="text-white">Multiple inputs:</strong> put each value on its own line.
+          e.g. for "sum of two integers" write <code style={{ fontFamily: "monospace", background: "rgba(255,255,255,0.07)", padding: "0 4px", borderRadius: 3 }}>3</code> and <code style={{ fontFamily: "monospace", background: "rgba(255,255,255,0.07)", padding: "0 4px", borderRadius: 3 }}>5</code> on separate lines;
+          read them with <code style={{ fontFamily: "monospace", background: "rgba(255,255,255,0.07)", padding: "0 4px", borderRadius: 3 }}>input()</code> / <code style={{ fontFamily: "monospace", background: "rgba(255,255,255,0.07)", padding: "0 4px", borderRadius: 3 }}>Scanner.nextInt()</code> / <code style={{ fontFamily: "monospace", background: "rgba(255,255,255,0.07)", padding: "0 4px", borderRadius: 3 }}>readline()</code>.
         </p>
 
         <div className="space-y-3">
@@ -342,7 +348,7 @@ export default function QuestForm() {
                     <FieldLabel required={isRequired}>Input</FieldLabel>
                     <textarea
                       className="sf-input"
-                      placeholder={`stdin / function args for case ${tc.index}`}
+                      placeholder={`stdin for case ${tc.index}\n(one value per line for multiple inputs)`}
                       value={tc.input}
                       onChange={(e) => setTC(tc.index, "input", e.target.value)}
                       rows={3}

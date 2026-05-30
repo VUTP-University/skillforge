@@ -22,6 +22,9 @@ class Config:
 
     FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
+    # Piston code execution engine — https://github.com/engineer-man/piston
+    PISTON_URL = os.environ.get("PISTON_URL", "http://localhost:2000")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

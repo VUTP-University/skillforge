@@ -4,12 +4,13 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     get_jwt,
     get_jwt_identity,
+    jwt_required,
     verify_jwt_in_request,
 )
 
 from app import db
 from app.models import Difficulty, Language, Quest, TestCase, User, XP_BY_DIFFICULTY
-from app.utils import require_role
+from app.utils import PISTON_RUNTIMES, require_role, run_tests
 
 quests_bp = Blueprint("quests", __name__)
 
@@ -163,6 +164,33 @@ def update_quest(quest_id):
 
     db.session.commit()
     return jsonify(quest.to_dict(include_solution=True))
+
+
+# ── Submit ───────────────────────────────────────────────────────────────────
+
+@quests_bp.route("/<int:quest_id>/submit", methods=["POST"])
+@jwt_required()
+def submit_quest(quest_id):
+    quest = db.get_or_404(Quest, quest_id)
+    data  = request.get_json(silent=True) or {}
+    code  = (data.get("code") or "").strip()
+
+    if not code:
+        return jsonify({"error": "No code submitted"}), 400
+
+    lang = quest.language.value
+    if lang not in PISTON_RUNTIMES:
+        return jsonify({"error": f"Code execution for '{lang}' is not configured"}), 422
+
+    if not quest.test_cases:
+        return jsonify({"error": "This quest has no test cases"}), 422
+
+    try:
+        result = run_tests(code, quest.test_cases, lang)
+    except Exception as exc:
+        return jsonify({"error": f"Execution engine error: {exc}"}), 503
+
+    return jsonify(result)
 
 
 # ── Delete ────────────────────────────────────────────────────────────────────

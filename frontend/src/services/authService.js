@@ -5,6 +5,25 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Refresh-and-retry on 401 — skip auth endpoints to avoid infinite loops
+api.interceptors.response.use(
+  (r) => r,
+  async (err) => {
+    const url = err.config?.url ?? "";
+    const isAuthEndpoint = url.startsWith("/auth/");
+    if (err.response?.status === 401 && !err.config._retry && !isAuthEndpoint) {
+      err.config._retry = true;
+      try {
+        await axios.post("/api/auth/refresh", {}, { withCredentials: true });
+        return api(err.config);
+      } catch {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(err);
+  }
+);
+
 export async function register(username, email, password) {
   const { data } = await api.post("/auth/register", { username, email, password });
   return data.user;

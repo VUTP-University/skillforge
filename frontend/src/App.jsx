@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
 import QuestForm from "./pages/QuestForm";
 import LanguageQuestsPage from "./pages/LanguageQuestsPage";
+import QuestSolvePage from "./pages/QuestSolvePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -130,6 +131,14 @@ function AppLayout() {
               element={
                 <ProtectedRoute>
                   <LanguageQuestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quests/:language/:questId"
+              element={
+                <ProtectedRoute>
+                  <QuestSolvePage />
                 </ProtectedRoute>
               }
             />

@@ -1,10 +1,155 @@
+import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import wraps
-from flask import jsonify
+
+import requests
+from flask import current_app, jsonify
 from flask_jwt_extended import verify_jwt_in_request, get_jwt
+
+PISTON_RUNTIMES = {
+    "python":     {"language": "python",     "version": "*"},
+    "javascript": {"language": "javascript", "version": "*"},
+    "java":       {"language": "java",       "version": "*"},
+    "csharp":     {"language": "csharp",     "version": "*"},
+}
+
+_COMPILE_TIMEOUT = {"java": 10_000, "csharp": 10_000}
+_RUN_TIMEOUT     = {"java": 3_000, "csharp": 3_000}
+_DEFAULT_RUN     = 3_000
+
+
+def _clean_error(text: str) -> str:
+    if not text:
+        return ""
+    # Strip Piston sandbox paths — leave only the filename
+    text = re.sub(r"(?:/piston/jobs/[^/\s]+)?/box/", "", text)
+    # dotnet "Getting ready..." header noise
+    text = re.sub(r"^Getting ready\.\.\.\n?", "", text, flags=re.MULTILINE)
+    return text.strip()
+
+
+def _execute(code: str, stdin: str, lang: str, piston_url: str) -> dict:
+    runtime = PISTON_RUNTIMES[lang]
+    url = piston_url.rstrip("/") + "/api/v2/execute"
+    payload = {
+        "language":             runtime["language"],
+        "version":              runtime["version"],
+        "files":                [{"content": code}],
+        "stdin":                stdin,
+        "run_timeout":          _RUN_TIMEOUT.get(lang, _DEFAULT_RUN),
+        "run_memory_limit":     -1,
+        "compile_memory_limit": -1,
+    }
+    if lang in _COMPILE_TIMEOUT:
+        payload["compile_timeout"] = _COMPILE_TIMEOUT[lang]
+    resp = requests.post(url, json=payload, timeout=70)
+    if not resp.ok:
+        raise RuntimeError(f"Piston {resp.status_code}: {resp.text[:400]}")
+    return resp.json()
+
+
+def _parse_result(raw: dict, expected_output: str) -> dict:
+    compile_stage = raw.get("compile") or {}
+    run_stage     = raw.get("run")     or {}
+
+    compile_code = compile_stage.get("code")
+    compile_sig  = compile_stage.get("signal")
+    if (compile_code is not None and compile_code != 0) or compile_sig:
+        error_text = _clean_error(
+            compile_stage.get("output") or compile_stage.get("stderr") or ""
+        )
+        return {
+            "passed":     False,
+            "actual":     "",
+            "error":      error_text or "Compilation failed",
+            "error_type": "compile",
+        }
+
+    stdout = (run_stage.get("stdout") or "").rstrip("\n")
+    stderr = (run_stage.get("stderr") or "").strip()
+
+    if run_stage.get("signal") == "SIGKILL" or run_stage.get("message") == "Time limit exceeded":
+        return {"passed": False, "actual": stdout, "error": "Time limit exceeded", "error_type": "timeout"}
+
+    run_code = run_stage.get("code")
+    if run_code is not None and run_code != 0:
+        return {
+            "passed":     False,
+            "actual":     stdout,
+            "error":      _clean_error(stderr) or f"Runtime error (exit code {run_code})",
+            "error_type": "runtime",
+        }
+
+    passed = stdout.strip() == expected_output.strip()
+    return {"passed": passed, "actual": stdout, "error": None, "error_type": None}
+
+
+def run_tests(code: str, test_cases: list, lang: str) -> dict:
+    """
+    Run code against all test cases via Piston.
+
+    Test 0 always runs first — a compile error aborts the rest immediately.
+    Tests 1-N run in parallel once test 0 compiles successfully.
+
+    Returns:
+      {
+        compile_error: str | None,
+        zero_test:     {passed, input, expected, actual, error} | None,
+        passed:        int,
+        total:         int,
+        results:       [{index, passed}, ...]   # hidden test details are never included
+      }
+    """
+    sorted_tcs  = sorted(test_cases, key=lambda tc: tc.index)
+    zero_tc     = sorted_tcs[0]
+    piston_url  = current_app.config["PISTON_URL"]   # resolved here, in the request thread
+
+    zero_raw    = _execute(code, zero_tc.input, lang, piston_url)
+    zero_result = _parse_result(zero_raw, zero_tc.output)
+
+    if zero_result["error_type"] == "compile":
+        return {
+            "compile_error": zero_result["error"],
+            "zero_test":     None,
+            "passed":        0,
+            "total":         len(sorted_tcs),
+            "results":       [{"index": tc.index, "passed": False} for tc in sorted_tcs],
+        }
+
+    other: dict[int, dict] = {}
+    remaining = sorted_tcs[1:]
+    if remaining:
+        with ThreadPoolExecutor(max_workers=len(remaining)) as pool:
+            fut_map = {pool.submit(_execute, code, tc.input, lang, piston_url): tc for tc in remaining}
+            for fut in as_completed(fut_map):
+                tc = fut_map[fut]
+                other[tc.index] = _parse_result(fut.result(), tc.output)
+
+    passed = (1 if zero_result["passed"] else 0) + sum(
+        1 for r in other.values() if r["passed"]
+    )
+
+    results = [{"index": zero_tc.index, "passed": zero_result["passed"]}] + [
+        {"index": i, "passed": other[i]["passed"]}
+        for i in sorted(other)
+    ]
+
+    return {
+        "compile_error": None,
+        "zero_test": {
+            "passed":   zero_result["passed"],
+            "input":    zero_tc.input,
+            "expected": zero_tc.output,
+            "actual":   zero_result["actual"],
+            "error":    zero_result["error"],
+        },
+        "passed":  passed,
+        "total":   len(sorted_tcs),
+        "results": results,
+    }
 
 
 def require_role(*roles):
-    """Decorator that enforces one of the given role strings (read from JWT claims)."""
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
