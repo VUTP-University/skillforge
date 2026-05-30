@@ -254,7 +254,7 @@ export default function QuestSolvePage() {
   const barPct     = results ? Math.round((results.passed / results.total) * 100) : 0;
 
   return (
-    <div style={{ maxWidth: "1100px" }}>
+    <div style={{ width: "100%" }}>
 
       {/* ── Breadcrumb ── */}
       <Link

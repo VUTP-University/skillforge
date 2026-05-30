@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import CodeMirror from "@uiw/react-codemirror";
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+import { python } from "@codemirror/lang-python";
+import { javascript } from "@codemirror/lang-javascript";
+import { java } from "@codemirror/lang-java";
 import { createQuest, getQuest, updateQuest } from "../services/questService";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
@@ -16,6 +21,13 @@ const DIFFICULTIES = [
   { value: "cryptic", label: "Cryptic", xp: 60  },
   { value: "abyssal", label: "Abyssal", xp: 100 },
 ];
+
+const LANG_EXT = {
+  python:     () => [python()],
+  javascript: () => [javascript({ jsx: false })],
+  java:       () => [java()],
+  csharp:     () => [java()],
+};
 
 const EMPTY_TC = Array.from({ length: 10 }, (_, i) => ({ index: i, input: "", output: "" }));
 
@@ -138,6 +150,9 @@ export default function QuestForm() {
     }
   }
 
+  const selectedDiff = DIFFICULTIES.find((d) => d.value === form.difficulty);
+  const langExt = useMemo(() => (LANG_EXT[form.language] ?? (() => []))(), [form.language]);
+
   /* ── Render ── */
   if (loading) {
     return (
@@ -148,10 +163,8 @@ export default function QuestForm() {
     );
   }
 
-  const selectedDiff = DIFFICULTIES.find((d) => d.value === form.difficulty);
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-10 max-w-5xl">
+    <form onSubmit={handleSubmit} className="space-y-10 w-full">
 
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -276,19 +289,31 @@ export default function QuestForm() {
             <p className="text-xs text-dim mb-1.5" style={{ fontFamily: "var(--font-body)" }}>
               Visible only to admins and moderators. Not shown to regular users.
             </p>
-            <textarea
-              className="sf-input"
-              placeholder="# Write your reference solution here…"
-              value={form.example_solution}
-              onChange={(e) => setField("example_solution", e.target.value)}
-              rows={8}
+            <div
               style={{
-                resize: "vertical",
-                fontFamily: "'Fira Code', 'Cascadia Code', monospace",
-                fontSize: "0.88rem",
-                lineHeight: 1.65,
+                borderRadius: "12px",
+                overflow: "hidden",
+                border: "1px solid rgba(255,255,255,0.10)",
               }}
-            />
+            >
+              <CodeMirror
+                value={form.example_solution}
+                onChange={(val) => setField("example_solution", val)}
+                theme={vscodeDark}
+                extensions={langExt}
+                minHeight="220px"
+                style={{ fontSize: "0.83rem" }}
+                basicSetup={{
+                  lineNumbers: true,
+                  foldGutter: false,
+                  dropCursor: false,
+                  allowMultipleSelections: false,
+                  autocompletion: true,
+                  highlightActiveLine: true,
+                  highlightSelectionMatches: true,
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
