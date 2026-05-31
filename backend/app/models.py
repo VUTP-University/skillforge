@@ -228,3 +228,115 @@ class QuestCompletion(db.Model):
 
     def __repr__(self):
         return f"<QuestCompletion user={self.user_id} quest={self.quest_id}>"
+
+
+# ── Underworld ──────────────────────────────────────────────────────────────
+
+
+class BossDifficulty(enum.Enum):
+    cursed   = "cursed"
+    damned   = "damned"
+    infernal = "infernal"
+
+
+class ChallengeStatus(enum.Enum):
+    active    = "active"
+    completed = "completed"
+    failed    = "failed"
+
+
+BOSS_DIFFICULTY_CONFIG = {
+    BossDifficulty.cursed:   {"minutes": 5,  "max_xp": 30},
+    BossDifficulty.damned:   {"minutes": 10, "max_xp": 60},
+    BossDifficulty.infernal: {"minutes": 15, "max_xp": 100},
+}
+
+
+class Boss(db.Model):
+    __tablename__ = "bosses"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    slug        = db.Column(db.String(80),  unique=True, nullable=False)
+    name        = db.Column(db.String(120), nullable=False)
+    avatar      = db.Column(db.String(200), nullable=False)
+    language    = db.Column(db.String(20),  nullable=False)   # plain string: python / javascript / java / csharp
+    description = db.Column(db.Text, nullable=False)
+    specialty   = db.Column(db.String(200), nullable=False)
+    difficulty  = db.Column(db.Enum(BossDifficulty), nullable=False)
+    aura        = db.Column(db.Text, nullable=False)
+    lore        = db.Column(db.String(200), nullable=False)
+
+    challenges  = db.relationship("BossChallenge", back_populates="boss", cascade="all, delete-orphan")
+
+    def to_dict(self):
+        cfg = BOSS_DIFFICULTY_CONFIG[self.difficulty]
+        return {
+            "id":          self.id,
+            "slug":        self.slug,
+            "name":        self.name,
+            "avatar":      self.avatar,
+            "language":    self.language,
+            "description": self.description,
+            "specialty":   self.specialty,
+            "difficulty":  self.difficulty.value,
+            "aura":        self.aura,
+            "lore":        self.lore,
+            "time_minutes": cfg["minutes"],
+            "max_xp":      cfg["max_xp"],
+        }
+
+    def __repr__(self):
+        return f"<Boss {self.slug}>"
+
+
+class BossChallenge(db.Model):
+    __tablename__ = "boss_challenges"
+
+    id                 = db.Column(db.Integer, primary_key=True)
+    user_id            = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    boss_id            = db.Column(
+        db.Integer,
+        db.ForeignKey("bosses.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    challenge_text     = db.Column(db.Text, nullable=False)
+    boss_taunt         = db.Column(db.Text, nullable=False)
+    user_solution      = db.Column(db.Text, nullable=True)
+    boss_verdict       = db.Column(db.Text, nullable=True)
+    technical_feedback = db.Column(db.Text, nullable=True)
+    xp_earned          = db.Column(db.Integer, default=0,  nullable=False)
+    score_pct          = db.Column(db.Integer, default=0,  nullable=False)
+    status             = db.Column(db.Enum(ChallengeStatus), nullable=False, default=ChallengeStatus.active)
+    started_at         = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    submitted_at       = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship("User")
+    boss = db.relationship("Boss", back_populates="challenges")
+
+    def to_dict(self):
+        return {
+            "id":                 self.id,
+            "user_id":            self.user_id,
+            "boss_id":            self.boss_id,
+            "challenge_text":     self.challenge_text,
+            "boss_taunt":         self.boss_taunt,
+            "user_solution":      self.user_solution,
+            "boss_verdict":       self.boss_verdict,
+            "technical_feedback": self.technical_feedback,
+            "xp_earned":          self.xp_earned,
+            "score_pct":          self.score_pct,
+            "status":             self.status.value,
+            "started_at":         self.started_at.isoformat(),
+            "submitted_at":       self.submitted_at.isoformat() if self.submitted_at else None,
+        }
+
+    def __repr__(self):
+        return f"<BossChallenge {self.id} user={self.user_id} boss={self.boss_id}>"

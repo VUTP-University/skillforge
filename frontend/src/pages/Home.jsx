@@ -42,7 +42,7 @@ const LANGUAGES = [
 
 const SECTIONS = [
   { name: "Leaderboard", path: "/leaderboard", image: statsImg, description: "Compete with the best coders" },
-  { name: "Underworld",  path: "#", image: underworldImg,  description: "Face the darkest challenges"  },
+  { name: "Underworld",  path: "/underworld", image: underworldImg,  description: "Face the darkest challenges"  },
   { name: "Trivia",      path: "#", image: triviaImg,      description: "Coming soon…"                 },
 ];
 

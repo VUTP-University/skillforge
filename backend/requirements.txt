@@ -19,3 +19,4 @@ SQLAlchemy==2.0.50
 typing_extensions==4.15.0
 Werkzeug==3.1.8
 requests==2.32.3
+openai>=1.0.0

@@ -25,6 +25,9 @@ class Config:
     # Piston code execution engine — https://github.com/engineer-man/piston
     PISTON_URL = os.environ.get("PISTON_URL", "http://localhost:2000")
 
+    # OpenAI — used for Underworld boss challenge generation & evaluation
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

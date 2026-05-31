@@ -9,7 +9,42 @@ import {
   uploadAvatar,
 } from "../services/profileService";
 
+// Boss portraits (Underworld Chronicles)
+import imgArcanis        from "../assets/img/underworld_realm/Arcanis.png";
+import imgDOMinus        from "../assets/img/underworld_realm/DOMinus.png";
+import imgEldrin         from "../assets/img/underworld_realm/Eldrin.png";
+import imgExceptionor    from "../assets/img/underworld_realm/Exceptionor.png";
+import imgFlameatrix     from "../assets/img/underworld_realm/Flameatrix.png";
+import imgLambdaen       from "../assets/img/underworld_realm/Lambdaen.png";
+import imgNecroPy        from "../assets/img/underworld_realm/NecroPy.png";
+import imgNethraxis      from "../assets/img/underworld_realm/Nethraxis.png";
+import imgSerpentis      from "../assets/img/underworld_realm/Serpentis.png";
+import imgSerpyros       from "../assets/img/underworld_realm/Serpyros.png";
+import imgShadowScripter from "../assets/img/underworld_realm/Shadow Scripter.png";
+import imgValora         from "../assets/img/underworld_realm/Valora.png";
+
 /* ── Constants ───────────────────────────────────────────────────────────── */
+
+const BOSS_IMAGES = {
+  "Arcanis.png":         imgArcanis,
+  "DOMinus.png":         imgDOMinus,
+  "Eldrin.png":          imgEldrin,
+  "Exceptionor.png":     imgExceptionor,
+  "Flameatrix.png":      imgFlameatrix,
+  "Lambdaen.png":        imgLambdaen,
+  "NecroPy.png":         imgNecroPy,
+  "Nethraxis.png":       imgNethraxis,
+  "Serpentis.png":       imgSerpentis,
+  "Serpyros.png":        imgSerpyros,
+  "Shadow Scripter.png": imgShadowScripter,
+  "Valora.png":          imgValora,
+};
+
+const UW_DIFF_META = {
+  cursed:   { label: "Cursed",   color: "#ef4444" },
+  damned:   { label: "Damned",   color: "#f97316" },
+  infernal: { label: "Infernal", color: "#a855f7" },
+};
 
 const LANG_CONFIG = {
   python:     { name: "Python",     color: "#3b82f6" },
@@ -228,8 +263,10 @@ export default function ProfilePage() {
     );
   }
 
-  const rs    = RANK_STYLE[profile.rank] ?? RANK_STYLE["Novice"];
-  const comps = profile.completions ?? [];
+  const rs              = RANK_STYLE[profile.rank] ?? RANK_STYLE["Novice"];
+  const comps           = profile.completions ?? [];
+  const bossChallenges  = profile.boss_challenges ?? [];
+  const vanquishedCount = bossChallenges.filter(c => c.status === "completed").length;
   const byLang = comps.reduce((acc, c) => {
     acc[c.language] = (acc[c.language] || 0) + 1;
     return acc;
@@ -340,6 +377,19 @@ export default function ProfilePage() {
                 value={comps.length}
                 label={comps.length === 1 ? "Quest" : "Quests"}
               />
+              {bossChallenges.length > 0 && (
+                <StatChip
+                  icon={
+                    <svg style={{ width: 14, height: 14, color: "#f87171", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                    </svg>
+                  }
+                  value={vanquishedCount}
+                  label={vanquishedCount === 1 ? "Boss" : "Bosses"}
+                  valueColor="#fca5a5"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -612,6 +662,161 @@ export default function ProfilePage() {
           )}
         </div>
       )}
+
+      {/* ── Underworld Chronicles ── */}
+      {bossChallenges.length > 0 ? (
+        <div className="space-y-4">
+          {/* Section label */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ height: "1px", flex: 1, background: "rgba(220,38,38,0.15)" }} />
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(220,38,38,0.55)", flexShrink: 0 }}>
+              Underworld Chronicles
+            </span>
+            <div style={{ height: "1px", flex: 1, background: "rgba(220,38,38,0.15)" }} />
+          </div>
+
+          {/* Challenge list */}
+          <div
+            style={{
+              borderRadius: "0.875rem",
+              overflow: "hidden",
+              border: "1px solid rgba(220,38,38,0.12)",
+              background: "rgba(127,29,29,0.08)",
+            }}
+          >
+            {bossChallenges.map((c, i) => {
+              const uwDiff  = UW_DIFF_META[c.difficulty] ?? { label: c.difficulty, color: "#ef4444" };
+              const lang    = LANG_CONFIG[c.language];
+              const imgSrc  = BOSS_IMAGES[c.boss_avatar];
+              const verdict = c.boss_verdict ?? "";
+
+              return (
+                <div
+                  key={c.id}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "0.75rem",
+                    padding: "0.75rem 1rem",
+                    borderTop: i === 0 ? "none" : "1px solid rgba(220,38,38,0.06)",
+                    borderLeft: `3px solid ${uwDiff.color}`,
+                    transition: "background 0.12s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(220,38,38,0.05)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  {/* Boss portrait */}
+                  <div style={{
+                    width: 38, height: 38, borderRadius: "50%", overflow: "hidden", flexShrink: 0,
+                    border: `2px solid ${uwDiff.color}44`,
+                    background: "rgba(0,0,0,0.35)",
+                  }}>
+                    {imgSrc && (
+                      <img
+                        src={imgSrc}
+                        alt={c.boss_name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Boss name + truncated verdict */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700,
+                      color: "rgba(255,255,255,0.85)", margin: 0,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>
+                      {c.boss_name}
+                    </p>
+                    {verdict && (
+                      <p style={{
+                        fontSize: "0.60rem", color: "rgba(255,255,255,0.25)", margin: 0,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        fontStyle: "italic",
+                      }}>
+                        "{verdict.length > 72 ? verdict.slice(0, 72) + "…" : verdict}"
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Language */}
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase" }}>
+                      {lang?.name ?? c.language}
+                    </span>
+                  </span>
+
+                  {/* Difficulty */}
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.08em", color: uwDiff.color, textTransform: "uppercase", flexShrink: 0 }}>
+                    {uwDiff.label}
+                  </span>
+
+                  {/* Status badge */}
+                  <span style={{
+                    padding: "0.15rem 0.55rem", borderRadius: "99px", flexShrink: 0,
+                    background: c.status === "completed" ? "rgba(74,222,128,0.10)" : "rgba(239,68,68,0.10)",
+                    border: `1px solid ${c.status === "completed" ? "rgba(74,222,128,0.28)" : "rgba(239,68,68,0.28)"}`,
+                    color: c.status === "completed" ? "#4ade80" : "#f87171",
+                    fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                    letterSpacing: "0.08em", textTransform: "uppercase",
+                  }}>
+                    {c.status === "completed" ? "Vanquished" : "Fallen"}
+                  </span>
+
+                  {/* Score bar + XP — completed only */}
+                  {c.status === "completed" && (
+                    <>
+                      <div style={{ width: 44, flexShrink: 0 }}>
+                        <div style={{ height: 3, borderRadius: 2, background: "rgba(220,38,38,0.18)", marginBottom: "0.2rem" }}>
+                          <div style={{ height: 3, borderRadius: 2, background: uwDiff.color, width: `${c.score_pct ?? 0}%` }} />
+                        </div>
+                        <span style={{ fontSize: "0.50rem", color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-heading)" }}>
+                          {c.score_pct ?? 0}%
+                        </span>
+                      </div>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "#fca5a5", flexShrink: 0 }}>
+                        +{c.xp_earned}
+                      </span>
+                    </>
+                  )}
+
+                  {/* Date */}
+                  <span style={{ fontSize: "0.60rem", color: "rgba(255,255,255,0.20)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
+                    {new Date(c.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : isOwnProfile ? (
+        <div
+          style={{
+            borderRadius: "0.875rem", padding: "2rem", textAlign: "center",
+            border: "1px dashed rgba(220,38,38,0.18)", background: "rgba(127,29,29,0.06)",
+          }}
+        >
+          <p style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>🔥</p>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: "0.3rem" }}>
+            No Underworld battles yet
+          </p>
+          <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)", marginBottom: "1rem" }}>
+            Dare to challenge the ancient lords of code.
+          </p>
+          <Link
+            to="/underworld"
+            style={{
+              display: "inline-block", padding: "0.45rem 1.1rem", borderRadius: "8px",
+              border: "1px solid rgba(220,38,38,0.35)", background: "rgba(220,38,38,0.10)",
+              color: "#fca5a5",
+              fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
+              letterSpacing: "0.10em", textTransform: "uppercase", textDecoration: "none",
+            }}
+          >
+            Enter the Underworld
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }

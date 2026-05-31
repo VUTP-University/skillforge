@@ -10,6 +10,8 @@ import LanguageQuestsPage from "./pages/LanguageQuestsPage";
 import QuestSolvePage from "./pages/QuestSolvePage";
 import ProfilePage from "./pages/ProfilePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import UnderworldPage from "./pages/UnderworldPage";
+import UnderworldChallengePage from "./pages/UnderworldChallengePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -182,6 +184,22 @@ function AppLayout() {
                 <RoleRoute roles={["admin", "moderator"]}>
                   <QuestForm />
                 </RoleRoute>
+              }
+            />
+            <Route
+              path="/underworld"
+              element={
+                <ProtectedRoute>
+                  <UnderworldPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/underworld/challenge/:challengeId"
+              element={
+                <ProtectedRoute>
+                  <UnderworldChallengePage />
+                </ProtectedRoute>
               }
             />
             <Route path="*" element={<Navigate to="/" replace />} />

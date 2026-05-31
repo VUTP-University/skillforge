@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Quest, QuestCompletion, User
+from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, User
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -20,6 +20,29 @@ def _avatars_dir():
 
 def _allowed_ext(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def _build_boss_challenges(user_id):
+    rows = (
+        db.session.query(BossChallenge, Boss)
+        .join(Boss, BossChallenge.boss_id == Boss.id)
+        .filter(BossChallenge.user_id == user_id)
+        .filter(BossChallenge.status != ChallengeStatus.active)
+        .order_by(BossChallenge.started_at.desc())
+        .all()
+    )
+    return [{
+        "id":           c.id,
+        "boss_name":    b.name,
+        "boss_avatar":  b.avatar,
+        "language":     b.language,
+        "difficulty":   b.difficulty.value,
+        "status":       c.status.value,
+        "xp_earned":    c.xp_earned,
+        "score_pct":    c.score_pct,
+        "boss_verdict": c.boss_verdict,
+        "started_at":   c.started_at.isoformat(),
+    } for c, b in rows]
 
 
 def _build_completions(user_id):
@@ -54,7 +77,8 @@ def serve_avatar(filename):
 def get_my_profile():
     user = db.get_or_404(User, int(get_jwt_identity()))
     data = user.to_dict()
-    data["completions"] = _build_completions(user.id)
+    data["completions"]     = _build_completions(user.id)
+    data["boss_challenges"] = _build_boss_challenges(user.id)
     return jsonify(data)
 
 
@@ -72,7 +96,8 @@ def get_profile(user_id):
         "level":       user.level,
         "rank":        user.rank,
         "created_at":  user.created_at.isoformat(),
-        "completions": _build_completions(user_id),
+        "completions":     _build_completions(user_id),
+        "boss_challenges": _build_boss_challenges(user_id),
     })
 
 
