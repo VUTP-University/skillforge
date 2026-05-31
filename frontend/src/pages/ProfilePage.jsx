@@ -238,7 +238,7 @@ export default function ProfilePage() {
   const emailDirty = emailVal.trim() !== (profile.email ?? "");
 
   return (
-    <div className="space-y-8" style={{ maxWidth: "820px" }}>
+    <div className="space-y-8">
 
       {/* Back link — only on public view */}
       {!isOwnProfile && (
@@ -493,7 +493,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Language breakdown */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.6rem" }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {Object.entries(LANG_CONFIG).map(([lang, cfg]) => {
               const count = byLang[lang] || 0;
               return (
