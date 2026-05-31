@@ -117,6 +117,7 @@ export default function Navbar() {
           {user && (
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className={desktopLinkCls(isActive("/"))}>Dashboard</Link>
+              <Link to="/faq" className={desktopLinkCls(isActive("/faq"))}>Library</Link>
             </div>
           )}
 
@@ -273,6 +274,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <NavLink to="/" end className={({ isActive }) => mobileLinkCls(isActive)}>Dashboard</NavLink>
+                <NavLink to="/faq" className={({ isActive }) => mobileLinkCls(isActive)}>Library</NavLink>
                 <div style={{ height: "1px", background: "rgba(255,255,255,0.06)", margin: "0.5rem 0" }} />
                 <NavLink to="/profile" className={({ isActive }) => mobileLinkCls(isActive)}>View Profile</NavLink>
                 {user.role === "moderator" && (

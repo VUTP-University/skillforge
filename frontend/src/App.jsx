@@ -12,6 +12,7 @@ import ProfilePage from "./pages/ProfilePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import UnderworldPage from "./pages/UnderworldPage";
 import UnderworldChallengePage from "./pages/UnderworldChallengePage";
+import FAQPage from "./pages/FAQPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -184,6 +185,14 @@ function AppLayout() {
                 <RoleRoute roles={["admin", "moderator"]}>
                   <QuestForm />
                 </RoleRoute>
+              }
+            />
+            <Route
+              path="/faq"
+              element={
+                <ProtectedRoute>
+                  <FAQPage />
+                </ProtectedRoute>
               }
             />
             <Route

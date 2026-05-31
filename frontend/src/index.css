@@ -675,4 +675,746 @@
     .navbar-inner { padding: 0 1rem; }
     .auth-card    { padding: 1.75rem 1.25rem; }
   }
+
+
+  /* ═══════════════════════════════════════════════════
+     FAQ — THE GRAND CODEX
+     Gothic candelabra · dust motes · manuscript parchment
+     ═══════════════════════════════════════════════════ */
+
+  /* ─── Animations ─── */
+
+  @keyframes candleFlicker {
+    0%   { transform: scaleX(1)    scaleY(1)    rotate(0deg);    opacity: 0.92; }
+    15%  { transform: scaleX(0.86) scaleY(1.10) rotate(3.5deg);  opacity: 1;    }
+    30%  { transform: scaleX(1.12) scaleY(0.90) rotate(-2.5deg); opacity: 0.84; }
+    50%  { transform: scaleX(0.92) scaleY(1.07) rotate(1.8deg);  opacity: 0.96; }
+    70%  { transform: scaleX(1.08) scaleY(0.94) rotate(-1.2deg); opacity: 0.88; }
+    85%  { transform: scaleX(0.94) scaleY(1.04) rotate(0.8deg);  opacity: 0.93; }
+    100% { transform: scaleX(1)    scaleY(1)    rotate(0deg);    opacity: 0.92; }
+  }
+
+  @keyframes candleGlowPulse {
+    0%, 100% { opacity: 0.26; transform: scale(1.00); }
+    50%       { opacity: 0.55; transform: scale(1.18); }
+  }
+
+  @keyframes waxDrip {
+    0%   { height: 0;    opacity: 0;   }
+    8%   { opacity: 0.88; }
+    60%  { height: 22px; opacity: 0.82; }
+    88%  { height: 22px; opacity: 0.38; }
+    100% { height: 0;    opacity: 0;   }
+  }
+
+  @keyframes dustFloat {
+    0%   { transform: translateY(0)     translateX(0)     scale(1.0); opacity: 0;    }
+    12%  { opacity: 1; }
+    48%  { transform: translateY(-52px) translateX(14px)  scale(1.4); opacity: 0.88; }
+    88%  { opacity: 0.55; }
+    100% { transform: translateY(-95px) translateX(-10px) scale(0.65); opacity: 0;   }
+  }
+
+  @keyframes faqFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  /* ─── Page ─── */
+  .faq-page { display: flex; flex-direction: column; gap: 0; }
+
+  /* ─── Header ─── */
+  .faq-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 2rem 1rem 2.25rem;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.07);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, transparent 100%);
+  }
+
+  /* Ambient candlelight glow behind each candelabra */
+  .faq-header-glow {
+    position: absolute;
+    top: 15%;
+    width: 260px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(201, 168, 76, 0.11), transparent 70%);
+    filter: blur(35px);
+    pointer-events: none;
+    animation: candleGlowPulse 4.2s ease-in-out infinite;
+  }
+  .faq-header-glow--left  { left: 5%;  animation-delay: 0s;   }
+  .faq-header-glow--right { right: 5%; animation-delay: 1.8s; }
+
+  /* Floating dust motes */
+  .faq-dust {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .faq-dust-mote {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(201, 168, 76, 0.60);
+    box-shadow: 0 0 4px rgba(201, 168, 76, 0.38);
+    animation: dustFloat ease-in-out infinite;
+  }
+
+  /* Header title block */
+  .faq-header-center {
+    text-align: center;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .faq-header-title {
+    font-family: var(--font-brand);
+    font-size: 2.1rem;
+    color: #c9a84c;
+    letter-spacing: 0.06em;
+    margin: 0.5rem 0;
+    text-shadow:
+      0 0 40px rgba(201, 168, 76, 0.55),
+      0 0 90px rgba(201, 168, 76, 0.22);
+  }
+
+  .faq-header-sub {
+    font-family: var(--font-body);
+    font-size: 0.975rem;
+    color: rgba(255, 255, 255, 0.34);
+    font-style: italic;
+    margin: 0.4rem 0;
+    line-height: 1.65;
+  }
+
+  .faq-header-ornament {
+    color: rgba(201, 168, 76, 0.34);
+    font-size: 0.58rem;
+    letter-spacing: 0.42em;
+    font-family: var(--font-heading);
+    user-select: none;
+  }
+
+  /* ─── Gothic Candelabra ─── */
+
+  .candelabra {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Multi-layer flame */
+  .candelabra-flame-area {
+    position: relative;
+    width: 40px;
+    height: 36px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .candelabra-flame-glow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 52px;
+    background: radial-gradient(ellipse, rgba(251, 191, 36, 0.35), rgba(245, 158, 11, 0.18) 50%, transparent 72%);
+    border-radius: 50%;
+    animation: candleGlowPulse 2.8s ease-in-out infinite;
+  }
+
+  .candelabra-flame-outer {
+    position: absolute;
+    bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    width: 15px;
+    height: 30px;
+    background: radial-gradient(ellipse at 50% 65%, #f97316 0%, #ea580c 40%, #9a3412 82%, transparent 100%);
+    border-radius: 50% 50% 36% 36%;
+    animation: candleFlicker 3.4s ease-in-out infinite;
+    transform-origin: 50% 100%;
+    filter: blur(0.5px);
+  }
+
+  .candelabra-flame-mid {
+    position: absolute;
+    bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    width: 8px;
+    height: 21px;
+    background: radial-gradient(ellipse at 50% 72%, #fde68a 0%, #fbbf24 42%, #f59e0b 78%, transparent 100%);
+    border-radius: 50% 50% 36% 36%;
+    animation: candleFlicker 3.1s ease-in-out infinite 0.18s;
+    transform-origin: 50% 100%;
+    filter: blur(0.2px);
+  }
+
+  .candelabra-flame-core {
+    position: absolute;
+    bottom: 3px;
+    left: 50%; transform: translateX(-50%);
+    width: 3.5px;
+    height: 11px;
+    background: radial-gradient(ellipse, #fef9c3 0%, #fde68a 58%, transparent 100%);
+    border-radius: 50% 50% 36% 36%;
+  }
+
+  /* Wick */
+  .candelabra-wick {
+    width: 1.5px;
+    height: 6px;
+    background: linear-gradient(to bottom, #a16207, #78350f);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Ivory wax body */
+  .candelabra-wax {
+    width: 18px;
+    height: 62px;
+    background: linear-gradient(to right,
+      #cec9b4 0%, #e8e3cf 22%, #f4efdc 50%, #e8e3cf 78%, #cec9b4 100%
+    );
+    border-radius: 1px 1px 0 0;
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+
+  /* Animated wax drips */
+  .candelabra-drip {
+    position: absolute;
+    width: 5px;
+    border-radius: 0 0 50% 50%;
+    background: linear-gradient(to bottom, #ddd8c2, #c6bfa8);
+    animation: waxDrip ease-in-out infinite;
+  }
+  .candelabra-drip--1 { left:  -3px; top:  5px;  animation-duration: 9s;  animation-delay: 0.8s; }
+  .candelabra-drip--2 { right: -3px; top: 13px;  animation-duration: 13s; animation-delay: 4.5s; }
+  .candelabra-drip--3 { left:   5px; top: 20px;  animation-duration: 17s; animation-delay: 9s;   }
+
+  /* Bobeche — ornate wax-catcher saucer */
+  .candelabra-bobeche {
+    width: 40px;
+    height: 7px;
+    background: linear-gradient(to right,
+      #2e1c06 0%, #6b4f1f 12%, #b8965f 30%,
+      #c9a84c 50%,
+      #b8965f 70%, #6b4f1f 88%, #2e1c06 100%
+    );
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.55), 0 1px 0 rgba(201, 168, 76, 0.30) inset;
+  }
+
+  /* Iron shafts */
+  .candelabra-shaft {
+    background: linear-gradient(to right,
+      #140c02 0%, #2e1c06 18%, #4a3010 38%,
+      #6b4f1f 50%, #4a3010 62%, #2e1c06 82%, #140c02 100%
+    );
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+  .candelabra-shaft--upper { width: 7px; height: 30px; }
+  .candelabra-shaft--lower { width: 7px; height: 22px; }
+  .candelabra-shaft--stem  { width: 6px; height: 14px; }
+
+  /* Knot ring — decorative bulge */
+  .candelabra-ring {
+    width: 19px;
+    height: 8px;
+    background: linear-gradient(to right,
+      #2e1c06 0%, #6b4f1f 18%, #b8965f 36%,
+      #c9a84c 50%,
+      #b8965f 64%, #6b4f1f 82%, #2e1c06 100%
+    );
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* Gothic cross-guard with pointed ends */
+  .candelabra-guard {
+    width: 46px;
+    height: 6px;
+    background: linear-gradient(to right,
+      transparent 0%,
+      #2e1c06 4%, #4a3010 14%, #8b6520 28%,
+      #c9a84c 50%,
+      #8b6520 72%, #4a3010 86%, #2e1c06 96%,
+      transparent 100%
+    );
+    border-radius: 99px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .candelabra-guard::before,
+  .candelabra-guard::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 11px;
+    background: linear-gradient(to bottom, #7a5218, #2e1c06);
+    border-radius: 40% 40% 50% 50%;
+  }
+  .candelabra-guard::before { left:  -2px; }
+  .candelabra-guard::after  { right: -2px; }
+
+  /* Stepped base */
+  .candelabra-base-cap {
+    width: 26px;
+    height: 7px;
+    background: linear-gradient(to right,
+      #2e1c06 0%, #6b4f1f 20%, #b8965f 44%,
+      #c9a84c 50%, #b8965f 56%, #6b4f1f 80%, #2e1c06 100%
+    );
+    border-radius: 3px 3px 0 0;
+    flex-shrink: 0;
+  }
+
+  .candelabra-base-foot {
+    width: 50px;
+    height: 9px;
+    background: linear-gradient(to right,
+      #0e0801 0%, #2e1c06 8%, #4a3010 22%,
+      #8b6520 38%, #c9a84c 50%,
+      #8b6520 62%, #4a3010 78%, #2e1c06 92%, #0e0801 100%
+    );
+    border-radius: 50% 50% 4px 4px / 55% 55% 3px 3px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6), 0 1px 0 rgba(201, 168, 76, 0.18) inset;
+  }
+
+  /* ─── Body layout ─── */
+  .faq-body {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding-top: 0.75rem;
+  }
+
+  /* ─── Sidebar — bookshelf ─── */
+  .faq-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 5rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid rgba(120, 75, 20, 0.30);
+    background: linear-gradient(170deg, rgba(20, 11, 2, 0.97) 0%, rgba(26, 15, 4, 0.97) 100%);
+    box-shadow:
+      inset 1px 0 0 rgba(201, 168, 76, 0.05),
+      inset -1px 0 0 rgba(0,0,0,0.5),
+      3px 0 14px rgba(0,0,0,0.35);
+  }
+
+  .faq-sidebar-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(201, 168, 76, 0.44);
+    padding: 0.875rem 1rem 0.625rem;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+  }
+
+  .faq-sidebar-heading-icon { font-size: 0.8rem; }
+
+  .faq-volumes-list {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .faq-volume-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.75rem 0.875rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, border-color 0.15s;
+    position: relative;
+  }
+
+  .faq-volume-btn:hover:not(.faq-volume-btn--active) {
+    background: rgba(201, 168, 76, 0.05);
+    border-color: rgba(201, 168, 76, 0.10);
+  }
+
+  .faq-volume-btn--active {
+    background: rgba(201, 168, 76, 0.10);
+    border-color: rgba(201, 168, 76, 0.22);
+    box-shadow: inset 2px 0 0 #c9a84c;
+  }
+
+  /* Glowing pip on active volume */
+  .faq-volume-pip {
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #c9a84c;
+    box-shadow: 0 0 7px 2px rgba(201, 168, 76, 0.65);
+    margin-top: 0.32rem;
+    margin-left: auto;
+    flex-shrink: 0;
+    animation: candleGlowPulse 2.2s ease-in-out infinite;
+  }
+
+  .faq-volume-glyph {
+    font-size: 0.875rem;
+    color: rgba(201, 168, 76, 0.30);
+    flex-shrink: 0;
+    margin-top: 1px;
+    line-height: 1.4;
+    transition: color 0.15s;
+  }
+
+  .faq-volume-btn--active .faq-volume-glyph,
+  .faq-volume-btn:hover .faq-volume-glyph { color: #c9a84c; }
+
+  .faq-volume-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .faq-volume-title {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.48);
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+
+  .faq-volume-btn--active .faq-volume-title { color: #c9a84c; }
+  .faq-volume-btn:hover:not(.faq-volume-btn--active) .faq-volume-title {
+    color: rgba(255, 255, 255, 0.80);
+  }
+
+  .faq-volume-sub {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.22);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Decorative wooden shelf line */
+  .faq-sidebar-shelf {
+    height: 5px;
+    margin: 0.25rem 0.5rem 0.5rem;
+    border-radius: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(201, 168, 76, 0.14) 20%,
+      rgba(201, 168, 76, 0.28) 50%,
+      rgba(201, 168, 76, 0.14) 80%,
+      transparent
+    );
+    border-top: 1px solid rgba(201, 168, 76, 0.18);
+  }
+
+  /* ─── Article — manuscript panel ─── */
+  .faq-article {
+    flex: 1;
+    min-width: 0;
+    /* Subtle parchment grain via repeating diagonal lines */
+    background:
+      repeating-linear-gradient(
+        -48deg,
+        transparent,
+        transparent 4px,
+        rgba(201, 168, 76, 0.006) 4px,
+        rgba(201, 168, 76, 0.006) 5px
+      ),
+      radial-gradient(ellipse at 18% 12%, rgba(201, 168, 76, 0.045) 0%, transparent 52%),
+      radial-gradient(ellipse at 82% 88%, rgba(201, 168, 76, 0.030) 0%, transparent 46%),
+      rgba(11, 9, 3, 0.72);
+    border: 1px solid rgba(201, 168, 76, 0.12);
+    border-radius: 1rem;
+    padding: 2.5rem 3rem;
+    backdrop-filter: blur(4px);
+    animation: faqFadeIn 0.32s ease-out both;
+    box-shadow:
+      inset 0 0 70px rgba(201, 168, 76, 0.018),
+      0 4px 24px rgba(0, 0, 0, 0.38);
+    position: relative;
+    transition: opacity 0.22s ease-out, transform 0.22s ease-out;
+  }
+
+  .faq-article--fading {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  /* Manuscript corner ornaments (::before = TL, ::after = BR) */
+  .faq-article::before {
+    content: '';
+    position: absolute;
+    top: 14px; left: 14px;
+    width: 26px; height: 26px;
+    border-top: 1px solid rgba(201, 168, 76, 0.30);
+    border-left: 1px solid rgba(201, 168, 76, 0.30);
+    pointer-events: none;
+  }
+
+  .faq-article::after {
+    content: '';
+    position: absolute;
+    bottom: 14px; right: 14px;
+    width: 26px; height: 26px;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.30);
+    border-right: 1px solid rgba(201, 168, 76, 0.30);
+    pointer-events: none;
+  }
+
+  /* TR and BL corners via .faq-corner spans */
+  .faq-corner {
+    position: absolute;
+    width: 26px; height: 26px;
+    pointer-events: none;
+  }
+
+  .faq-corner--tr {
+    top: 14px; right: 14px;
+    border-top: 1px solid rgba(201, 168, 76, 0.30);
+    border-right: 1px solid rgba(201, 168, 76, 0.30);
+  }
+
+  .faq-corner--bl {
+    bottom: 14px; left: 14px;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.30);
+    border-left: 1px solid rgba(201, 168, 76, 0.30);
+  }
+
+  /* ─── Prose — rendered markdown ─── */
+
+  .faq-prose { font-family: var(--font-body); }
+
+  /* Illuminated drop cap on opening paragraph */
+  .faq-prose > p:first-of-type::first-letter {
+    font-family: var(--font-brand);
+    font-size: 3.8rem;
+    line-height: 0.74;
+    float: left;
+    margin-right: 0.08em;
+    margin-top: 0.10em;
+    color: #c9a84c;
+    text-shadow: 0 0 20px rgba(201, 168, 76, 0.60);
+  }
+
+  .faq-prose h1 {
+    font-family: var(--font-heading);
+    font-size: 1.7rem;
+    color: #c9a84c;
+    letter-spacing: 0.03em;
+    text-shadow: 0 0 28px rgba(201, 168, 76, 0.28);
+    padding-bottom: 0.875rem;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+    margin-bottom: 1.75rem;
+  }
+
+  .faq-prose h2 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: rgba(201, 168, 76, 0.84);
+    letter-spacing: 0.04em;
+    margin-top: 2.25rem;
+    margin-bottom: 0.875rem;
+    padding-left: 0.875rem;
+    border-left: 2px solid rgba(201, 168, 76, 0.38);
+  }
+
+  .faq-prose h3 {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(201, 168, 76, 0.58);
+    margin-top: 1.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .faq-prose p {
+    font-size: 1.08rem;
+    line-height: 1.82;
+    color: rgba(255, 255, 255, 0.70);
+    margin-bottom: 1.1rem;
+  }
+
+  .faq-prose em { font-style: italic; color: rgba(201, 168, 76, 0.76); }
+
+  .faq-prose strong { font-weight: 700; color: rgba(255, 255, 255, 0.92); }
+
+  .faq-prose a { color: #c9a84c; transition: color 0.15s; }
+  .faq-prose a:hover { color: #e2c47a; }
+
+  .faq-prose blockquote {
+    border-left: 3px solid rgba(201, 168, 76, 0.38);
+    padding: 0.875rem 1.25rem;
+    margin: 1.75rem 0;
+    background: rgba(201, 168, 76, 0.038);
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+
+  .faq-prose blockquote p {
+    margin-bottom: 0;
+    font-style: italic;
+    color: rgba(201, 168, 76, 0.72);
+  }
+
+  .faq-prose ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .faq-prose li {
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 1.08rem;
+    line-height: 1.78;
+    color: rgba(255, 255, 255, 0.70);
+  }
+
+  .faq-prose li::before {
+    content: "◆";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    font-size: 0.38rem;
+    color: rgba(201, 168, 76, 0.54);
+    line-height: 1;
+  }
+
+  .faq-prose li p { margin-bottom: 0; }
+
+  .faq-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.75rem 0;
+    font-size: 1rem;
+  }
+
+  .faq-prose thead tr { border-bottom: 1px solid rgba(201, 168, 76, 0.22); }
+
+  .faq-prose th {
+    font-family: var(--font-heading);
+    font-size: 0.60rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(201, 168, 76, 0.72);
+    padding: 0.625rem 1rem;
+    text-align: left;
+    background: rgba(201, 168, 76, 0.04);
+  }
+
+  .faq-prose td {
+    padding: 0.625rem 1rem;
+    color: rgba(255, 255, 255, 0.66);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .faq-prose tbody tr:last-child td { border-bottom: none; }
+
+  .faq-prose-divider {
+    text-align: center;
+    color: rgba(201, 168, 76, 0.36);
+    font-size: 0.68rem;
+    letter-spacing: 0.34em;
+    margin: 2.25rem 0;
+    user-select: none;
+    font-family: var(--font-heading);
+  }
+
+  /* ─── FAQ Mobile ─── */
+  @media (max-width: 767px) {
+    .faq-header { gap: 1rem; padding: 1.5rem 0.5rem 1.75rem; }
+    .faq-header-title { font-size: 1.3rem; }
+    .faq-header-glow { display: none; }
+    .candelabra { transform: scale(0.65); transform-origin: bottom center; }
+
+    .faq-body { flex-direction: column; }
+
+    .faq-sidebar { width: 100%; position: static; }
+    .faq-sidebar-heading { display: none; }
+
+    .faq-volumes-list {
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 4px;
+      padding: 0.5rem;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .faq-volumes-list::-webkit-scrollbar { display: none; }
+
+    .faq-volume-btn {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-width: fit-content;
+      padding: 0.5rem 0.75rem;
+      gap: 0.2rem;
+    }
+
+    .faq-volume-sub { display: none; }
+    .faq-volume-pip { display: none; }
+    .faq-volume-title { font-size: 0.62rem; white-space: nowrap; }
+
+    .faq-article { padding: 1.5rem; }
+    .faq-prose h1 { font-size: 1.35rem; }
+    .faq-prose > p:first-of-type::first-letter { font-size: 2.8rem; }
+
+    .faq-sidebar-shelf { margin: 0; }
+  }
 }
