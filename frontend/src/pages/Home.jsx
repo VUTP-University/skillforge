@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getQuests } from "../services/questService";
+import { getMyProfile } from "../services/profileService";
 
 import pythonImg     from "../assets/img/achievements-icons/Python/python-6.png";
 import jsImg         from "../assets/img/achievements-icons/JavaScript/javascript-1.png";
@@ -10,6 +11,25 @@ import csImg         from "../assets/img/achievements-icons/CS/cs-1.png";
 import statsImg      from "../assets/img/stats_avatar.png";
 import underworldImg from "../assets/img/underworld_realm/Underworld.png";
 import triviaImg     from "../assets/img/construction_worker.png";
+
+function useCountUp(target, duration = 900) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!target) { setValue(0); return; }
+    let cancelled = false;
+    const t0 = performance.now();
+    function tick(now) {
+      if (cancelled) return;
+      const t = Math.min((now - t0) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(ease * target));
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+    return () => { cancelled = true; };
+  }, [target, duration]);
+  return value;
+}
 
 const TOTAL_QUESTS = 30;
 
@@ -21,7 +41,7 @@ const LANGUAGES = [
 ];
 
 const SECTIONS = [
-  { name: "Leaderboard", path: "#", image: statsImg,      description: "Compete with the best coders" },
+  { name: "Leaderboard", path: "/leaderboard", image: statsImg, description: "Compete with the best coders" },
   { name: "Underworld",  path: "#", image: underworldImg,  description: "Face the darkest challenges"  },
   { name: "Trivia",      path: "#", image: triviaImg,      description: "Coming soon…"                 },
 ];
@@ -55,8 +75,11 @@ export default function Home() {
   const { user } = useAuth();
   const displayName = user?.username || "Adventurer";
 
-  const [questCounts, setQuestCounts] = useState({});
-  const [totalLive, setTotalLive]     = useState(null);
+  const [questCounts,    setQuestCounts]    = useState({});
+  const [totalLive,      setTotalLive]      = useState(null);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [xpBarWidth,     setXpBarWidth]     = useState(0);
+  const [cmpBarWidth,    setCmpBarWidth]    = useState(0);
 
   useEffect(() => {
     getQuests().then((quests) => {
@@ -67,7 +90,34 @@ export default function Home() {
       setQuestCounts(counts);
       setTotalLive(quests.length);
     }).catch(() => {});
+    getMyProfile()
+      .then(data => setCompletedCount(data.completions?.length ?? 0))
+      .catch(() => {});
   }, []);
+
+  // XP level math — 100 XP per level
+  const totalXP     = user?.total_xp  ?? 0;
+  const currentLevel = user?.level    ?? 1;
+  const xpIntoLevel = totalXP % 100;
+  const xpToNext    = 100 - xpIntoLevel;
+  const nextLevel   = currentLevel + 1;
+  const xpPct       = Math.round((xpIntoLevel / 100) * 100);
+  const completedPct = totalLive ? Math.round((completedCount / totalLive) * 100) : 0;
+
+  const animatedXP        = useCountUp(totalXP);
+  const animatedCompleted = useCountUp(completedCount);
+
+  // Trigger bar CSS transitions after mount/data-ready
+  useEffect(() => {
+    const t = setTimeout(() => setXpBarWidth(xpPct), 120);
+    return () => clearTimeout(t);
+  }, [xpPct]);
+
+  useEffect(() => {
+    if (totalLive === null) return;
+    const t = setTimeout(() => setCmpBarWidth(completedPct), 120);
+    return () => clearTimeout(t);
+  }, [completedPct, totalLive]);
 
   return (
     <div className="space-y-14">
@@ -107,6 +157,120 @@ export default function Home() {
               </p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* ── Progress ── */}
+      <div>
+        <SectionDivider title="Your Progress" />
+        <div className="grid md:grid-cols-2 gap-4">
+
+          {/* XP card */}
+          <div className="glass-card p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h4
+                  className="text-white font-semibold text-sm"
+                  style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
+                >
+                  XP Points
+                </h4>
+                <div className="flex items-baseline gap-1.5 mt-1.5">
+                  <span
+                    className="text-cyan font-bold"
+                    style={{ fontFamily: "var(--font-heading)", fontSize: "2rem", lineHeight: 1 }}
+                  >
+                    {animatedXP.toLocaleString()}
+                  </span>
+                  <span className="text-sub text-xs">XP total</span>
+                </div>
+              </div>
+              <div
+                style={{
+                  padding: "0.3rem 0.75rem",
+                  borderRadius: "99px",
+                  background: "rgba(3,233,244,0.08)",
+                  border: "1px solid rgba(3,233,244,0.20)",
+                  flexShrink: 0,
+                }}
+              >
+                <span
+                  className="text-cyan"
+                  style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.10em" }}
+                >
+                  LEVEL {currentLevel}
+                </span>
+              </div>
+            </div>
+
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${xpBarWidth}%` }} />
+            </div>
+
+            <div className="flex justify-between mt-2.5">
+              <span
+                className="text-cyan text-xs"
+                style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
+              >
+                {xpIntoLevel} / 100 XP
+              </span>
+              <span className="text-xs text-sub">{xpToNext} XP to level {nextLevel}</span>
+            </div>
+          </div>
+
+          {/* Challenges card */}
+          <div className="glass-card p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h4
+                  className="text-white font-semibold text-sm"
+                  style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
+                >
+                  Completed Challenges
+                </h4>
+                <div className="flex items-baseline gap-1.5 mt-1.5">
+                  <span
+                    className="text-cyan font-bold"
+                    style={{ fontFamily: "var(--font-heading)", fontSize: "2rem", lineHeight: 1 }}
+                  >
+                    {animatedCompleted}
+                  </span>
+                  <span className="text-sub text-xs">
+                    of {totalLive !== null ? totalLive : "—"} quests
+                  </span>
+                </div>
+              </div>
+              <div
+                style={{
+                  width: "2.25rem", height: "2.25rem",
+                  borderRadius: "0.75rem",
+                  background: "rgba(3,233,244,0.10)",
+                  border: "1px solid rgba(3,233,244,0.20)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${cmpBarWidth}%` }} />
+            </div>
+
+            <div className="flex justify-between mt-2.5">
+              <span
+                className="text-cyan text-xs"
+                style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
+              >
+                {completedPct}% complete
+              </span>
+              <span className="text-xs text-sub">{user?.rank ?? "Novice"}</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -261,96 +425,6 @@ export default function Home() {
               </div>
             </Link>
           ))}
-        </div>
-      </div>
-
-      {/* ── Progress ── */}
-      <div>
-        <SectionDivider title="Your Progress" />
-        <div className="grid md:grid-cols-2 gap-4">
-
-          {/* XP card */}
-          <div className="glass-card p-6">
-            <div className="flex items-start justify-between mb-5">
-              <div>
-                <h4
-                  className="text-white font-semibold text-sm"
-                  style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
-                >
-                  XP Points
-                </h4>
-                <p className="text-xs mt-1 text-sub">0 / 1,000 XP</p>
-              </div>
-              <div
-                style={{
-                  width: "2.25rem", height: "2.25rem",
-                  borderRadius: "0.75rem",
-                  background: "rgba(3,233,244,0.10)",
-                  border: "1px solid rgba(3,233,244,0.20)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-              </div>
-            </div>
-            <div className="progress-track">
-              <div className="progress-fill" style={{ width: "0%" }} />
-            </div>
-            <div className="flex justify-between mt-2.5">
-              <span
-                className="text-cyan text-xs"
-                style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
-              >
-                0% to level 2
-              </span>
-              <span className="text-xs text-sub">1,000 XP to go</span>
-            </div>
-          </div>
-
-          {/* Challenges card */}
-          <div className="glass-card p-6">
-            <div className="flex items-start justify-between mb-5">
-              <div>
-                <h4
-                  className="text-white font-semibold text-sm"
-                  style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
-                >
-                  Completed Challenges
-                </h4>
-                <p className="text-xs mt-1 text-sub">0 of {TOTAL_QUESTS} completed</p>
-              </div>
-              <div
-                style={{
-                  width: "2.25rem", height: "2.25rem",
-                  borderRadius: "0.75rem",
-                  background: "rgba(3,233,244,0.10)",
-                  border: "1px solid rgba(3,233,244,0.20)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="progress-track">
-              <div className="progress-fill" style={{ width: "0%" }} />
-            </div>
-            <div className="flex justify-between mt-2.5">
-              <span
-                className="text-cyan text-xs"
-                style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
-              >
-                0% complete
-              </span>
-              <span className="text-xs text-sub">{TOTAL_QUESTS} remaining</span>
-            </div>
-          </div>
-
         </div>
       </div>
 

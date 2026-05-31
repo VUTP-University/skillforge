@@ -9,6 +9,7 @@ import QuestForm from "./pages/QuestForm";
 import LanguageQuestsPage from "./pages/LanguageQuestsPage";
 import QuestSolvePage from "./pages/QuestSolvePage";
 import ProfilePage from "./pages/ProfilePage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -108,6 +109,14 @@ function AppLayout() {
               element={
                 <ProtectedRoute>
                   <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leaderboard"
+              element={
+                <ProtectedRoute>
+                  <LeaderboardPage />
                 </ProtectedRoute>
               }
             />
