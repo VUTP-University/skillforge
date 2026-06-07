@@ -198,6 +198,45 @@ class TestCase(db.Model):
         return f"<TestCase quest={self.quest_id} idx={self.index}>"
 
 
+class QuestComment(db.Model):
+    __tablename__ = "quest_comments"
+
+    id         = db.Column(db.Integer, primary_key=True)
+    quest_id   = db.Column(
+        db.Integer,
+        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id    = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    content    = db.Column(db.Text, nullable=False)
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    quest = db.relationship("Quest")
+    user  = db.relationship("User")
+
+    def to_dict(self):
+        return {
+            "id":         self.id,
+            "quest_id":   self.quest_id,
+            "user_id":    self.user_id,
+            "username":   self.user.username,
+            "avatar_url": f"/api/media/avatars/{self.user.avatar}" if self.user.avatar else None,
+            "content":    self.content,
+            "created_at": self.created_at.isoformat(),
+        }
+
+    def __repr__(self):
+        return f"<QuestComment {self.id} quest={self.quest_id} user={self.user_id}>"
+
+
 class QuestCompletion(db.Model):
     __tablename__ = "quest_completions"
 

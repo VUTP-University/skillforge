@@ -9,7 +9,7 @@ from flask_jwt_extended import (
 )
 
 from app import db
-from app.models import Difficulty, Language, Quest, QuestCompletion, TestCase, User, XP_BY_DIFFICULTY
+from app.models import Difficulty, Language, Quest, QuestComment, QuestCompletion, TestCase, User, XP_BY_DIFFICULTY
 from app.utils import PISTON_RUNTIMES, require_role, run_tests
 
 quests_bp = Blueprint("quests", __name__)
@@ -219,3 +219,52 @@ def delete_quest(quest_id):
     db.session.delete(quest)
     db.session.commit()
     return jsonify({"message": "Quest deleted"}), 200
+
+
+# ── Comments ──────────────────────────────────────────────────────────────────
+
+@quests_bp.route("/<int:quest_id>/comments", methods=["GET"])
+def list_comments(quest_id):
+    db.get_or_404(Quest, quest_id)
+    comments = (
+        QuestComment.query
+        .filter_by(quest_id=quest_id)
+        .order_by(QuestComment.created_at.asc())
+        .all()
+    )
+    return jsonify([c.to_dict() for c in comments])
+
+
+@quests_bp.route("/<int:quest_id>/comments", methods=["POST"])
+@jwt_required()
+def add_comment(quest_id):
+    db.get_or_404(Quest, quest_id)
+    data    = request.get_json(silent=True) or {}
+    content = (data.get("content") or "").strip()
+    if not content:
+        return jsonify({"error": "Comment content is required"}), 400
+    if len(content) > 2000:
+        return jsonify({"error": "Comment must be 2000 characters or fewer"}), 400
+
+    user_id = int(get_jwt_identity())
+    comment = QuestComment(quest_id=quest_id, user_id=user_id, content=content)
+    db.session.add(comment)
+    db.session.commit()
+    return jsonify(comment.to_dict()), 201
+
+
+@quests_bp.route("/<int:quest_id>/comments/<int:comment_id>", methods=["DELETE"])
+@jwt_required()
+def delete_comment(quest_id, comment_id):
+    comment = db.get_or_404(QuestComment, comment_id)
+    if comment.quest_id != quest_id:
+        return jsonify({"error": "Comment does not belong to this quest"}), 404
+
+    caller_id   = int(get_jwt_identity())
+    caller_role = get_jwt().get("role")
+    if comment.user_id != caller_id and caller_role not in ("admin", "moderator"):
+        return jsonify({"error": "Forbidden"}), 403
+
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({"message": "Comment deleted"}), 200

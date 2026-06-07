@@ -19,9 +19,13 @@ api.interceptors.response.use(
   }
 );
 
-export const getQuests   = (params = {}) => api.get("/quests/", { params }).then(r => r.data);
-export const getQuest    = (id)          => api.get(`/quests/${id}`).then(r => r.data);
-export const createQuest = (data)        => api.post("/quests/", data).then(r => r.data);
-export const updateQuest = (id, data)    => api.put(`/quests/${id}`, data).then(r => r.data);
-export const deleteQuest = (id)          => api.delete(`/quests/${id}`).then(r => r.data);
-export const submitQuest = (id, code)    => api.post(`/quests/${id}/submit`, { code }).then(r => r.data);
+export const getQuests      = (params = {})         => api.get("/quests/", { params }).then(r => r.data);
+export const getQuest       = (id)                   => api.get(`/quests/${id}`).then(r => r.data);
+export const createQuest    = (data)                 => api.post("/quests/", data).then(r => r.data);
+export const updateQuest    = (id, data)             => api.put(`/quests/${id}`, data).then(r => r.data);
+export const deleteQuest    = (id)                   => api.delete(`/quests/${id}`).then(r => r.data);
+export const submitQuest    = (id, code)             => api.post(`/quests/${id}/submit`, { code }).then(r => r.data);
+
+export const getComments    = (questId)              => api.get(`/quests/${questId}/comments`).then(r => r.data);
+export const addComment     = (questId, content)     => api.post(`/quests/${questId}/comments`, { content }).then(r => r.data);
+export const deleteComment  = (questId, commentId)   => api.delete(`/quests/${questId}/comments/${commentId}`).then(r => r.data);

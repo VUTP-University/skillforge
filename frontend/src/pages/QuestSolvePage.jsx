@@ -6,7 +6,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
-import { getQuest, submitQuest } from "../services/questService";
+import { getQuest, submitQuest, getComments, addComment, deleteComment } from "../services/questService";
 
 /* ── Config ──────────────────────────────────────────────────────────────── */
 
@@ -191,6 +191,242 @@ function HiddenTestRow({ result, n }) {
   );
 }
 
+/* ── Comments ────────────────────────────────────────────────────────────── */
+
+function formatRelative(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (diff < 60)   return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function CommentAvatar({ username, avatarUrl }) {
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={username}
+        style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,255,255,0.12)" }}
+      />
+    );
+  }
+  return (
+    <div
+      style={{
+        width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+        background: "rgba(3,233,244,0.12)", border: "1px solid rgba(3,233,244,0.25)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700,
+        color: "var(--color-cyan)",
+      }}
+    >
+      {username?.[0]?.toUpperCase() ?? "?"}
+    </div>
+  );
+}
+
+function QuestComments({ questId, currentUser }) {
+  const [comments, setComments]   = useState([]);
+  const [loading,  setLoading]    = useState(true);
+  const [draft,    setDraft]      = useState("");
+  const [posting,  setPosting]    = useState(false);
+  const [postErr,  setPostErr]    = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getComments(questId)
+      .then(setComments)
+      .finally(() => setLoading(false));
+  }, [questId]);
+
+  const handlePost = async () => {
+    if (posting || !draft.trim()) return;
+    setPosting(true);
+    setPostErr(null);
+    try {
+      const comment = await addComment(questId, draft.trim());
+      setComments((prev) => [...prev, comment]);
+      setDraft("");
+    } catch (err) {
+      setPostErr(err?.response?.data?.error ?? "Failed to post comment.");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const handleDelete = async (commentId) => {
+    try {
+      await deleteComment(questId, commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch {
+      // silently ignore — comment list stays intact
+    }
+  };
+
+  const canDelete = (comment) =>
+    currentUser && (currentUser.id === comment.user_id || ["admin", "moderator"].includes(currentUser.role));
+
+  return (
+    <div style={{ marginTop: "2.5rem" }}>
+      {/* Section header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginBottom: "1.25rem" }}>
+        <span
+          style={{
+            fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+            letterSpacing: "0.12em", textTransform: "uppercase",
+            color: "rgba(255,255,255,0.30)",
+          }}
+        >
+          Discussion
+        </span>
+        {!loading && (
+          <span
+            style={{
+              padding: "0.1rem 0.5rem", borderRadius: "99px",
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)",
+              fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+              color: "rgba(255,255,255,0.35)",
+            }}
+          >
+            {comments.length}
+          </span>
+        )}
+      </div>
+
+      {/* Comment list */}
+      {loading ? (
+        <div className="flex items-center gap-2 py-4">
+          <div className="sf-spinner" style={{ width: "14px", height: "14px" }} />
+          <span className="text-sub" style={{ fontSize: "0.78rem" }}>Loading comments…</span>
+        </div>
+      ) : comments.length === 0 ? (
+        <p style={{ fontSize: "0.80rem", color: "rgba(255,255,255,0.25)", fontStyle: "italic", marginBottom: "1.25rem" }}>
+          No comments yet. Be the first to share your thoughts.
+        </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
+          {comments.map((c) => (
+            <div
+              key={c.id}
+              className="glass-card"
+              style={{ padding: "0.9rem 1rem", display: "flex", gap: "0.85rem" }}
+            >
+              <CommentAvatar username={c.username} avatarUrl={c.avatar_url} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "0.35rem", flexWrap: "wrap" }}>
+                  <Link
+                    to={`/users/${c.user_id}`}
+                    style={{
+                      fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
+                      color: "rgba(255,255,255,0.80)", textDecoration: "none", transition: "color 0.12s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.80)")}
+                  >
+                    {c.username}
+                  </Link>
+                  <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.25)" }}>
+                    {formatRelative(c.created_at)}
+                  </span>
+                  {canDelete(c) && (
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      style={{
+                        marginLeft: "auto", background: "none", border: "none", cursor: "pointer",
+                        fontSize: "0.62rem", color: "rgba(248,113,113,0.45)",
+                        fontFamily: "var(--font-heading)", letterSpacing: "0.06em", textTransform: "uppercase",
+                        transition: "color 0.12s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#f87171")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(248,113,113,0.45)")}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+                <p style={{ margin: 0, fontSize: "0.84rem", color: "rgba(255,255,255,0.72)", lineHeight: 1.65, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                  {c.content}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Post form */}
+      {currentUser ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="Share your approach, ask a question, or help others…"
+            rows={3}
+            maxLength={2000}
+            style={{
+              width: "100%", resize: "vertical",
+              padding: "0.75rem 0.9rem", borderRadius: "10px",
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)",
+              color: "rgba(255,255,255,0.85)", fontSize: "0.84rem", lineHeight: 1.6,
+              fontFamily: "var(--font-body)",
+              outline: "none", transition: "border-color 0.15s",
+              boxSizing: "border-box",
+            }}
+            onFocus={(e)  => (e.currentTarget.style.borderColor = "rgba(3,233,244,0.40)")}
+            onBlur={(e)   => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)")}
+          />
+          {postErr && (
+            <p style={{ margin: 0, fontSize: "0.75rem", color: "#f87171" }}>{postErr}</p>
+          )}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
+            <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-heading)" }}>
+              {draft.length} / 2000
+            </span>
+            <button
+              onClick={handlePost}
+              disabled={posting || !draft.trim()}
+              style={{
+                display: "flex", alignItems: "center", gap: "0.45rem",
+                padding: "0.5rem 1.1rem", borderRadius: "8px",
+                border: "1px solid rgba(3,233,244,0.30)",
+                background: posting ? "rgba(3,233,244,0.06)" : "rgba(3,233,244,0.10)",
+                color: posting ? "rgba(3,233,244,0.50)" : "var(--color-cyan)",
+                fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                letterSpacing: "0.10em", textTransform: "uppercase",
+                cursor: posting || !draft.trim() ? "not-allowed" : "pointer",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { if (!posting && draft.trim()) e.currentTarget.style.background = "rgba(3,233,244,0.16)"; }}
+              onMouseLeave={(e) => { if (!posting) e.currentTarget.style.background = "rgba(3,233,244,0.10)"; }}
+            >
+              {posting ? (
+                <>
+                  <div className="sf-spinner" style={{ width: "11px", height: "11px", borderWidth: "2px" }} />
+                  Posting…
+                </>
+              ) : (
+                "Post Comment"
+              )}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p style={{ fontSize: "0.80rem", color: "rgba(255,255,255,0.28)" }}>
+          <Link
+            to="/login"
+            style={{ color: "var(--color-cyan)", textDecoration: "none" }}
+            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+          >
+            Sign in
+          </Link>
+          {" "}to leave a comment.
+        </p>
+      )}
+    </div>
+  );
+}
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
 export default function QuestSolvePage() {
@@ -334,7 +570,7 @@ export default function QuestSolvePage() {
       </div>
 
       {/* ── Two-panel layout ── */}
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-5" style={{ alignItems: "flex-start" }}>
 
         {/* ── LEFT: Problem description ── */}
         <div
@@ -580,6 +816,11 @@ export default function QuestSolvePage() {
 
         </div>
       </div>
+
+      {/* ── Comments ── */}
+      <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", margin: "2rem 0" }} />
+      <QuestComments questId={questId} currentUser={currentUser} />
+
     </div>
   );
 }
