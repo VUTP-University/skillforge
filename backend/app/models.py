@@ -59,6 +59,9 @@ class User(db.Model):
     completions = db.relationship(
         "QuestCompletion", back_populates="user", cascade="all, delete-orphan"
     )
+    submissions = db.relationship(
+        "QuestSubmission", back_populates="user", cascade="all, delete-orphan"
+    )
 
     @property
     def level(self):
@@ -267,6 +270,40 @@ class QuestCompletion(db.Model):
 
     def __repr__(self):
         return f"<QuestCompletion user={self.user_id} quest={self.quest_id}>"
+
+
+class QuestSubmission(db.Model):
+    """Every code run a user submits, whether it passes or fails."""
+    __tablename__ = "quest_submissions"
+
+    id            = db.Column(db.Integer, primary_key=True)
+    user_id       = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    quest_id      = db.Column(
+        db.Integer,
+        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    solution_code = db.Column(db.Text, nullable=False)
+    test_results  = db.Column(db.JSON, nullable=True)
+    all_passed    = db.Column(db.Boolean, nullable=False, default=False)
+    submitted_at  = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        index=True,
+    )
+
+    user  = db.relationship("User", back_populates="submissions")
+    quest = db.relationship("Quest")
+
+    def __repr__(self):
+        return f"<QuestSubmission user={self.user_id} quest={self.quest_id} passed={self.all_passed}>"
 
 
 # ── Trivia ──────────────────────────────────────────────────────────────────

@@ -9,7 +9,7 @@ from flask_jwt_extended import (
 )
 
 from app import db
-from app.models import Difficulty, Language, Quest, QuestComment, QuestCompletion, TestCase, User, XP_BY_DIFFICULTY
+from app.models import Difficulty, Language, Quest, QuestComment, QuestCompletion, QuestSubmission, TestCase, User, XP_BY_DIFFICULTY
 from app.utils import PISTON_RUNTIMES, require_role, run_tests
 
 quests_bp = Blueprint("quests", __name__)
@@ -190,9 +190,21 @@ def submit_quest(quest_id):
     except Exception as exc:
         return jsonify({"error": f"Execution engine error: {exc}"}), 503
 
+    user_id    = int(get_jwt_identity())
+    all_passed = result.get("passed") == result.get("total") and result.get("total", 0) > 0
+
+    # Always record this run
+    submission = QuestSubmission(
+        user_id=user_id,
+        quest_id=quest_id,
+        solution_code=code,
+        test_results=result,
+        all_passed=all_passed,
+    )
+    db.session.add(submission)
+
     # Award XP on first full pass
-    if result.get("passed") == result.get("total") and result.get("total", 0) > 0:
-        user_id  = int(get_jwt_identity())
+    if all_passed:
         existing = QuestCompletion.query.filter_by(user_id=user_id, quest_id=quest_id).first()
         if not existing:
             user = db.get_or_404(User, user_id)
@@ -200,13 +212,14 @@ def submit_quest(quest_id):
                 user_id=user_id, quest_id=quest_id, xp_earned=quest.xp_reward
             ))
             user.total_xp = (user.total_xp or 0) + quest.xp_reward
-            db.session.commit()
-            result["xp_earned"]       = quest.xp_reward
+            result["xp_earned"]        = quest.xp_reward
             result["first_completion"] = True
         else:
-            result["xp_earned"]       = 0
+            result["xp_earned"]        = 0
             result["first_completion"] = False
 
+    db.session.commit()
+    result["submission_id"] = submission.id
     return jsonify(result)
 
 

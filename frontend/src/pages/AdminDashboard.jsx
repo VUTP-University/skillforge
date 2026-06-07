@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AdminSubmissionsTable from "../components/AdminSubmissionsTable";
 import { deleteQuest, getQuests } from "../services/questService";
 import { deleteAdminUser, getAdminUsers, updateUserRole } from "../services/userService";
 
@@ -548,6 +549,11 @@ export default function AdminDashboard() {
               </div>
             </>
           )}
+        </div>
+
+        {/* ── Submissions section ── */}
+        <div>
+          <AdminSubmissionsTable />
         </div>
 
       </div>

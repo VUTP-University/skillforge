@@ -4,7 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import {
   deleteAvatar,
   getMyProfile,
+  getMySubmissions,
   getProfile,
+  getSubmissionDetail,
+  getUserSubmissions,
   updateEmail,
   uploadAvatar,
 } from "../services/profileService";
@@ -148,6 +151,18 @@ export default function ProfilePage() {
   const [avatarMsg,     setAvatarMsg]     = useState(null);
   const fileInputRef = useRef(null);
 
+  // Submissions table (own + public profiles)
+  const [subs,        setSubs]        = useState(null);  // { items, total, page, pages, per_page }
+  const [subsPage,    setSubsPage]    = useState(1);
+  const [subsLoading, setSubsLoading] = useState(false);
+
+  // Submission detail modal (own profile only)
+  const [subModal,        setSubModal]        = useState(null);
+  const [subModalLoading, setSubModalLoading] = useState(false);
+
+  // Stable key to detect which profile is being viewed
+  const profileKey = isOwnProfile ? "me" : (userId ?? "me");
+
   useEffect(() => {
     setLoading(true);
     setLoadErr(null);
@@ -163,6 +178,25 @@ export default function ProfilePage() {
       .catch(() => setLoadErr("Profile not found."))
       .finally(() => setLoading(false));
   }, [userId, isOwnProfile]);
+
+  // Reset page whenever the viewed profile changes
+  useEffect(() => {
+    setSubs(null);
+    setSubsPage(1);
+  }, [profileKey]);
+
+  // Load submissions for own profile OR any public profile
+  useEffect(() => {
+    setSubsLoading(true);
+    let cancelled = false;
+    const req = isOwnProfile
+      ? getMySubmissions(subsPage, 20)
+      : getUserSubmissions(parseInt(userId, 10), subsPage, 20);
+    req
+      .then(data  => { if (!cancelled) setSubs(data); })
+      .finally(() => { if (!cancelled) setSubsLoading(false); });
+    return () => { cancelled = true; };
+  }, [profileKey, subsPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleFileSelect(e) {
     const file = e.target.files?.[0];
@@ -546,8 +580,7 @@ export default function ProfilePage() {
       )}
 
       {/* ── Quest progress ── */}
-      {comps.length > 0 ? (
-        <div className="space-y-4">
+      <div className="space-y-4">
           {/* Section label */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ height: "1px", flex: 1, background: "rgba(255,255,255,0.07)" }} />
@@ -579,104 +612,175 @@ export default function ProfilePage() {
             })}
           </div>
 
-          {/* Completion list header */}
-          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", paddingLeft: "0.25rem" }}>
-            Solved Quests — {comps.length}
-          </p>
+          {/* ── Submissions table (own: clickable + modal; public: read-only) ── */}
+          <>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingLeft: "0.25rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", flex: 1 }}>
+                {isOwnProfile ? "Submission History" : "Quest Submissions"}
+                {subs ? ` — ${subs.total.toLocaleString()} run${subs.total !== 1 ? "s" : ""}` : ""}
+              </p>
+              {!isOwnProfile && (
+                <span style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.18)", flexShrink: 0, fontStyle: "italic" }}>
+                  code hidden
+                </span>
+              )}
+              {subs && subs.pages > 1 && (
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", color: "rgba(255,255,255,0.20)", flexShrink: 0 }}>
+                  page {subs.page} of {subs.pages}
+                </span>
+              )}
+            </div>
 
-          {/* Completion list */}
-          <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
-            {comps.map((c, i) => {
-              const diff = DIFF_META[c.difficulty] ?? DIFF_META.shallow;
-              const lang = LANG_CONFIG[c.language];
-              return (
-                <div
-                  key={c.quest_id}
-                  style={{
-                    display: "flex", alignItems: "center", gap: "0.75rem",
-                    padding: "0.7rem 1rem",
-                    borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.05)",
-                    borderLeft: `3px solid ${diff.color}`,
-                    transition: "background 0.12s",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                >
-                  {/* Title link */}
-                  <Link
-                    to={`/quests/${c.language}/${c.quest_id}`}
-                    style={{
-                      flex: 1, minWidth: 0,
-                      fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700,
-                      color: "rgba(255,255,255,0.85)", textDecoration: "none",
-                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      transition: "color 0.12s",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-cyan)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.85)")}
-                  >
-                    {c.quest_title}
-                  </Link>
-
-                  {/* Language */}
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase" }}>
-                      {lang?.name ?? c.language}
-                    </span>
+            {/* Table card */}
+            <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
+              {/* Column headings */}
+              <div style={{
+                display: "grid", gridTemplateColumns: "1fr auto auto auto auto",
+                gap: "0.5rem", padding: "0.45rem 1rem 0.45rem 1.25rem",
+                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255,255,255,0.02)",
+              }}>
+                {["Quest", "Language", "Score", "Status", "Date"].map(h => (
+                  <span key={h} style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.20)" }}>
+                    {h}
                   </span>
+                ))}
+              </div>
 
-                  {/* Difficulty */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.08em", color: diff.color, textTransform: "uppercase", flexShrink: 0 }}>
-                    {diff.label}
-                  </span>
-
-                  {/* XP */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-cyan)", flexShrink: 0 }}>
-                    +{c.xp_earned}
-                  </span>
-
-                  {/* Date */}
-                  <span style={{ fontSize: "0.60rem", color: "rgba(255,255,255,0.20)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
-                    {new Date(c.completed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                  </span>
+              {/* Loading / empty / rows */}
+              {subsLoading && !subs ? (
+                <div style={{ padding: "2rem", textAlign: "center", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-heading)", fontSize: "0.7rem" }}>
+                  Loading…
                 </div>
-              );
-            })}
-          </div>
+              ) : subs && subs.items.length === 0 ? (
+                <div style={{ padding: "2.5rem", textAlign: "center" }}>
+                  <p style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>⚔</p>
+                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: "0.3rem" }}>
+                    No submissions yet
+                  </p>
+                  <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)" }}>
+                    {isOwnProfile
+                      ? "Start solving quests to earn XP and build your legend."
+                      : "This adventurer hasn't submitted any quests yet."}
+                  </p>
+                </div>
+              ) : (subs?.items ?? []).map((s, i) => {
+                const lang       = LANG_CONFIG[s.language];
+                const passed     = s.passed ?? 0;
+                const total      = s.total  ?? 0;
+                const scoreColor = s.all_passed ? "#4ade80" : (passed > 0 ? "#fb923c" : "#f87171");
+                const rowBase    = {
+                  display: "grid", gridTemplateColumns: "1fr auto auto auto auto",
+                  gap: "0.5rem", alignItems: "center", width: "100%",
+                  padding: "0.6rem 1rem 0.6rem 0.85rem",
+                  borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.04)",
+                  borderLeft: `3px solid ${s.all_passed ? "rgba(74,222,128,0.5)" : "rgba(248,113,113,0.35)"}`,
+                  background: "transparent", textAlign: "left",
+                  transition: "background 0.10s",
+                };
+                const rowCells = (
+                  <>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.82)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {s.quest_title}
+                    </span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.07em", color: "rgba(255,255,255,0.28)", textTransform: "uppercase" }}>
+                        {lang?.name ?? s.language}
+                      </span>
+                    </span>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: scoreColor, flexShrink: 0, minWidth: "2.8rem", textAlign: "right" }}>
+                      {total > 0 ? `${passed}/${total}` : "—"}
+                    </span>
+                    <span style={{
+                      flexShrink: 0, padding: "0.18rem 0.5rem", borderRadius: "4px",
+                      fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                      background: s.all_passed ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.10)",
+                      color:      s.all_passed ? "#4ade80"               : "#f87171",
+                      border:     `1px solid ${s.all_passed ? "rgba(74,222,128,0.25)" : "rgba(248,113,113,0.20)"}`,
+                    }}>
+                      {s.all_passed ? "Passed" : "Failed"}
+                    </span>
+                    <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.22)", flexShrink: 0, minWidth: "72px", textAlign: "right" }}>
+                      {new Date(s.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                  </>
+                );
+
+                if (isOwnProfile) {
+                  return (
+                    <button
+                      key={s.id}
+                      style={{ ...rowBase, cursor: "pointer" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                      onClick={async () => {
+                        setSubModal({ id: s.id, quest_title: s.quest_title, language: s.language, difficulty: s.difficulty, all_passed: s.all_passed });
+                        setSubModalLoading(true);
+                        try {
+                          const detail = await getSubmissionDetail(s.id);
+                          setSubModal(detail);
+                        } catch {
+                          setSubModal(null);
+                        } finally {
+                          setSubModalLoading(false);
+                        }
+                      }}
+                    >
+                      {rowCells}
+                    </button>
+                  );
+                }
+
+                return (
+                  <div key={s.id} style={{ ...rowBase, cursor: "default" }}>
+                    {rowCells}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination controls */}
+            {subs && subs.pages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "0.25rem" }}>
+                <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.22)" }}>
+                  {((subs.page - 1) * subs.per_page + 1).toLocaleString()}–{Math.min(subs.page * subs.per_page, subs.total).toLocaleString()} of {subs.total.toLocaleString()}
+                </span>
+                <div style={{ display: "flex", gap: "0.4rem" }}>
+                  <button
+                    disabled={subs.page <= 1 || subsLoading}
+                    onClick={() => setSubsPage(p => p - 1)}
+                    style={{
+                      fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                      letterSpacing: "0.08em", textTransform: "uppercase",
+                      padding: "0.3rem 0.7rem", borderRadius: "6px",
+                      border: "1px solid rgba(255,255,255,0.12)", background: "transparent",
+                      color: subs.page <= 1 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.55)",
+                      cursor: subs.page <= 1 ? "default" : "pointer",
+                    }}
+                  >
+                    ← Prev
+                  </button>
+                  <button
+                    disabled={subs.page >= subs.pages || subsLoading}
+                    onClick={() => setSubsPage(p => p + 1)}
+                    style={{
+                      fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                      letterSpacing: "0.08em", textTransform: "uppercase",
+                      padding: "0.3rem 0.7rem", borderRadius: "6px",
+                      border: "1px solid rgba(255,255,255,0.12)", background: "transparent",
+                      color: subs.page >= subs.pages ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.55)",
+                      cursor: subs.page >= subs.pages ? "default" : "pointer",
+                    }}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         </div>
-      ) : (
-        /* Empty state */
-        <div
-          className="glass-card"
-          style={{ padding: "2.5rem", textAlign: "center", borderStyle: "dashed" }}
-        >
-          <p style={{ fontSize: "2rem", marginBottom: "0.6rem" }}>⚔</p>
-          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.55)", marginBottom: "0.35rem" }}>
-            No quests completed yet
-          </p>
-          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.28)" }}>
-            {isOwnProfile
-              ? "Start solving quests to earn XP and build your legend."
-              : "This adventurer hasn't conquered any quests yet."}
-          </p>
-          {isOwnProfile && (
-            <Link
-              to="/"
-              style={{
-                display: "inline-block", marginTop: "1.1rem",
-                padding: "0.45rem 1.1rem", borderRadius: "8px",
-                border: "1px solid rgba(3,233,244,0.25)", background: "rgba(3,233,244,0.08)",
-                color: "var(--color-cyan)",
-                fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-                letterSpacing: "0.10em", textTransform: "uppercase", textDecoration: "none",
-              }}
-            >
-              Browse Quests
-            </Link>
-          )}
-        </div>
-      )}
 
       {/* ── Underworld Chronicles ── */}
       {bossChallenges.length > 0 ? (
@@ -962,6 +1066,128 @@ export default function ProfilePage() {
           </Link>
         </div>
       ) : null}
+
+      {/* ── Submission detail modal ── */}
+      {(subModal || subModalLoading) && (
+        <div
+          style={{
+            position: "fixed", inset: 0, zIndex: 9000,
+            background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "1rem",
+          }}
+          onClick={() => { setSubModal(null); setSubModalLoading(false); }}
+        >
+          <div
+            className="glass-card"
+            style={{
+              width: "100%", maxWidth: "780px", maxHeight: "90vh",
+              overflow: "hidden", display: "flex", flexDirection: "column",
+              padding: 0,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div style={{ padding: "1rem 1.4rem 0.85rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {subModal?.quest_title ?? "Loading…"}
+              </span>
+              {subModal?.language && (() => {
+                const diff = DIFF_META[subModal.difficulty] ?? DIFF_META.shallow;
+                const lang = LANG_CONFIG[subModal.language];
+                return (
+                  <>
+                    <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase" }}>
+                        {lang?.name ?? subModal.language}
+                      </span>
+                    </span>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: diff.color, textTransform: "uppercase", flexShrink: 0 }}>
+                      {diff.label}
+                    </span>
+                    <span style={{
+                      padding: "0.18rem 0.5rem", borderRadius: "4px",
+                      fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                      background: subModal.all_passed ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.10)",
+                      color:      subModal.all_passed ? "#4ade80"               : "#f87171",
+                      border:     `1px solid ${subModal.all_passed ? "rgba(74,222,128,0.25)" : "rgba(248,113,113,0.20)"}`,
+                      flexShrink: 0,
+                    }}>
+                      {subModal.all_passed ? "Passed" : "Failed"}
+                    </span>
+                  </>
+                );
+              })()}
+              <button
+                onClick={() => { setSubModal(null); setSubModalLoading(false); }}
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.32)", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1, padding: "0.2rem 0.4rem", borderRadius: "4px", flexShrink: 0 }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.72)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.32)")}
+              >
+                ✕
+              </button>
+            </div>
+
+            {subModalLoading && !subModal?.solution_code ? (
+              <div style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.30)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
+                Retrieving submission…
+              </div>
+            ) : subModal && (
+              <div style={{ overflowY: "auto", flex: 1 }}>
+                {/* Test results bar */}
+                {subModal.test_results && (
+                  <div style={{ padding: "0.8rem 1.4rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>
+                      Tests
+                    </span>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: subModal.all_passed ? "#4ade80" : "#f87171" }}>
+                      {subModal.test_results.passed}/{subModal.test_results.total} passed
+                    </span>
+                    <div style={{ display: "flex", gap: "0.28rem", flexWrap: "wrap", flex: 1 }}>
+                      {(subModal.test_results.results ?? []).map((r, idx) => (
+                        <span
+                          key={idx}
+                          title={`Test ${idx + 1}: ${r.passed ? "passed" : "failed"}`}
+                          style={{
+                            width: "1.05rem", height: "1.05rem", borderRadius: "3px",
+                            background: r.passed ? "rgba(74,222,128,0.18)" : "rgba(248,113,113,0.15)",
+                            border: `1px solid ${r.passed ? "rgba(74,222,128,0.45)" : "rgba(248,113,113,0.40)"}`,
+                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                            fontSize: "0.48rem", color: r.passed ? "#4ade80" : "#f87171",
+                          }}
+                        >
+                          {r.passed ? "✓" : "✗"}
+                        </span>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+                      {new Date(subModal.submitted_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                )}
+
+                {/* Code */}
+                <div style={{ padding: "0.85rem 1.4rem 1.2rem" }}>
+                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: "0.55rem" }}>
+                    Submitted Code
+                  </p>
+                  <pre style={{
+                    margin: 0, padding: "1rem 1.1rem",
+                    background: "rgba(0,0,0,0.48)", borderRadius: "8px",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    fontFamily: "'Courier New', Courier, monospace", fontSize: "0.77rem",
+                    color: "rgba(255,255,255,0.80)", lineHeight: 1.7,
+                    overflowX: "auto", whiteSpace: "pre", tabSize: 4,
+                  }}>
+                    {subModal.solution_code}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

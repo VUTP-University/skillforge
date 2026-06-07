@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, TriviaSession, TriviaSessionStatus, User
+from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, QuestSubmission, TriviaSession, TriviaSessionStatus, User
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -123,6 +123,74 @@ def get_profile(user_id):
         "boss_challenges": _build_boss_challenges(user_id),
         "trivia_sessions": _build_trivia_sessions(user_id),
     })
+
+
+# ── Submissions (paginated list + detail) ────────────────────────────────────
+
+def _build_submission_page(user_id, page, per_page):
+    """Shared paginated query for submissions; returns (items_list, total, pages)."""
+    query = (
+        db.session.query(QuestSubmission, Quest)
+        .join(Quest, QuestSubmission.quest_id == Quest.id)
+        .filter(QuestSubmission.user_id == user_id)
+        .order_by(QuestSubmission.submitted_at.desc())
+    )
+    total = query.count()
+    rows  = query.offset((page - 1) * per_page).limit(per_page).all()
+    pages = max(1, (total + per_page - 1) // per_page)
+    items = [{
+        "id":           s.id,
+        "quest_id":     s.quest_id,
+        "quest_title":  q.title,
+        "language":     q.language.value,
+        "difficulty":   q.difficulty.value,
+        "all_passed":   s.all_passed,
+        "passed":       (s.test_results or {}).get("passed"),
+        "total":        (s.test_results or {}).get("total"),
+        "submitted_at": s.submitted_at.isoformat(),
+    } for s, q in rows]
+    return items, total, pages
+
+
+@profile_bp.route("/profile/me/submissions", methods=["GET"])
+@jwt_required()
+def get_my_submissions():
+    """Own paginated submissions — includes solution code and results via detail endpoint."""
+    user_id  = int(get_jwt_identity())
+    page     = max(1, request.args.get("page", 1, type=int))
+    per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
+    items, total, pages = _build_submission_page(user_id, page, per_page)
+    return jsonify({"items": items, "total": total, "page": page, "pages": pages, "per_page": per_page})
+
+
+@profile_bp.route("/profile/me/submissions/<int:submission_id>", methods=["GET"])
+@jwt_required()
+def get_submission_detail(submission_id):
+    """Full detail including code — only accessible by the owning user."""
+    user_id = int(get_jwt_identity())
+    s = QuestSubmission.query.filter_by(id=submission_id, user_id=user_id).first_or_404()
+    q = db.get_or_404(Quest, s.quest_id)
+    return jsonify({
+        "id":            s.id,
+        "quest_id":      s.quest_id,
+        "quest_title":   q.title,
+        "language":      q.language.value,
+        "difficulty":    q.difficulty.value,
+        "all_passed":    s.all_passed,
+        "solution_code": s.solution_code,
+        "test_results":  s.test_results,
+        "submitted_at":  s.submitted_at.isoformat(),
+    })
+
+
+@profile_bp.route("/profile/<int:user_id>/submissions", methods=["GET"])
+def get_user_submissions(user_id):
+    """Public paginated submissions for any profile — metadata only, never code or results."""
+    db.get_or_404(User, user_id)
+    page     = max(1, request.args.get("page", 1, type=int))
+    per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
+    items, total, pages = _build_submission_page(user_id, page, per_page)
+    return jsonify({"items": items, "total": total, "page": page, "pages": pages, "per_page": per_page})
 
 
 # ── Update email ──────────────────────────────────────────────────────────────
