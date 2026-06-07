@@ -12,6 +12,8 @@ import ProfilePage from "./pages/ProfilePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import UnderworldPage from "./pages/UnderworldPage";
 import UnderworldChallengePage from "./pages/UnderworldChallengePage";
+import TriviaPage from "./pages/TriviaPage";
+import TriviaPlayPage from "./pages/TriviaPlayPage";
 import FAQPage from "./pages/FAQPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -208,6 +210,22 @@ function AppLayout() {
               element={
                 <ProtectedRoute>
                   <UnderworldChallengePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trivia"
+              element={
+                <ProtectedRoute>
+                  <TriviaPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trivia/play"
+              element={
+                <ProtectedRoute>
+                  <TriviaPlayPage />
                 </ProtectedRoute>
               }
             />

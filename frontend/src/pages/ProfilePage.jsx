@@ -266,7 +266,10 @@ export default function ProfilePage() {
   const rs              = RANK_STYLE[profile.rank] ?? RANK_STYLE["Novice"];
   const comps           = profile.completions ?? [];
   const bossChallenges  = profile.boss_challenges ?? [];
+  const triviaSessions  = profile.trivia_sessions ?? [];
   const vanquishedCount = bossChallenges.filter(c => c.status === "completed").length;
+  const triviaCompleted = triviaSessions.filter(s => s.status === "completed").length;
+  const triviaXP        = triviaSessions.reduce((sum, s) => sum + (s.score_xp || 0), 0);
   const byLang = comps.reduce((acc, c) => {
     acc[c.language] = (acc[c.language] || 0) + 1;
     return acc;
@@ -388,6 +391,18 @@ export default function ProfilePage() {
                   value={vanquishedCount}
                   label={vanquishedCount === 1 ? "Boss" : "Bosses"}
                   valueColor="#fca5a5"
+                />
+              )}
+              {triviaSessions.length > 0 && (
+                <StatChip
+                  icon={
+                    <svg style={{ width: 14, height: 14, color: "#eab308", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                    </svg>
+                  }
+                  value={triviaCompleted}
+                  label={triviaCompleted === 1 ? "Trial" : "Trials"}
+                  valueColor="#eab308"
                 />
               )}
             </div>
@@ -817,6 +832,137 @@ export default function ProfilePage() {
           </Link>
         </div>
       ) : null}
+
+      {/* ── Oracle's Trials ── */}
+      {triviaSessions.length > 0 ? (
+        <div className="space-y-4">
+          {/* Section label */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ height: "1px", flex: 1, background: "rgba(234,179,8,0.20)" }} />
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(234,179,8,0.65)", flexShrink: 0 }}>
+              Oracle's Trials
+            </span>
+            <div style={{ height: "1px", flex: 1, background: "rgba(234,179,8,0.20)" }} />
+          </div>
+
+          {/* Summary chips */}
+          <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+            {[
+              [`${triviaSessions.length}`, "Trials played"],
+              [`${triviaCompleted}`, "Completed"],
+              [`+${triviaXP} XP`, "Total earned"],
+            ].map(([val, lbl]) => (
+              <div key={lbl} style={{ padding: "0.4rem 0.85rem", borderRadius: "8px", background: "rgba(234,179,8,0.07)", border: "1px solid rgba(234,179,8,0.22)", display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: "#eab308" }}>{val}</span>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)" }}>{lbl}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Session list */}
+          <div style={{ borderRadius: "0.875rem", overflow: "hidden", border: "1px solid rgba(234,179,8,0.15)", background: "rgba(120,90,0,0.06)" }}>
+            {triviaSessions.map((s, i) => {
+              const langMeta = {
+                python:     { label: "Python",     glyph: "Py", color: "#4ade80" },
+                javascript: { label: "JavaScript", glyph: "JS", color: "#fbbf24" },
+                java:       { label: "Java",       glyph: "Jv", color: "#f97316" },
+                csharp:     { label: "C#",         glyph: "C#", color: "#a78bfa" },
+                mix:        { label: "All Paths",  glyph: "∞",  color: "#03e9f4" },
+              }[s.language] ?? { label: s.language, glyph: "?", color: "#fbbf24" };
+
+              const completed = s.status === "completed";
+              const accuracy  = s.total_questions > 0 ? Math.round((s.correct_count / s.total_questions) * 100) : 0;
+              const barColor  = accuracy >= 75 ? "#4ade80" : accuracy >= 50 ? "#fbbf24" : "#f87171";
+
+              return (
+                <div
+                  key={s.id}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "0.85rem",
+                    padding: "0.75rem 1rem",
+                    borderTop: i === 0 ? "none" : "1px solid rgba(234,179,8,0.07)",
+                    borderLeft: `3px solid ${completed ? "rgba(234,179,8,0.60)" : "rgba(255,255,255,0.15)"}`,
+                    transition: "background 0.12s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(234,179,8,0.05)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  {/* Language glyph */}
+                  <div style={{
+                    width: 34, height: 34, borderRadius: "8px", flexShrink: 0,
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                    color: langMeta.color,
+                  }}>
+                    {langMeta.glyph}
+                  </div>
+
+                  {/* Language + accuracy bar */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.82)", margin: 0, marginBottom: "0.25rem" }}>
+                      {langMeta.label}
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.07)", maxWidth: 80 }}>
+                        <div style={{ height: 3, borderRadius: 2, background: barColor, width: `${accuracy}%`, transition: "width 0.4s ease" }} />
+                      </div>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", letterSpacing: "0.06em", color: "rgba(255,255,255,0.30)" }}>
+                        {s.correct_count}/{s.total_questions} correct
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Status badge */}
+                  <span style={{
+                    padding: "0.15rem 0.55rem", borderRadius: "99px", flexShrink: 0,
+                    background: completed ? "rgba(234,179,8,0.10)" : "rgba(255,255,255,0.05)",
+                    border: `1px solid ${completed ? "rgba(234,179,8,0.32)" : "rgba(255,255,255,0.10)"}`,
+                    color: completed ? "#eab308" : "rgba(255,255,255,0.35)",
+                    fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700,
+                    letterSpacing: "0.08em", textTransform: "uppercase",
+                  }}>
+                    {completed ? "Completed" : "Expired"}
+                  </span>
+
+                  {/* XP */}
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: s.score_xp > 0 ? "#eab308" : "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+                    +{s.score_xp} XP
+                  </span>
+
+                  {/* Date */}
+                  <span style={{ fontSize: "0.60rem", color: "rgba(255,255,255,0.20)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
+                    {new Date(s.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : isOwnProfile ? (
+        <div style={{ borderRadius: "0.875rem", padding: "2rem", textAlign: "center", border: "1px dashed rgba(234,179,8,0.22)", background: "rgba(120,90,0,0.05)" }}>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.40)", marginBottom: "0.3rem" }}>
+            No trials completed yet
+          </p>
+          <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)", marginBottom: "1rem" }}>
+            Face the Oracle's weekly trial and prove your knowledge.
+          </p>
+          <Link
+            to="/trivia"
+            style={{
+              display: "inline-block", padding: "0.45rem 1.1rem", borderRadius: "8px",
+              border: "1px solid rgba(234,179,8,0.32)", background: "rgba(234,179,8,0.09)",
+              color: "#eab308",
+              fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
+              letterSpacing: "0.10em", textTransform: "uppercase", textDecoration: "none",
+            }}
+          >
+            Enter the Sanctum
+          </Link>
+        </div>
+      ) : null}
+
     </div>
   );
 }

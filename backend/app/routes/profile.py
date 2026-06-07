@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, User
+from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, TriviaSession, TriviaSessionStatus, User
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -45,6 +45,28 @@ def _build_boss_challenges(user_id):
     } for c, b in rows]
 
 
+def _build_trivia_sessions(user_id):
+    rows = (
+        TriviaSession.query
+        .filter(
+            TriviaSession.user_id == user_id,
+            TriviaSession.status != TriviaSessionStatus.active,
+        )
+        .order_by(TriviaSession.started_at.desc())
+        .all()
+    )
+    return [{
+        "id":              s.id,
+        "language":        s.language,
+        "status":          s.status.value,
+        "score_xp":        s.score_xp,
+        "correct_count":   s.correct_count,
+        "total_questions": len(s.questions) if s.questions else 0,
+        "started_at":      s.started_at.isoformat(),
+        "completed_at":    s.completed_at.isoformat() if s.completed_at else None,
+    } for s in rows]
+
+
 def _build_completions(user_id):
     rows = (
         db.session.query(QuestCompletion, Quest)
@@ -77,8 +99,9 @@ def serve_avatar(filename):
 def get_my_profile():
     user = db.get_or_404(User, int(get_jwt_identity()))
     data = user.to_dict()
-    data["completions"]     = _build_completions(user.id)
-    data["boss_challenges"] = _build_boss_challenges(user.id)
+    data["completions"]      = _build_completions(user.id)
+    data["boss_challenges"]  = _build_boss_challenges(user.id)
+    data["trivia_sessions"]  = _build_trivia_sessions(user.id)
     return jsonify(data)
 
 
@@ -98,6 +121,7 @@ def get_profile(user_id):
         "created_at":  user.created_at.isoformat(),
         "completions":     _build_completions(user_id),
         "boss_challenges": _build_boss_challenges(user_id),
+        "trivia_sessions": _build_trivia_sessions(user_id),
     })
 
 

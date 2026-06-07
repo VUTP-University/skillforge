@@ -10,7 +10,7 @@ import javaImg       from "../assets/img/achievements-icons/Java/java-5.png";
 import csImg         from "../assets/img/achievements-icons/CS/cs-1.png";
 import statsImg      from "../assets/img/stats_avatar.png";
 import underworldImg from "../assets/img/underworld_realm/Underworld.png";
-import triviaImg     from "../assets/img/construction_worker.png";
+import triviaImg     from "../assets/img/Oracle.jpg";
 
 function useCountUp(target, duration = 900) {
   const [value, setValue] = useState(0);
@@ -43,7 +43,7 @@ const LANGUAGES = [
 const SECTIONS = [
   { name: "Leaderboard", path: "/leaderboard", image: statsImg, description: "Compete with the best coders" },
   { name: "Underworld",  path: "/underworld", image: underworldImg,  description: "Face the darkest challenges"  },
-  { name: "Trivia",      path: "#", image: triviaImg,      description: "Coming soon…"                 },
+  { name: "Trivia",      path: "/trivia", image: triviaImg, description: "Weekly knowledge trials"         },
 ];
 
 const CARD_HOVER_ON  = { borderColor: "rgba(3,233,244,0.25)", boxShadow: "0 0 22px rgba(3,233,244,0.06)" };

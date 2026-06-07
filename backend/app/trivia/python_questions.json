@@ -1,0 +1,362 @@
+[
+  {
+    "id": "py_001",
+    "difficulty": "easy",
+    "question": "Which keyword defines a function in Python?",
+    "options": [
+      "func",
+      "def",
+      "function",
+      "define"
+    ],
+    "correct": 1
+  },
+  {
+    "id": "py_002",
+    "difficulty": "easy",
+    "question": "What does len(\"hello\") return?",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "error"
+    ],
+    "correct": 1
+  },
+  {
+    "id": "py_003",
+    "difficulty": "easy",
+    "question": "Which character starts a single-line comment in Python?",
+    "options": [
+      "//",
+      "#",
+      "--",
+      "/*"
+    ],
+    "correct": 1
+  },
+  {
+    "id": "py_004",
+    "difficulty": "easy",
+    "question": "Which of these types is immutable?",
+    "options": [
+      "list",
+      "dict",
+      "set",
+      "tuple"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_005",
+    "difficulty": "easy",
+    "question": "What does range(4) generate?",
+    "options": [
+      "1, 2, 3, 4",
+      "0, 1, 2, 3, 4",
+      "0, 1, 2, 3",
+      "0, 1, 2"
+    ],
+    "correct": 2
+  },
+  {
+    "id": "py_006",
+    "difficulty": "easy",
+    "question": "What is the result of 2 ** 4?",
+    "options": [
+      "6",
+      "8",
+      "12",
+      "16"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_007",
+    "difficulty": "easy",
+    "question": "Which method adds an element to the end of a list?",
+    "options": [
+      "add()",
+      "push()",
+      "insert()",
+      "append()"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_008",
+    "difficulty": "easy",
+    "question": "What keyword handles exceptions in Python?",
+    "options": [
+      "catch",
+      "handle",
+      "except",
+      "error"
+    ],
+    "correct": 2
+  },
+  {
+    "id": "py_009",
+    "difficulty": "easy",
+    "question": "What is the result of True and False?",
+    "options": [
+      "True",
+      "False",
+      "None",
+      "Error"
+    ],
+    "correct": 1
+  },
+  {
+    "id": "py_010",
+    "difficulty": "easy",
+    "question": "What does type(42) return?",
+    "options": [
+      "<class 'float'>",
+      "<class 'number'>",
+      "<class 'int'>",
+      "<class 'integer'>"
+    ],
+    "correct": 2
+  },
+  {
+    "id": "py_011",
+    "difficulty": "medium",
+    "question": "What does [x**2 for x in range(3)] evaluate to?",
+    "options": [
+      "[1, 4, 9]",
+      "[0, 2, 4]",
+      "[0, 1, 2]",
+      "[0, 1, 4]"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_012",
+    "difficulty": "medium",
+    "question": "What does dict.get('key', 'missing') return when 'key' is absent?",
+    "options": [
+      "None",
+      "KeyError",
+      "False",
+      "'missing'"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_013",
+    "difficulty": "medium",
+    "question": "Which decorator creates a class method?",
+    "options": [
+      "@property",
+      "@staticmethod",
+      "@classmethod",
+      "@abstractmethod"
+    ],
+    "correct": 2
+  },
+  {
+    "id": "py_014",
+    "difficulty": "medium",
+    "question": "What does *args capture in a function definition?",
+    "options": [
+      "keyword arguments only",
+      "exactly 2 arguments",
+      "default parameter values",
+      "any number of positional arguments"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_015",
+    "difficulty": "medium",
+    "question": "What makes a Python function a generator?",
+    "options": [
+      "returning a list",
+      "extending Generator",
+      "adding async",
+      "using the yield keyword"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_016",
+    "difficulty": "medium",
+    "question": "What does set([1, 1, 2, 3, 3]) produce?",
+    "options": [
+      "[1, 2, 3]",
+      "(1, 2, 3)",
+      "[1, 1, 2, 3, 3]",
+      "{1, 2, 3}"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_017",
+    "difficulty": "medium",
+    "question": "What is the result of 'py' * 3?",
+    "options": [
+      "'py3'",
+      "'py py py'",
+      "Error",
+      "'pypypy'"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_018",
+    "difficulty": "medium",
+    "question": "What does enumerate(['a', 'b']) yield when iterated?",
+    "options": [
+      "('a', 0), ('b', 1)",
+      "[0, 1]",
+      "Error",
+      "(0, 'a'), (1, 'b')"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_019",
+    "difficulty": "medium",
+    "question": "What does lambda x: x + 1 create?",
+    "options": [
+      "a named function",
+      "a class method",
+      "an anonymous function",
+      "a coroutine"
+    ],
+    "correct": 2
+  },
+  {
+    "id": "py_020",
+    "difficulty": "medium",
+    "question": "What does the finally block guarantee in try/except/finally?",
+    "options": [
+      "the exception is suppressed",
+      "the code block retries",
+      "only runs if no exception occurs",
+      "it always runs regardless of exceptions"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_021",
+    "difficulty": "medium",
+    "question": "What does sorted([3, 1, 2], reverse=True) return?",
+    "options": [
+      "[1, 2, 3]",
+      "[3, 1, 2]",
+      "Error",
+      "[3, 2, 1]"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_022",
+    "difficulty": "hard",
+    "question": "What does yield from do inside a generator function?",
+    "options": [
+      "raises StopIteration",
+      "calls return implicitly",
+      "yields a tuple",
+      "delegates to a sub-generator"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_023",
+    "difficulty": "hard",
+    "question": "What is the GIL in CPython?",
+    "options": [
+      "Global Import Loader",
+      "General Integer Limit",
+      "Global Index List",
+      "Global Interpreter Lock"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_024",
+    "difficulty": "hard",
+    "question": "What do __enter__ and __exit__ implement in Python?",
+    "options": [
+      "iterator protocol",
+      "descriptor protocol",
+      "metaclass protocol",
+      "the context manager protocol"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_025",
+    "difficulty": "hard",
+    "question": "What does @property enable in a Python class?",
+    "options": [
+      "creating static methods",
+      "memoizing results",
+      "defining abstract methods",
+      "accessing a method as a field-like attribute"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_026",
+    "difficulty": "hard",
+    "question": "What does functools.lru_cache provide?",
+    "options": [
+      "function logging",
+      "currying",
+      "thread safety",
+      "memoization of function results"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_027",
+    "difficulty": "hard",
+    "question": "What is MRO in Python?",
+    "options": [
+      "Module Routing Object",
+      "Memory Reduction Operation",
+      "Module Registry Object",
+      "Method Resolution Order"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_028",
+    "difficulty": "hard",
+    "question": "What is __slots__ used for in a Python class?",
+    "options": [
+      "enabling multiple inheritance",
+      "creating abstract classes",
+      "overriding __dict__ behavior",
+      "restricting instance attributes to reduce memory usage"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_029",
+    "difficulty": "hard",
+    "question": "What is the output of: x=[]; y=x; y.append(1); print(x)?",
+    "options": [
+      "[]",
+      "None",
+      "Error",
+      "[1]"
+    ],
+    "correct": 3
+  },
+  {
+    "id": "py_030",
+    "difficulty": "hard",
+    "question": "What does a metaclass in Python control?",
+    "options": [
+      "object initialization",
+      "garbage collection",
+      "module imports",
+      "class creation"
+    ],
+    "correct": 3
+  }
+]

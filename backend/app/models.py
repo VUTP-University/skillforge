@@ -269,6 +269,60 @@ class QuestCompletion(db.Model):
         return f"<QuestCompletion user={self.user_id} quest={self.quest_id}>"
 
 
+# ── Trivia ──────────────────────────────────────────────────────────────────
+
+
+class TriviaSessionStatus(enum.Enum):
+    active    = "active"
+    completed = "completed"
+    expired   = "expired"
+
+
+class TriviaSession(db.Model):
+    __tablename__ = "trivia_sessions"
+
+    id            = db.Column(db.Integer, primary_key=True)
+    user_id       = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    language      = db.Column(db.String(20), nullable=False)
+    status        = db.Column(
+        db.Enum(TriviaSessionStatus),
+        nullable=False,
+        default=TriviaSessionStatus.active,
+    )
+    questions     = db.Column(db.JSON, nullable=False)
+    score_xp      = db.Column(db.Integer, default=0, nullable=False)
+    correct_count = db.Column(db.Integer, default=0, nullable=False)
+    started_at    = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    expires_at    = db.Column(db.DateTime, nullable=False)
+    completed_at  = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship("User")
+
+    def to_dict(self):
+        return {
+            "id":              self.id,
+            "language":        self.language,
+            "status":          self.status.value,
+            "score_xp":        self.score_xp,
+            "correct_count":   self.correct_count,
+            "total_questions": len(self.questions) if self.questions else 0,
+            "started_at":      self.started_at.isoformat(),
+            "expires_at":      self.expires_at.isoformat(),
+            "completed_at":    self.completed_at.isoformat() if self.completed_at else None,
+        }
+
+    def __repr__(self):
+        return f"<TriviaSession {self.id} user={self.user_id} lang={self.language}>"
+
+
 # ── Underworld ──────────────────────────────────────────────────────────────
 
 
