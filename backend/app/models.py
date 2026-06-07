@@ -1,4 +1,5 @@
 import enum
+import math
 from datetime import datetime, timezone
 from app import db
 
@@ -28,14 +29,65 @@ XP_BY_DIFFICULTY = {
     Difficulty.abyssal: 100,
 }
 
+# Minimum total XP required to reach each level (1-100).
+# Index 0 → level 1 (starts at 0 XP), index 99 → level 100 (~98 k XP).
+# Formula: floor(50 * (level - 1) ** 1.65) — fast early levels, slows at the top.
+LEVEL_XP_TABLE: tuple[int, ...] = tuple(
+    0 if lvl == 1 else math.floor(50 * (lvl - 1) ** 1.65)
+    for lvl in range(1, 101)
+)
+
+# 20 ranks, one per 5 levels, listed highest-first for the scan below.
 _RANK_THRESHOLDS = [
-    (41, "Grand Master"),
-    (26, "Master"),
-    (16, "Expert"),
-    (8,  "Journeyman"),
-    (4,  "Apprentice"),
+    (96, "Grand Master"),
+    (91, "Master"),
+    (86, "Archmage"),
+    (81, "Elder"),
+    (76, "Sage"),
+    (71, "Paladin"),
+    (66, "Warden"),
+    (61, "Sentinel"),
+    (56, "Champion"),
+    (51, "Knight"),
+    (46, "Crusader"),
+    (41, "Journeyman"),
+    (36, "Adept"),
+    (31, "Artisan"),
+    (26, "Scholar"),
+    (21, "Acolyte"),
+    (16, "Scribe"),
+    (11, "Apprentice"),
+    (6,  "Initiate"),
     (1,  "Novice"),
 ]
+
+
+def level_from_xp(total_xp: int) -> int:
+    xp = total_xp or 0
+    for lvl in range(100, 0, -1):
+        if xp >= LEVEL_XP_TABLE[lvl - 1]:
+            return lvl
+    return 1
+
+
+def xp_progress(total_xp: int) -> dict:
+    lvl   = level_from_xp(total_xp)
+    xp    = total_xp or 0
+    floor = LEVEL_XP_TABLE[lvl - 1]
+    if lvl < 100:
+        ceiling     = LEVEL_XP_TABLE[lvl]
+        xp_into     = xp - floor
+        xp_range    = ceiling - floor
+        progress_pct = round(xp_into / xp_range * 100) if xp_range else 100
+    else:
+        xp_into      = xp - floor
+        xp_range     = 0
+        progress_pct = 100
+    return {
+        "xp_into_level":     xp_into,
+        "xp_level_range":    xp_range,
+        "level_progress_pct": progress_pct,
+    }
 
 
 class User(db.Model):
@@ -65,7 +117,7 @@ class User(db.Model):
 
     @property
     def level(self):
-        return (self.total_xp or 0) // 100 + 1
+        return level_from_xp(self.total_xp)
 
     @property
     def rank(self):
@@ -76,16 +128,20 @@ class User(db.Model):
         return "Novice"
 
     def to_dict(self):
+        progress = xp_progress(self.total_xp or 0)
         return {
-            "id":         self.id,
-            "username":   self.username,
-            "email":      self.email,
-            "role":       self.user_role.role.value if self.user_role else "user",
-            "avatar_url": f"/api/media/avatars/{self.avatar}" if self.avatar else None,
-            "total_xp":   self.total_xp or 0,
-            "level":      self.level,
-            "rank":       self.rank,
-            "created_at": self.created_at.isoformat(),
+            "id":                  self.id,
+            "username":            self.username,
+            "email":               self.email,
+            "role":                self.user_role.role.value if self.user_role else "user",
+            "avatar_url":          f"/api/media/avatars/{self.avatar}" if self.avatar else None,
+            "total_xp":            self.total_xp or 0,
+            "level":               self.level,
+            "rank":                self.rank,
+            "xp_into_level":       progress["xp_into_level"],
+            "xp_level_range":      progress["xp_level_range"],
+            "level_progress_pct":  progress["level_progress_pct"],
+            "created_at":          self.created_at.isoformat(),
         }
 
     def __repr__(self):

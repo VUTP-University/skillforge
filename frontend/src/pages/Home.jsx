@@ -95,13 +95,14 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  // XP level math — 100 XP per level
-  const totalXP     = user?.total_xp  ?? 0;
-  const currentLevel = user?.level    ?? 1;
-  const xpIntoLevel = totalXP % 100;
-  const xpToNext    = 100 - xpIntoLevel;
-  const nextLevel   = currentLevel + 1;
-  const xpPct       = Math.round((xpIntoLevel / 100) * 100);
+  // XP level math — computed from backend level table
+  const totalXP      = user?.total_xp          ?? 0;
+  const currentLevel = user?.level              ?? 1;
+  const xpIntoLevel  = user?.xp_into_level      ?? 0;
+  const xpLevelRange = user?.xp_level_range      ?? 0;
+  const xpToNext     = xpLevelRange > 0 ? xpLevelRange - xpIntoLevel : 0;
+  const nextLevel    = currentLevel < 100 ? currentLevel + 1 : 100;
+  const xpPct        = user?.level_progress_pct  ?? 0;
   const completedPct = totalLive ? Math.round((completedCount / totalLive) * 100) : 0;
 
   const animatedXP        = useCountUp(totalXP);
@@ -212,9 +213,13 @@ export default function Home() {
                 className="text-cyan text-xs"
                 style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
               >
-                {xpIntoLevel} / 100 XP
+                {xpIntoLevel.toLocaleString()} / {xpLevelRange.toLocaleString()} XP
               </span>
-              <span className="text-xs text-sub">{xpToNext} XP to level {nextLevel}</span>
+              <span className="text-xs text-sub">
+                {currentLevel < 100
+                  ? `${xpToNext.toLocaleString()} XP to level ${nextLevel}`
+                  : "Max level reached"}
+              </span>
             </div>
           </div>
 

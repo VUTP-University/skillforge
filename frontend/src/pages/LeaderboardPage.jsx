@@ -48,12 +48,26 @@ function BoltIcon() {
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
 const RANK_STYLE = {
-  "Novice":       { color: "rgba(255,255,255,0.50)", bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.12)" },
-  "Apprentice":   { color: "#4ade80", bg: "rgba(74,222,128,0.09)",   border: "rgba(74,222,128,0.28)"   },
-  "Journeyman":   { color: "#22d3ee", bg: "rgba(34,211,238,0.09)",   border: "rgba(34,211,238,0.28)"   },
-  "Expert":       { color: "#60a5fa", bg: "rgba(96,165,250,0.09)",   border: "rgba(96,165,250,0.28)"   },
-  "Master":       { color: "#a78bfa", bg: "rgba(167,139,250,0.09)",  border: "rgba(167,139,250,0.28)"  },
-  "Grand Master": { color: "#fbbf24", bg: "rgba(251,191,36,0.09)",   border: "rgba(251,191,36,0.38)"   },
+  "Novice":       { color: "rgba(255,255,255,0.45)", bg: "rgba(255,255,255,0.05)",  border: "rgba(255,255,255,0.12)" },
+  "Initiate":     { color: "#86efac",                bg: "rgba(134,239,172,0.08)", border: "rgba(134,239,172,0.22)" },
+  "Apprentice":   { color: "#4ade80",                bg: "rgba(74,222,128,0.09)",  border: "rgba(74,222,128,0.26)"  },
+  "Scribe":       { color: "#34d399",                bg: "rgba(52,211,153,0.09)",  border: "rgba(52,211,153,0.26)"  },
+  "Acolyte":      { color: "#2dd4bf",                bg: "rgba(45,212,191,0.09)",  border: "rgba(45,212,191,0.26)"  },
+  "Scholar":      { color: "#22d3ee",                bg: "rgba(34,211,238,0.09)",  border: "rgba(34,211,238,0.26)"  },
+  "Artisan":      { color: "#38bdf8",                bg: "rgba(56,189,248,0.09)",  border: "rgba(56,189,248,0.26)"  },
+  "Adept":        { color: "#60a5fa",                bg: "rgba(96,165,250,0.09)",  border: "rgba(96,165,250,0.26)"  },
+  "Journeyman":   { color: "#818cf8",                bg: "rgba(129,140,248,0.09)", border: "rgba(129,140,248,0.26)" },
+  "Crusader":     { color: "#a78bfa",                bg: "rgba(167,139,250,0.09)", border: "rgba(167,139,250,0.26)" },
+  "Knight":       { color: "#c084fc",                bg: "rgba(192,132,252,0.09)", border: "rgba(192,132,252,0.26)" },
+  "Champion":     { color: "#e879f9",                bg: "rgba(232,121,249,0.09)", border: "rgba(232,121,249,0.26)" },
+  "Sentinel":     { color: "#f472b6",                bg: "rgba(244,114,182,0.09)", border: "rgba(244,114,182,0.26)" },
+  "Warden":       { color: "#fb7185",                bg: "rgba(251,113,133,0.09)", border: "rgba(251,113,133,0.26)" },
+  "Paladin":      { color: "#f97316",                bg: "rgba(249,115,22,0.09)",  border: "rgba(249,115,22,0.26)"  },
+  "Sage":         { color: "#fb923c",                bg: "rgba(251,146,60,0.09)",  border: "rgba(251,146,60,0.26)"  },
+  "Elder":        { color: "#fbbf24",                bg: "rgba(251,191,36,0.09)",  border: "rgba(251,191,36,0.30)"  },
+  "Archmage":     { color: "#facc15",                bg: "rgba(250,204,21,0.09)",  border: "rgba(250,204,21,0.32)"  },
+  "Master":       { color: "#fcd34d",                bg: "rgba(252,211,77,0.10)",  border: "rgba(252,211,77,0.38)"  },
+  "Grand Master": { color: "#fef08a",                bg: "rgba(254,240,138,0.10)", border: "rgba(254,240,138,0.45)" },
 };
 
 // Podium slot metadata — rendered left-to-right as 2nd | 1st | 3rd

@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, QuestSubmission, TriviaSession, TriviaSessionStatus, User
+from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, QuestSubmission, TriviaSession, TriviaSessionStatus, User, xp_progress
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -115,10 +115,11 @@ def get_profile(user_id):
         "username":    user.username,
         "role":        user.user_role.role.value if user.user_role else "user",
         "avatar_url":  f"/api/media/avatars/{user.avatar}" if user.avatar else None,
-        "total_xp":    user.total_xp or 0,
-        "level":       user.level,
-        "rank":        user.rank,
-        "created_at":  user.created_at.isoformat(),
+        "total_xp":            user.total_xp or 0,
+        "level":               user.level,
+        "rank":                user.rank,
+        **xp_progress(user.total_xp or 0),
+        "created_at":          user.created_at.isoformat(),
         "completions":     _build_completions(user_id),
         "boss_challenges": _build_boss_challenges(user_id),
         "trivia_sessions": _build_trivia_sessions(user_id),
