@@ -1,33 +1,69 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTriviaStatus, startTrivia } from "../services/triviaService";
-import oracleImg from "../assets/img/Oracle.jpg";
+import oracleImg  from "../assets/img/Oracle.jpg";
+import pythonImg  from "../assets/img/trivia/Python-Trivia.jpg";
+import jsImg      from "../assets/img/trivia/JS-Trivia.jpg";
+import javaImg    from "../assets/img/trivia/Java-Trivia.jpg";
+import csharpImg  from "../assets/img/trivia/CSharp-Trivia.jpg";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
-// Oracle theme gold — matches Oracle.jpg palette
-const G  = "#eab308";          // primary gold  (yellow-500)
-const GL = "#fde047";          // light gold    (yellow-300)
-const GR = "234,179,8";        // gold as rgb triplet for rgba()
-
-const LANG_META = {
-  python:     { label: "Python",     glyph: "Py", color: "#4ade80", border: "rgba(74,222,128,0.25)",  bg: "rgba(74,222,128,0.06)",  desc: "Scripting, data, automation"    },
-  javascript: { label: "JavaScript", glyph: "JS", color: "#fbbf24", border: "rgba(251,191,36,0.25)",  bg: "rgba(251,191,36,0.06)",  desc: "The language of the web"        },
-  java:       { label: "Java",       glyph: "Jv", color: "#f97316", border: "rgba(249,115,22,0.25)",  bg: "rgba(249,115,22,0.06)",  desc: "Enterprise & Android"           },
-  csharp:     { label: "C#",         glyph: "C#", color: "#a78bfa", border: "rgba(167,139,250,0.25)", bg: "rgba(167,139,250,0.06)", desc: "Games, cloud & apps"            },
-  mix:        { label: "All Paths",  glyph: "∞",  color: "#03e9f4", border: "rgba(3,233,244,0.25)",   bg: "rgba(3,233,244,0.06)",   desc: "Questions from all 4 languages" },
-};
-
-// Map each language color hex to its rgb triplet for inline rgba() strings
-const COLOR_RGB = {
-  "#03e9f4": "3,233,244",
-  "#4ade80": "74,222,128",
-  "#fbbf24": "251,191,36",
-  "#f97316": "249,115,22",
-  "#a78bfa": "167,139,250",
-};
-
+const G   = "#eab308";
+const GL  = "#fde047";
+const GR  = "234,179,8";
 const MAX_XP = 7 * 10 + 8 * 20 + 5 * 30; // 380
+
+const LANG_CARDS = [
+  {
+    key:      "python",
+    image:    pythonImg,
+    title:    "Serpent's Trial",
+    epithet:  "Path of the Serpent",
+    label:    "Python",
+    desc:     "Ancient wisdom coils through the enchanted grove",
+    color:    "#2dd4bf",
+    colorRgb: "45,212,191",
+    cta:      "Enter the Grove",
+  },
+  {
+    key:      "javascript",
+    image:    jsImg,
+    title:    "Crystal Codex",
+    epithet:  "Path of Lightning",
+    label:    "JavaScript",
+    desc:     "Power forged in the alchemist's golden flame",
+    color:    "#fbbf24",
+    colorRgb: "251,191,36",
+    cta:      "Ignite the Crystal",
+  },
+  {
+    key:      "java",
+    image:    javaImg,
+    title:    "Brewer's Sanctum",
+    epithet:  "Path of the Scholar",
+    label:    "Java",
+    desc:     "Ancient tomes steeped in centuries of arcane lore",
+    color:    "#fb923c",
+    colorRgb: "251,146,60",
+    cta:      "Open the Sanctum",
+  },
+  {
+    key:      "csharp",
+    image:    csharpImg,
+    title:    "Void Ascendancy",
+    epithet:  "Path of Shadows",
+    label:    "C#",
+    desc:     "Dark magic crystallized beyond the castle's keep",
+    color:    "#a78bfa",
+    colorRgb: "167,139,250",
+    cta:      "Pierce the Void",
+  },
+];
+
+const LANG_LABEL = {
+  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#", mix: "All Paths",
+};
 
 function formatCountdown(isoString) {
   const ms = new Date(isoString) - Date.now();
@@ -51,17 +87,293 @@ function OrnamentDivider() {
   );
 }
 
-function XpLegend() {
+function LangCard({ card, canPlay, activeSession, starting, onStart }) {
+  const [hovered, setHovered] = useState(false);
+  const isStarting = starting === card.key;
+  const disabled   = !canPlay || !!activeSession || isStarting;
+  const active     = hovered && !disabled;
+
   return (
-    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-      {[["Easy", "10 XP", "#4ade80"], ["Medium", "20 XP", "#fbbf24"], ["Hard", "30 XP", "#f87171"]].map(([d, xp, c]) => (
-        <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <div style={{ width: 7, height: 7, borderRadius: "2px", background: c, transform: "rotate(45deg)" }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", letterSpacing: "0.10em", color: "rgba(255,255,255,0.40)" }}>
-            {d} · {xp}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => { if (!disabled) onStart(card.key); }}
+      style={{
+        position: "relative",
+        borderRadius: "16px",
+        overflow: "hidden",
+        height: "310px",
+        cursor: disabled ? "default" : "pointer",
+        border: `1px solid ${active ? `rgba(${card.colorRgb},0.55)` : "rgba(255,255,255,0.08)"}`,
+        boxShadow: active
+          ? `0 0 36px rgba(${card.colorRgb},0.18), 0 8px 40px rgba(0,0,0,0.55)`
+          : "0 4px 20px rgba(0,0,0,0.40)",
+        transition: "border 0.25s, box-shadow 0.25s, transform 0.22s",
+        transform: active ? "translateY(-4px)" : "translateY(0)",
+        opacity: disabled && !canPlay ? 0.55 : 1,
+      }}
+    >
+      {/* Full-bleed image */}
+      <img
+        src={card.image}
+        alt={card.label}
+        draggable={false}
+        style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          objectFit: "cover",
+          transform: active ? "scale(1.07)" : "scale(1.01)",
+          transition: "transform 0.45s ease, filter 0.28s",
+          filter: disabled
+            ? "brightness(0.50) saturate(0.45)"
+            : active ? "brightness(0.95)" : "brightness(0.75)",
+        }}
+      />
+
+      {/* Gradient overlay — heavy at bottom, light at top */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: `linear-gradient(
+          to top,
+          rgba(3,3,14,0.98) 25%,
+          rgba(3,3,14,0.60) 55%,
+          rgba(3,3,14,0.12) 100%
+        )`,
+      }} />
+
+      {/* Thin colored accent stripe at top */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+        background: `linear-gradient(
+          to right,
+          transparent,
+          rgba(${card.colorRgb},0.80) 30%,
+          rgba(${card.colorRgb},0.80) 70%,
+          transparent
+        )`,
+        opacity: active ? 1 : 0.40,
+        transition: "opacity 0.25s",
+      }} />
+
+      {/* Top-left: language badge */}
+      <div style={{
+        position: "absolute", top: "0.9rem", left: "0.9rem",
+        padding: "0.22rem 0.55rem",
+        borderRadius: "5px",
+        background: "rgba(0,0,0,0.60)",
+        border: `1px solid rgba(${card.colorRgb},0.38)`,
+        backdropFilter: "blur(8px)",
+        fontFamily: "var(--font-heading)",
+        fontSize: "0.56rem", fontWeight: 700,
+        letterSpacing: "0.14em", textTransform: "uppercase",
+        color: card.color,
+      }}>
+        {card.label}
+      </div>
+
+      {/* Top-right: epithet */}
+      <div style={{
+        position: "absolute", top: "1rem", right: "0.9rem",
+        fontFamily: "var(--font-heading)",
+        fontSize: "0.50rem", fontWeight: 600,
+        letterSpacing: "0.10em", textTransform: "uppercase",
+        color: "rgba(255,255,255,0.28)",
+        textAlign: "right",
+        maxWidth: "110px",
+        lineHeight: 1.3,
+      }}>
+        {card.epithet}
+      </div>
+
+      {/* Bottom content */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        padding: "1rem 1.15rem 1.1rem",
+      }}>
+        <h3 style={{
+          fontFamily: "var(--font-heading)",
+          fontSize: "1.0rem", fontWeight: 700,
+          color: "#fff",
+          marginBottom: "0.28rem",
+          lineHeight: 1.2,
+          textShadow: "0 1px 8px rgba(0,0,0,0.95)",
+        }}>
+          {card.title}
+        </h3>
+        <p style={{
+          fontSize: "0.70rem",
+          color: "rgba(255,255,255,0.40)",
+          marginBottom: "0.85rem",
+          lineHeight: 1.45,
+        }}>
+          {card.desc}
+        </p>
+
+        <button
+          onClick={(e) => { e.stopPropagation(); if (!disabled) onStart(card.key); }}
+          disabled={disabled}
+          style={{
+            width: "100%",
+            padding: "0.52rem 0.75rem",
+            borderRadius: "8px",
+            border: `1px solid ${disabled ? "rgba(255,255,255,0.10)" : `rgba(${card.colorRgb},0.42)`}`,
+            background: disabled
+              ? "rgba(0,0,0,0.45)"
+              : active
+              ? `rgba(${card.colorRgb},0.20)`
+              : `rgba(${card.colorRgb},0.10)`,
+            color: disabled ? "rgba(255,255,255,0.22)" : card.color,
+            fontFamily: "var(--font-heading)",
+            fontSize: "0.60rem", fontWeight: 700,
+            letterSpacing: "0.10em", textTransform: "uppercase",
+            cursor: disabled ? "not-allowed" : "pointer",
+            backdropFilter: "blur(6px)",
+            transition: "all 0.16s",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem",
+          }}
+          onMouseEnter={(e) => {
+            e.stopPropagation();
+            if (!disabled) e.currentTarget.style.background = `rgba(${card.colorRgb},0.25)`;
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation();
+            if (!disabled) e.currentTarget.style.background = `rgba(${card.colorRgb},0.10)`;
+          }}
+        >
+          {isStarting ? (
+            <>
+              <div className="sf-spinner" style={{ width: 11, height: 11, borderWidth: 2 }} />
+              Beginning…
+            </>
+          ) : !canPlay ? (
+            activeSession ? "Trial Active" : "Unavailable"
+          ) : (
+            `${card.cta} →`
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MixCard({ canPlay, activeSession, starting, onStart }) {
+  const [hovered, setHovered] = useState(false);
+  const isStarting = starting === "mix";
+  const disabled   = !canPlay || !!activeSession || isStarting;
+  const active     = hovered && !disabled;
+  const rgb        = "3,233,244";
+  const color      = "#03e9f4";
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => { if (!disabled) onStart("mix"); }}
+      style={{
+        position: "relative",
+        borderRadius: "16px",
+        border: `1px solid ${active ? `rgba(${rgb},0.38)` : "rgba(255,255,255,0.07)"}`,
+        background: active ? "rgba(3,233,244,0.04)" : "rgba(255,255,255,0.02)",
+        padding: "1.4rem 1.75rem",
+        display: "flex", alignItems: "center", gap: "2rem", flexWrap: "wrap",
+        overflow: "hidden",
+        transition: "all 0.25s ease",
+        boxShadow: active ? `0 0 44px rgba(${rgb},0.08)` : "none",
+        opacity: disabled && !isStarting ? 0.55 : 1,
+        cursor: disabled ? "default" : "pointer",
+      }}
+    >
+      {/* Rainbow accent line — top */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+        background: "linear-gradient(to right, #2dd4bf, #fbbf24, #fb923c, #a78bfa)",
+        opacity: active ? 0.65 : 0.18,
+        transition: "opacity 0.25s",
+      }} />
+
+      {/* ∞ emblem */}
+      <div style={{
+        width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
+        border: `1px solid rgba(${rgb},0.28)`,
+        background: `rgba(${rgb},0.05)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: "1.75rem", lineHeight: 1,
+        color,
+        boxShadow: active ? `0 0 20px rgba(${rgb},0.20)` : "none",
+        transition: "box-shadow 0.25s",
+      }}>
+        ∞
+      </div>
+
+      {/* Text block */}
+      <div style={{ flex: 1, minWidth: 180 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
+          <span style={{
+            fontFamily: "var(--font-heading)", fontSize: "0.56rem", fontWeight: 700,
+            letterSpacing: "0.14em", textTransform: "uppercase", color,
+            padding: "0.18rem 0.5rem", borderRadius: "4px",
+            background: `rgba(${rgb},0.08)`, border: `1px solid rgba(${rgb},0.22)`,
+          }}>
+            All Paths
+          </span>
+          <span style={{
+            fontFamily: "var(--font-heading)", fontSize: "0.50rem",
+            letterSpacing: "0.08em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase",
+          }}>
+            Grand Confluence
           </span>
         </div>
-      ))}
+        <h3 style={{
+          fontFamily: "var(--font-heading)", fontSize: "1.0rem", fontWeight: 700,
+          color: "#fff", marginBottom: "0.25rem", lineHeight: 1.2,
+        }}>
+          The Grand Confluence
+        </h3>
+        <p style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.35)", lineHeight: 1.5 }}>
+          Questions drawn from all four realms — Python, JavaScript, Java, and C#.
+          Face every discipline as one. The ultimate ordeal.
+        </p>
+      </div>
+
+      {/* Stats + button */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem", flexShrink: 0, alignItems: "flex-end" }}>
+        <div style={{ display: "flex", gap: "1.25rem" }}>
+          {[["20", "Questions"], ["380 XP", "Max Reward"], ["5 min", "Limit"]].map(([v, l]) => (
+            <div key={l} style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.72)", lineHeight: 1 }}>{v}</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.24)", marginTop: "0.2rem" }}>{l}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={(e) => { e.stopPropagation(); if (!disabled) onStart("mix"); }}
+          disabled={disabled}
+          style={{
+            padding: "0.55rem 1.5rem", borderRadius: "8px",
+            border: `1px solid ${disabled ? "rgba(255,255,255,0.10)" : `rgba(${rgb},0.35)`}`,
+            background: disabled ? "rgba(255,255,255,0.04)" : `rgba(${rgb},0.08)`,
+            color: disabled ? "rgba(255,255,255,0.22)" : color,
+            fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700,
+            letterSpacing: "0.10em", textTransform: "uppercase",
+            cursor: disabled ? "not-allowed" : "pointer",
+            transition: "all 0.15s",
+            display: "flex", alignItems: "center", gap: "0.4rem",
+          }}
+          onMouseEnter={(e) => { e.stopPropagation(); if (!disabled) e.currentTarget.style.background = `rgba(${rgb},0.16)`; }}
+          onMouseLeave={(e) => { e.stopPropagation(); if (!disabled) e.currentTarget.style.background = `rgba(${rgb},0.08)`; }}
+        >
+          {isStarting ? (
+            <>
+              <div className="sf-spinner" style={{ width: 11, height: 11, borderWidth: 2 }} />
+              Beginning…
+            </>
+          ) : !canPlay ? (
+            activeSession ? "Trial Active" : "Unavailable"
+          ) : (
+            "Enter Confluence →"
+          )}
+        </button>
+      </div>
     </div>
   );
 }
@@ -132,12 +444,10 @@ export default function TriviaPage() {
   return (
     <div style={{ maxWidth: "860px", margin: "0 auto" }}>
 
-      {/* ── Hero header ── */}
+      {/* ── Hero ── */}
       <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
 
-        {/* Oracle image ring */}
         <div style={{ position: "relative", display: "inline-block", marginBottom: "1.5rem" }}>
-          {/* Outer glow ring */}
           <div style={{
             position: "absolute", inset: -8, borderRadius: "50%",
             background: `radial-gradient(circle, rgba(${GR},0.20) 0%, transparent 70%)`,
@@ -170,13 +480,12 @@ export default function TriviaPage() {
 
         <OrnamentDivider />
 
-        {/* Stats row */}
         <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", flexWrap: "wrap" }}>
           {[
-            ["20",        "Questions"],
-            ["5 min",     "Time Limit"],
+            ["20",           "Questions"],
+            ["5 min",        "Time Limit"],
             [`${MAX_XP} XP`, "Max Reward"],
-            ["Weekly",    "Reset"],
+            ["Weekly",       "Reset"],
           ].map(([val, lbl]) => (
             <div key={lbl} style={{ textAlign: "center" }}>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", fontWeight: 700, color: G, lineHeight: 1 }}>{val}</p>
@@ -201,15 +510,17 @@ export default function TriviaPage() {
               Trial In Progress
             </p>
             <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>
-              You have an active {LANG_META[activeSession.language]?.label ?? activeSession.language} trial. Return before time runs out.
+              You have an active {LANG_LABEL[activeSession.language] ?? activeSession.language} trial. Return before time runs out.
             </p>
           </div>
           <button
             onClick={handleResume}
             style={{
-              padding: "0.55rem 1.25rem", borderRadius: "8px", border: `1px solid rgba(${GR},0.50)`,
+              padding: "0.55rem 1.25rem", borderRadius: "8px",
+              border: `1px solid rgba(${GR},0.50)`,
               background: `rgba(${GR},0.12)`, color: GL,
-              fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase",
+              fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+              letterSpacing: "0.10em", textTransform: "uppercase",
               cursor: "pointer", flexShrink: 0, transition: "all 0.15s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${GR},0.22)`)}
@@ -231,7 +542,8 @@ export default function TriviaPage() {
               Weekly Trial Complete
             </p>
             <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.40)" }}>
-              The Oracle rests. Next trial available in <strong style={{ color: "rgba(255,255,255,0.70)" }}>{formatCountdown(nextAt)}</strong>.
+              The Oracle rests. Next trial available in{" "}
+              <strong style={{ color: "rgba(255,255,255,0.70)" }}>{formatCountdown(nextAt)}</strong>.
             </p>
           </div>
           {lastSession && (
@@ -247,99 +559,52 @@ export default function TriviaPage() {
         </div>
       )}
 
-      {/* ── XP legend ── */}
-      <div style={{ marginBottom: "1.25rem" }}>
-        <XpLegend />
-      </div>
-
-      {/* ── Language cards ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
-        {Object.entries(LANG_META).map(([lang, meta]) => {
-          const isStarting = starting === lang;
-          const disabled   = !canPlay || !!activeSession || isStarting;
-          const rgb        = COLOR_RGB[meta.color] ?? "255,255,255";
-
-          return (
-            <div
-              key={lang}
-              style={{
-                borderRadius: "14px",
-                border: `1px solid ${disabled ? "rgba(255,255,255,0.07)" : meta.border}`,
-                background: disabled ? "rgba(255,255,255,0.02)" : meta.bg,
-                padding: "1.4rem",
-                display: "flex", flexDirection: "column", gap: "1rem",
-                opacity: disabled && !canPlay ? 0.5 : 1,
-                transition: "all 0.18s",
-              }}
-              onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.boxShadow = `0 0 24px ${meta.bg}`; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
-            >
-              {/* Glyph + label */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-                <div style={{
-                  width: 42, height: 42, borderRadius: "10px", flexShrink: 0,
-                  border: `1px solid ${meta.border}`,
-                  background: `rgba(${rgb},0.12)`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700,
-                  color: meta.color,
-                }}>
-                  {meta.glyph}
-                </div>
-                <div>
-                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", fontWeight: 700, color: "rgba(255,255,255,0.90)", marginBottom: "0.1rem" }}>
-                    {meta.label}
-                  </p>
-                  <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}>
-                    {meta.desc}
-                  </p>
-                </div>
-              </div>
-
-              {/* Info row */}
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                {[["30", "Questions"], ["380", "Max XP"], ["5 min", "Limit"]].map(([v, l]) => (
-                  <div key={l} style={{ flex: 1, padding: "0.35rem 0.5rem", borderRadius: "7px", background: "rgba(255,255,255,0.04)", textAlign: "center" }}>
-                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.70)" }}>{v}</p>
-                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>{l}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Start button */}
-              <button
-                onClick={() => handleStart(lang)}
-                disabled={disabled}
-                style={{
-                  width: "100%", padding: "0.6rem",
-                  borderRadius: "9px",
-                  border: `1px solid ${disabled ? "rgba(255,255,255,0.08)" : meta.border}`,
-                  background: disabled ? "rgba(255,255,255,0.04)" : `rgba(${rgb},0.10)`,
-                  color: disabled ? "rgba(255,255,255,0.22)" : meta.color,
-                  fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
-                  letterSpacing: "0.10em", textTransform: "uppercase",
-                  cursor: disabled ? "not-allowed" : "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem",
-                  transition: "all 0.15s",
-                }}
-                onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = `rgba(${rgb},0.18)`; }}
-                onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.background = `rgba(${rgb},0.10)`; }}
-              >
-                {isStarting ? (
-                  <>
-                    <div className="sf-spinner" style={{ width: 12, height: 12, borderWidth: 2 }} />
-                    Beginning…
-                  </>
-                ) : canPlay ? (
-                  "Begin Trial →"
-                ) : (
-                  activeSession ? "Trial Active" : "Unavailable"
-                )}
-              </button>
+      {/* ── Section header + XP legend ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+        <p style={{
+          fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
+          letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.26)",
+        }}>
+          Choose Your Path
+        </p>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+          {[["Easy", "10 XP", "#4ade80"], ["Medium", "20 XP", "#fbbf24"], ["Hard", "30 XP", "#f87171"]].map(([d, xp, c]) => (
+            <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "1.5px", background: c, transform: "rotate(45deg)", flexShrink: 0 }} />
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", letterSpacing: "0.10em", color: "rgba(255,255,255,0.35)" }}>
+                {d} · {xp}
+              </span>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
+
+      {/* ── 2 × 2 Language cards ── */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+        gap: "1rem",
+        marginBottom: "1rem",
+      }}>
+        {LANG_CARDS.map((card) => (
+          <LangCard
+            key={card.key}
+            card={card}
+            canPlay={canPlay}
+            activeSession={activeSession}
+            starting={starting}
+            onStart={handleStart}
+          />
+        ))}
+      </div>
+
+      {/* ── Mix / Confluence card (full width) ── */}
+      <MixCard
+        canPlay={canPlay}
+        activeSession={activeSession}
+        starting={starting}
+        onStart={handleStart}
+      />
 
     </div>
   );
