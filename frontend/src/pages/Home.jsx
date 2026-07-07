@@ -34,10 +34,10 @@ function useCountUp(target, duration = 900) {
 const TOTAL_QUESTS = 30;
 
 const LANGUAGES = [
-  { slug: "python",     name: "Python",     image: pythonImg, description: "Data, automation & beyond"  },
-  { slug: "javascript", name: "JavaScript", image: jsImg,     description: "Build the modern web"        },
-  { slug: "java",       name: "Java",       image: javaImg,   description: "Enterprise, Android & more"  },
-  { slug: "csharp",     name: "C#",         image: csImg,     description: "Games, apps & cloud"         },
+  { slug: "python",     name: "Python",     image: pythonImg, description: "Data, automation & beyond",  accentColor: "#3b82f6" },
+  { slug: "javascript", name: "JavaScript", image: jsImg,     description: "Build the modern web",        accentColor: "#fbbf24" },
+  { slug: "java",       name: "Java",       image: javaImg,   description: "Enterprise, Android & more",  accentColor: "#f97316" },
+  { slug: "csharp",     name: "C#",         image: csImg,     description: "Games, apps & cloud",         accentColor: "#a78bfa" },
 ];
 
 const SECTIONS = [
@@ -46,8 +46,8 @@ const SECTIONS = [
   { name: "Trivia",      path: "/trivia", image: triviaImg, description: "Weekly knowledge trials"         },
 ];
 
-const CARD_HOVER_ON  = { borderColor: "rgba(3,233,244,0.25)", boxShadow: "0 0 22px rgba(3,233,244,0.06)" };
-const CARD_HOVER_OFF = { borderColor: "rgba(255,255,255,0.07)", boxShadow: "none" };
+const CARD_HOVER_ON  = { borderColor: "rgba(3,233,244,0.22)", boxShadow: "0 8px 32px rgba(3,233,244,0.07)", transform: "translateY(-2px)" };
+const CARD_HOVER_OFF = { borderColor: "rgba(255,255,255,0.07)", boxShadow: "none",                          transform: "translateY(0)" };
 
 function SectionDivider({ title }) {
   return (
@@ -124,15 +124,27 @@ export default function Home() {
     <div className="space-y-14">
 
       {/* ── Hero ── */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 page-enter">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-3 leading-tight">
+          <p className="hero-eyebrow">Adventurer's Hall</p>
+          <h1
+            style={{
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
+              fontWeight: 700,
+              color: "#fff",
+              marginBottom: "0.75rem",
+              lineHeight: 1.2,
+              letterSpacing: "0.02em",
+            }}
+          >
             Welcome back,{" "}
-            <span className="text-cyan">{displayName}</span>
+            <span style={{ color: "var(--color-cyan)", textShadow: "0 0 28px rgba(3,233,244,0.30)" }}>
+              {displayName}
+            </span>
           </h1>
-          <p className="text-sub text-sm leading-relaxed max-w-lg">
-            Your coding journey continues. Choose a quest to level up your skills,
-            track your progress, and compete on the leaderboard.
+          <p className="text-sub leading-relaxed max-w-[480px]" style={{ fontSize: "1.05rem" }}>
+            Your quest continues. Choose your path wisely — each challenge forges your legend and brings glory to the realm.
           </p>
         </div>
 
@@ -144,13 +156,18 @@ export default function Home() {
             { label: "Your Rank", value: "—"  },
           ].map((s) => (
             <div key={s.label} className="stat-card">
-              <p className="text-cyan text-2xl font-bold leading-none mb-1.5">{s.value}</p>
               <p
-                className="text-xs"
+                className="text-cyan font-bold leading-none mb-2"
+                style={{ fontFamily: "var(--font-heading)", fontSize: "1.75rem" }}
+              >
+                {s.value}
+              </p>
+              <p
                 style={{
-                  color: "rgba(255,255,255,0.35)",
+                  color: "rgba(255,255,255,0.32)",
                   fontFamily: "var(--font-heading)",
-                  letterSpacing: "0.08em",
+                  fontSize: "0.58rem",
+                  letterSpacing: "0.10em",
                   textTransform: "uppercase",
                 }}
               >
@@ -167,31 +184,30 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-4">
 
           {/* XP card */}
-          <div className="glass-card p-6">
+          <div className="glass-card p-6" style={{ borderTop: "1px solid rgba(3,233,244,0.12)" }}>
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h4
-                  className="text-white font-semibold text-sm"
-                  style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
+                <p
+                  style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem" }}
                 >
-                  XP Points
-                </h4>
-                <div className="flex items-baseline gap-1.5 mt-1.5">
+                  Experience Points
+                </p>
+                <div className="flex items-baseline gap-1.5">
                   <span
                     className="text-cyan font-bold"
-                    style={{ fontFamily: "var(--font-heading)", fontSize: "2rem", lineHeight: 1 }}
+                    style={{ fontFamily: "var(--font-heading)", fontSize: "2.1rem", lineHeight: 1 }}
                   >
                     {animatedXP.toLocaleString()}
                   </span>
-                  <span className="text-sub text-xs">XP total</span>
+                  <span className="text-sub" style={{ fontSize: "0.78rem" }}>XP total</span>
                 </div>
               </div>
               <div
                 style={{
-                  padding: "0.3rem 0.75rem",
+                  padding: "0.32rem 0.85rem",
                   borderRadius: "99px",
                   background: "rgba(3,233,244,0.08)",
-                  border: "1px solid rgba(3,233,244,0.20)",
+                  border: "1px solid rgba(3,233,244,0.22)",
                   flexShrink: 0,
                 }}
               >
@@ -208,14 +224,14 @@ export default function Home() {
               <div className="progress-fill" style={{ width: `${xpBarWidth}%` }} />
             </div>
 
-            <div className="flex justify-between mt-2.5">
+            <div className="flex justify-between mt-3">
               <span
-                className="text-cyan text-xs"
-                style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
+                className="text-cyan"
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", letterSpacing: "0.04em" }}
               >
                 {xpIntoLevel.toLocaleString()} / {xpLevelRange.toLocaleString()} XP
               </span>
-              <span className="text-xs text-sub">
+              <span className="text-sub" style={{ fontSize: "0.72rem" }}>
                 {currentLevel < 100
                   ? `${xpToNext.toLocaleString()} XP to level ${nextLevel}`
                   : "Max level reached"}
@@ -224,23 +240,22 @@ export default function Home() {
           </div>
 
           {/* Challenges card */}
-          <div className="glass-card p-6">
+          <div className="glass-card p-6" style={{ borderTop: "1px solid rgba(3,233,244,0.12)" }}>
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h4
-                  className="text-white font-semibold text-sm"
-                  style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
+                <p
+                  style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem" }}
                 >
-                  Completed Challenges
-                </h4>
-                <div className="flex items-baseline gap-1.5 mt-1.5">
+                  Quest Chronicle
+                </p>
+                <div className="flex items-baseline gap-1.5">
                   <span
                     className="text-cyan font-bold"
-                    style={{ fontFamily: "var(--font-heading)", fontSize: "2rem", lineHeight: 1 }}
+                    style={{ fontFamily: "var(--font-heading)", fontSize: "2.1rem", lineHeight: 1 }}
                   >
                     {animatedCompleted}
                   </span>
-                  <span className="text-sub text-xs">
+                  <span className="text-sub" style={{ fontSize: "0.78rem" }}>
                     of {totalLive !== null ? totalLive : "—"} quests
                   </span>
                 </div>
@@ -249,7 +264,7 @@ export default function Home() {
                 style={{
                   width: "2.25rem", height: "2.25rem",
                   borderRadius: "0.75rem",
-                  background: "rgba(3,233,244,0.10)",
+                  background: "rgba(3,233,244,0.08)",
                   border: "1px solid rgba(3,233,244,0.20)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
@@ -265,14 +280,14 @@ export default function Home() {
               <div className="progress-fill" style={{ width: `${cmpBarWidth}%` }} />
             </div>
 
-            <div className="flex justify-between mt-2.5">
+            <div className="flex justify-between mt-3">
               <span
-                className="text-cyan text-xs"
-                style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
+                className="text-cyan"
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", letterSpacing: "0.04em" }}
               >
                 {completedPct}% complete
               </span>
-              <span className="text-xs text-sub">{user?.rank ?? "Novice"}</span>
+              <span className="text-sub" style={{ fontSize: "0.72rem" }}>{user?.rank ?? "Novice"}</span>
             </div>
           </div>
 
@@ -288,14 +303,30 @@ export default function Home() {
               <div
                 className="group relative rounded-2xl overflow-hidden cursor-pointer"
                 style={{
-                  height: "192px",
+                  height: "200px",
                   background: "rgba(0,0,0,0.45)",
                   border: "1px solid rgba(255,255,255,0.07)",
-                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  boxShadow: `inset 0 2px 0 ${lang.accentColor}44`,
+                  transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
                 }}
-                onMouseEnter={(e) => Object.assign(e.currentTarget.style, CARD_HOVER_ON)}
-                onMouseLeave={(e) => Object.assign(e.currentTarget.style, CARD_HOVER_OFF)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(3,233,244,0.20)";
+                  e.currentTarget.style.boxShadow = `inset 0 2px 0 ${lang.accentColor}bb, 0 8px 32px rgba(3,233,244,0.07)`;
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+                  e.currentTarget.style.boxShadow = `inset 0 2px 0 ${lang.accentColor}44`;
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
               >
+                {/* Accent glow at top */}
+                <div style={{
+                  position: "absolute", top: 0, left: 0, right: 0, height: "56px",
+                  background: `linear-gradient(to bottom, ${lang.accentColor}18, transparent)`,
+                  pointerEvents: "none",
+                }} />
+
                 {/* Background image */}
                 <img
                   src={lang.image}
@@ -304,18 +335,18 @@ export default function Home() {
                     position: "absolute", inset: 0,
                     width: "100%", height: "100%",
                     objectFit: "cover",
-                    opacity: 0.45,
+                    opacity: 0.40,
                     transition: "opacity 0.4s",
                     userSelect: "none",
                     pointerEvents: "none",
                   }}
-                  className="group-hover:opacity-[0.35]"
+                  className="group-hover:opacity-[0.32]"
                 />
                 {/* Bottom gradient */}
                 <div
                   style={{
                     position: "absolute", inset: 0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.18) 60%, transparent 100%)",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.15) 58%, transparent 100%)",
                     pointerEvents: "none",
                   }}
                 />
@@ -328,24 +359,26 @@ export default function Home() {
                 {/* Content */}
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.25rem" }}>
                   <h3
-                    className="text-white font-bold text-base mb-0.5"
-                    style={{ fontFamily: "var(--font-heading)" }}
+                    className="text-white font-bold text-base mb-1"
+                    style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.03em" }}
                   >
                     {lang.name}
                   </h3>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.60)" }}>
+                  <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-body)" }}>
                     {lang.description}
                   </p>
                   <div
-                    className="flex items-center gap-1.5 mt-3 text-xs text-sub group-hover:text-cyan"
+                    className="flex items-center gap-1.5 mt-3 text-sub group-hover:text-cyan"
                     style={{
                       fontFamily: "var(--font-heading)",
-                      letterSpacing: "0.06em",
+                      fontSize: "0.58rem",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
                       transition: "color 0.2s",
                     }}
                   >
-                    <span>Start quest</span>
-                    <ArrowIcon />
+                    <span>Begin Quest</span>
+                    <ArrowIcon className="group-hover:translate-x-0.5 transition-transform duration-200" />
                   </div>
                 </div>
               </div>
@@ -363,10 +396,10 @@ export default function Home() {
               <div
                 className="group relative rounded-2xl overflow-hidden cursor-pointer"
                 style={{
-                  height: "176px",
+                  height: "180px",
                   background: "rgba(0,0,0,0.35)",
                   border: "1px solid rgba(255,255,255,0.07)",
-                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
                 }}
                 onMouseEnter={(e) => Object.assign(e.currentTarget.style, CARD_HOVER_ON)}
                 onMouseLeave={(e) => Object.assign(e.currentTarget.style, CARD_HOVER_OFF)}

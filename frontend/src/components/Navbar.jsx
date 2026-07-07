@@ -106,9 +106,17 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="navbar-inner">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0" style={{ textDecoration: "none" }}>
             <img src={logoImg} alt="SkillForge" className="w-7 h-7 object-contain" />
-            <span className="hidden sm:block text-white font-bold text-base tracking-tight text-display">
+            <span
+              className="hidden sm:block"
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: "1.05rem",
+                color: "#fff",
+                letterSpacing: "0.04em",
+              }}
+            >
               SkillForge
             </span>
           </Link>

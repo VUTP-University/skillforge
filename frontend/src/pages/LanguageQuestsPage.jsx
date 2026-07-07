@@ -37,9 +37,9 @@ function DiffBadge({ difficulty }) {
         background: m.bg,
         color: m.color,
         fontFamily: "var(--font-heading)",
-        fontSize: "0.55rem",
+        fontSize: "0.60rem",
         fontWeight: 700,
-        letterSpacing: "0.10em",
+        letterSpacing: "0.09em",
         textTransform: "uppercase",
         flexShrink: 0,
         whiteSpace: "nowrap",
@@ -365,8 +365,21 @@ export default function LanguageQuestsPage() {
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-1.5">{langCfg.name}</h1>
-            <p className="text-sub text-sm">{langCfg.description}</p>
+            <p className="hero-eyebrow">Quest Path</p>
+            <h1
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)",
+                fontWeight: 700,
+                color: "#fff",
+                letterSpacing: "0.03em",
+                lineHeight: 1.2,
+                marginBottom: "0.4rem",
+              }}
+            >
+              {langCfg.name}
+            </h1>
+            <p className="text-sub" style={{ fontSize: "1rem" }}>{langCfg.description}</p>
           </div>
 
           {/* Diff summary + total */}

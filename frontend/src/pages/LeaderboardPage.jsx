@@ -197,7 +197,9 @@ export default function LeaderboardPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center gap-4 py-32 text-center">
-        <p style={{ fontSize: "2rem" }}>⚗</p>
+        <svg style={{ width: 36, height: 36, color: "rgba(255,255,255,0.18)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
         <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>
           {error}
         </p>
@@ -209,7 +211,9 @@ export default function LeaderboardPage() {
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-32 text-center">
-        <p style={{ fontSize: "2rem" }}>⚔</p>
+        <svg style={{ width: 36, height: 36, color: "rgba(255,255,255,0.18)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
         <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>
           No adventurers on record yet.
         </p>
@@ -221,28 +225,54 @@ export default function LeaderboardPage() {
     <div className="space-y-10">
 
       {/* ── Header ── */}
-      <div className="text-center space-y-1.5">
+      <div className="text-center page-enter" style={{ paddingBottom: "0.5rem" }}>
+        <p className="hero-eyebrow" style={{ justifyContent: "center" }}>
+          The Eternal Chronicle
+        </p>
         <h1
           style={{
-            fontFamily: "var(--font-display)", fontSize: "2.4rem", fontWeight: 700,
-            color: "#fff", letterSpacing: "0.04em", lineHeight: 1.1,
+            fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 4vw, 2.6rem)", fontWeight: 700,
+            color: "#fff", letterSpacing: "0.04em", lineHeight: 1.15,
+            marginBottom: "0.5rem",
           }}
         >
           Hall of Legends
         </h1>
-        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.38)", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>
+        <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-body)", fontStyle: "italic" }}>
           The mightiest adventurers in the realm
         </p>
         {myRank > 0 && (
-          <p style={{ fontSize: "1.1rem", color: "rgba(3,233,244,0.80)", fontFamily: "var(--font-heading)", fontWeight: 700, letterSpacing: "0.06em", paddingTop: "0.35rem" }}>
-            Your rank: #{myRank}
-          </p>
+          <div
+            style={{
+              display: "inline-flex", alignItems: "center", gap: "0.5rem",
+              marginTop: "0.75rem",
+              padding: "0.35rem 1rem",
+              borderRadius: "99px",
+              background: "rgba(3,233,244,0.08)",
+              border: "1px solid rgba(3,233,244,0.22)",
+            }}
+          >
+            <svg style={{ width: 12, height: 12, color: "var(--color-cyan)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--color-cyan)" }}>
+              Your Rank: #{myRank}
+            </span>
+          </div>
         )}
       </div>
 
       {/* ── Podium (top 3) ── */}
       {podium.length > 0 && (
-        <div className="flex items-end justify-center gap-3 sm:gap-5 px-2">
+        <div className="flex items-end justify-center gap-3 sm:gap-5 px-2" style={{ position: "relative" }}>
+          {/* Ambient glow behind podium */}
+          <div style={{
+            position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
+            width: "280px", height: "200px",
+            background: "radial-gradient(ellipse, rgba(251,191,36,0.07) 0%, transparent 70%)",
+            filter: "blur(24px)",
+            pointerEvents: "none",
+          }} />
           {SLOTS.map((slot) => {
             const player = podium[slot.dataIndex];
             if (!player) return null;
@@ -356,12 +386,8 @@ export default function LeaderboardPage() {
       {rest.length > 0 && (
         <div>
           {/* Ornate divider */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-            <div style={{ height: "1px", flex: 1, background: "rgba(255,255,255,0.07)" }} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.26)", flexShrink: 0 }}>
-              The Order
-            </span>
-            <div style={{ height: "1px", flex: 1, background: "rgba(255,255,255,0.07)" }} />
+          <div className="section-divider">
+            <h2>The Order</h2>
           </div>
 
           <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>

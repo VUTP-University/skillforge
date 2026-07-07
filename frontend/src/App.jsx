@@ -95,11 +95,12 @@ function AuthLayout() {
 
 /* App layout — sticky navbar + scrollable content area */
 function AppLayout() {
+  const location = useLocation();
   return (
     <>
       <Navbar />
       <main className="page-wrapper">
-        <div className="page-inner">
+        <div className="page-inner page-enter" key={location.pathname}>
           <Routes>
             <Route
               path="/"
