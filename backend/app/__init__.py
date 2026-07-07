@@ -29,6 +29,7 @@ def create_app(config_class=Config):
     from .routes.profile     import profile_bp
     from .routes.underworld  import underworld_bp
     from .routes.trivia      import trivia_bp
+    from .routes.reports     import reports_bp
 
     app.register_blueprint(health_bp,      url_prefix="/api")
     app.register_blueprint(users_bp,       url_prefix="/api/users")
@@ -38,5 +39,6 @@ def create_app(config_class=Config):
     app.register_blueprint(profile_bp,     url_prefix="/api")
     app.register_blueprint(underworld_bp,  url_prefix="/api/underworld")
     app.register_blueprint(trivia_bp,      url_prefix="/api/trivia")
+    app.register_blueprint(reports_bp,     url_prefix="/api/reports")
 
     return app

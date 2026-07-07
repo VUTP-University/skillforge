@@ -7,6 +7,7 @@ import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
 import { getQuest, submitQuest, getComments, addComment, deleteComment } from "../services/questService";
+import { createReport } from "../services/reportService";
 
 /* ── Config ──────────────────────────────────────────────────────────────── */
 
@@ -143,7 +144,7 @@ function ExampleTestRow({ result }) {
       {open && (
         <div style={{ padding: "0 0.9rem 0.9rem", display: "flex", flexDirection: "column", gap: "0.55rem" }}>
           <MonoBlock label="Input" value={result.input} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.55rem" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "0.55rem" }}>
             <MonoBlock label="Expected" value={result.expected} />
             <MonoBlock
               label="Got"
@@ -427,6 +428,126 @@ function QuestComments({ questId, currentUser }) {
   );
 }
 
+/* ── Report Modal ────────────────────────────────────────────────────────── */
+
+function ReportModal({ questId, onClose }) {
+  const [reason,     setReason]     = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [done,       setDone]       = useState(false);
+  const [error,      setError]      = useState(null);
+  const MAX = 500;
+
+  const handleSubmit = async () => {
+    if (submitting || !reason.trim()) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await createReport(questId, reason.trim());
+      setDone(true);
+    } catch (err) {
+      setError(err?.response?.data?.error ?? "Failed to submit report. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.80)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          maxWidth: "480px", width: "100%", padding: "1.75rem",
+          background: "rgba(10, 12, 20, 0.97)",
+          border: "1px solid rgba(248,113,113,0.25)",
+          borderRadius: "0.875rem",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.60)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
+          <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(248,113,113,0.10)", border: "1px solid rgba(248,113,113,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg style={{ width: 14, height: 14, color: "#f87171" }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", margin: 0 }}>Report Quest</h3>
+            <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", margin: 0 }}>Help us improve by flagging issues</p>
+          </div>
+          <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.30)", fontSize: "1.25rem", lineHeight: 1, padding: "0.1rem" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.30)")}
+          >×</button>
+        </div>
+
+        {done ? (
+          <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
+            <svg style={{ width: 36, height: 36, color: "#4ade80", margin: "0 auto 0.75rem" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, color: "#4ade80", marginBottom: "0.35rem" }}>Report submitted</p>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.40)", marginBottom: "1.25rem" }}>Our moderators will review this quest shortly.</p>
+            <button className="sf-btn-ghost" onClick={onClose} style={{ width: "auto", padding: "0.5rem 1.5rem" }}>Close</button>
+          </div>
+        ) : (
+          <>
+            <label style={{ display: "block", fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.40)", marginBottom: "0.5rem" }}>
+              Reason
+            </label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value.slice(0, MAX))}
+              placeholder="Describe the issue — e.g. incorrect test cases, unclear description, wrong expected output…"
+              rows={5}
+              style={{
+                width: "100%", resize: "vertical", marginBottom: "0.5rem",
+                padding: "0.75rem 0.9rem", borderRadius: "10px",
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)",
+                color: "rgba(255,255,255,0.85)", fontSize: "0.84rem", lineHeight: 1.6,
+                fontFamily: "var(--font-body)", outline: "none", transition: "border-color 0.15s",
+                boxSizing: "border-box",
+              }}
+              onFocus={(e)  => (e.currentTarget.style.borderColor = "rgba(248,113,113,0.40)")}
+              onBlur={(e)   => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)")}
+            />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+              <span style={{ fontSize: "0.62rem", color: reason.length > MAX * 0.9 ? "#fbbf24" : "rgba(255,255,255,0.22)", fontFamily: "var(--font-heading)" }}>
+                {reason.length} / {MAX}
+              </span>
+              {error && <span style={{ fontSize: "0.72rem", color: "#f87171" }}>{error}</span>}
+            </div>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button className="sf-btn-ghost" style={{ flex: 1 }} onClick={onClose} disabled={submitting}>Cancel</button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || !reason.trim()}
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem",
+                  padding: "0.6rem 1rem", borderRadius: "0.5rem",
+                  border: "1px solid rgba(248,113,113,0.35)",
+                  background: submitting || !reason.trim() ? "rgba(248,113,113,0.04)" : "rgba(248,113,113,0.10)",
+                  color: submitting || !reason.trim() ? "rgba(248,113,113,0.40)" : "#f87171",
+                  fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  cursor: submitting || !reason.trim() ? "not-allowed" : "pointer",
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => { if (!submitting && reason.trim()) e.currentTarget.style.background = "rgba(248,113,113,0.16)"; }}
+                onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.background = reason.trim() ? "rgba(248,113,113,0.10)" : "rgba(248,113,113,0.04)"; }}
+              >
+                {submitting ? <><div className="sf-spinner" style={{ width: "11px", height: "11px", borderWidth: "2px" }} /> Submitting…</> : "Submit Report"}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
 export default function QuestSolvePage() {
@@ -434,14 +555,15 @@ export default function QuestSolvePage() {
   const navigate              = useNavigate();
   const { user: currentUser, updateUser } = useAuth();
 
-  const [quest,      setQuest]      = useState(null);
-  const [loading,    setLoading]    = useState(true);
-  const [code,       setCode]       = useState(STARTER[language] ?? "");
-  const [submitting, setSubmitting] = useState(false);
-  const [results,    setResults]    = useState(null);   // { passed, total, results, ... }
-  const [submitErr,  setSubmitErr]  = useState(null);
-  const [xpBanner,   setXpBanner]   = useState(null);  // { xp_earned } or null
-  const xpTimerRef                  = useRef(null);
+  const [quest,       setQuest]      = useState(null);
+  const [loading,     setLoading]    = useState(true);
+  const [code,        setCode]       = useState(STARTER[language] ?? "");
+  const [submitting,  setSubmitting] = useState(false);
+  const [results,     setResults]    = useState(null);   // { passed, total, results, ... }
+  const [submitErr,   setSubmitErr]  = useState(null);
+  const [xpBanner,    setXpBanner]   = useState(null);  // { xp_earned } or null
+  const [reportOpen,  setReportOpen] = useState(false);
+  const xpTimerRef                   = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -501,6 +623,11 @@ export default function QuestSolvePage() {
 
   return (
     <div style={{ width: "100%" }}>
+
+      {/* ── Report modal ── */}
+      {reportOpen && (
+        <ReportModal questId={questId} onClose={() => setReportOpen(false)} />
+      )}
 
       {/* ── XP earned banner ── */}
       {xpBanner && (
@@ -564,7 +691,7 @@ export default function QuestSolvePage() {
             </Link>
           )}
         </div>
-        <h1 style={{ fontSize: "1.9rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
+        <h1 style={{ fontSize: "clamp(1.3rem, 5vw, 1.9rem)", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
           {quest.title}
         </h1>
       </div>
@@ -573,20 +700,10 @@ export default function QuestSolvePage() {
       <div className="flex flex-col lg:flex-row gap-5" style={{ alignItems: "flex-start" }}>
 
         {/* ── LEFT: Problem description ── */}
-        <div
-          className="lg:w-2/5"
-          style={{ flexShrink: 0 }}
-        >
+        <div className="lg:w-2/5" style={{ flexShrink: 0, minWidth: 0 }}>
           <div
-            className="glass-card"
-            style={{
-              padding: "1.5rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.25rem",
-              position: "sticky",
-              top: "5rem",
-            }}
+            className="glass-card quest-desc-sticky"
+            style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}
           >
             {/* Description */}
             <div>
@@ -655,30 +772,16 @@ export default function QuestSolvePage() {
         <div className="flex-1 flex flex-col gap-4" style={{ minWidth: 0 }}>
 
           {/* Editor header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span
               style={{
                 fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
                 letterSpacing: "0.10em", textTransform: "uppercase",
-                color: "rgba(255,255,255,0.30)",
+                color: "rgba(255,255,255,0.30)", marginRight: "auto",
               }}
             >
               Your Solution
             </span>
-            <button
-              onClick={() => setCode(STARTER[quest.language] ?? "")}
-              style={{
-                background: "none", border: "none", cursor: "pointer",
-                fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                letterSpacing: "0.08em", textTransform: "uppercase",
-                color: "rgba(255,255,255,0.22)",
-                transition: "color 0.12s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.22)")}
-            >
-              Reset
-            </button>
           </div>
 
           {/* CodeMirror editor */}
@@ -708,39 +811,91 @@ export default function QuestSolvePage() {
             />
           </div>
 
-          {/* Submit button */}
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !code.trim()}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "0.55rem",
-              width: "100%", padding: "0.75rem",
-              borderRadius: "10px",
-              border: "1px solid rgba(3,233,244,0.30)",
-              background: submitting ? "rgba(3,233,244,0.06)" : "rgba(3,233,244,0.10)",
-              color: submitting ? "rgba(3,233,244,0.50)" : "var(--color-cyan)",
-              fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
-              letterSpacing: "0.12em", textTransform: "uppercase",
-              cursor: submitting ? "not-allowed" : "pointer",
-              transition: "all 0.15s",
-            }}
-            onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.background = "rgba(3,233,244,0.16)"; }}
-            onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.background = "rgba(3,233,244,0.10)"; }}
-          >
-            {submitting ? (
-              <>
-                <div className="sf-spinner" style={{ width: "14px", height: "14px", borderWidth: "2px" }} />
-                Running tests…
-              </>
-            ) : (
-              <>
-                <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+          {/* ── Action bar: Reset · Report · Submit ── */}
+          {/* Single flex-wrap row. Reset/Report are fixed-width; Submit has flex-basis:180px
+              so it wraps to a full-width second row on narrow screens. */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+
+            {/* Reset */}
+            <button
+              onClick={() => setCode(STARTER[quest.language] ?? "")}
+              style={{
+                display: "flex", alignItems: "center", gap: "0.4rem", flexShrink: 0,
+                padding: "0.7rem 1rem", borderRadius: "10px",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.04)",
+                color: "rgba(255,255,255,0.50)",
+                fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                letterSpacing: "0.09em", textTransform: "uppercase",
+                cursor: "pointer", transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.80)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(255,255,255,0.50)"; }}
+            >
+              <svg style={{ width: 13, height: 13 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Reset
+            </button>
+
+            {/* Report */}
+            {currentUser && (
+              <button
+                onClick={() => setReportOpen(true)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.4rem", flexShrink: 0,
+                  padding: "0.7rem 1rem", borderRadius: "10px",
+                  border: "1px solid rgba(248,113,113,0.22)",
+                  background: "rgba(248,113,113,0.06)",
+                  color: "rgba(248,113,113,0.60)",
+                  fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                  letterSpacing: "0.09em", textTransform: "uppercase",
+                  cursor: "pointer", transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(248,113,113,0.12)"; e.currentTarget.style.color = "#f87171"; e.currentTarget.style.borderColor = "rgba(248,113,113,0.40)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(248,113,113,0.06)"; e.currentTarget.style.color = "rgba(248,113,113,0.60)"; e.currentTarget.style.borderColor = "rgba(248,113,113,0.22)"; }}
+              >
+                <svg style={{ width: 13, height: 13 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
-                Submit Solution
-              </>
+                Report
+              </button>
             )}
-          </button>
+
+            {/* Submit Solution — grows to fill the row; wraps to full width when tight */}
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !code.trim()}
+              style={{
+                flex: "1 0 180px",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "0.55rem",
+                padding: "0.75rem 1.25rem", borderRadius: "10px",
+                border: "1px solid rgba(3,233,244,0.35)",
+                background: submitting ? "rgba(3,233,244,0.06)" : "rgba(3,233,244,0.12)",
+                color: submitting ? "rgba(3,233,244,0.45)" : "var(--color-cyan)",
+                fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
+                letterSpacing: "0.12em", textTransform: "uppercase",
+                cursor: submitting || !code.trim() ? "not-allowed" : "pointer",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { if (!submitting && code.trim()) e.currentTarget.style.background = "rgba(3,233,244,0.18)"; }}
+              onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.background = "rgba(3,233,244,0.12)"; }}
+            >
+              {submitting ? (
+                <>
+                  <div className="sf-spinner" style={{ width: "14px", height: "14px", borderWidth: "2px" }} />
+                  Running tests…
+                </>
+              ) : (
+                <>
+                  <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+                  </svg>
+                  Submit Solution
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Submission error (unsupported language, network, etc.) */}
           {submitErr && (

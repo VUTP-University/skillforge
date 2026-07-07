@@ -532,6 +532,14 @@
     animation: fadeSlideUp 0.35s ease-out both;
   }
 
+  /* Quest solve page — description panel sticky only on large screens */
+  @media (min-width: 1024px) {
+    .quest-desc-sticky {
+      position: sticky;
+      top: 5rem;
+    }
+  }
+
   /* ─── Hero eyebrow — small label above main heading */
 
   .hero-eyebrow {

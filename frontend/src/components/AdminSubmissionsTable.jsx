@@ -366,11 +366,9 @@ export default function AdminSubmissionsTable() {
                 display: "grid",
                 gridTemplateColumns: "minmax(0,1.4fr) minmax(0,2fr) 90px 90px 80px 110px 72px",
                 gap: "0.5rem", alignItems: "center",
-                padding: "0.55rem 1rem 0.55rem 0",
-                paddingLeft: "0",
+                padding: "0.55rem 1rem 0.55rem 0.85rem",
                 borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.04)",
                 borderLeft: `3px solid ${s.all_passed ? "rgba(74,222,128,0.45)" : "rgba(248,113,113,0.30)"}`,
-                paddingLeft: "0.85rem",
                 transition: "background 0.10s",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.018)"; }}

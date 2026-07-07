@@ -526,3 +526,73 @@ class BossChallenge(db.Model):
 
     def __repr__(self):
         return f"<BossChallenge {self.id} user={self.user_id} boss={self.boss_id}>"
+
+
+# ── Quest Reports ────────────────────────────────────────────────────────────
+
+
+class ReportStatus(enum.Enum):
+    reported    = "reported"
+    in_progress = "in_progress"
+    solved      = "solved"
+
+
+class QuestReport(db.Model):
+    __tablename__ = "quest_reports"
+
+    id             = db.Column(db.Integer, primary_key=True)
+    quest_id       = db.Column(
+        db.Integer,
+        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    reporter_id    = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    reason         = db.Column(db.Text, nullable=False)
+    status         = db.Column(
+        db.Enum(ReportStatus),
+        nullable=False,
+        default=ReportStatus.reported,
+    )
+    assigned_to_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at     = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+    updated_at     = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    quest       = db.relationship("Quest", foreign_keys=[quest_id])
+    reporter    = db.relationship("User", foreign_keys=[reporter_id])
+    assigned_to = db.relationship("User", foreign_keys=[assigned_to_id])
+
+    def to_dict(self):
+        return {
+            "id":             self.id,
+            "quest_id":       self.quest_id,
+            "quest_title":    self.quest.title if self.quest else None,
+            "reporter_id":    self.reporter_id,
+            "reporter":       self.reporter.username if self.reporter else None,
+            "reason":         self.reason,
+            "status":         self.status.value,
+            "assigned_to_id": self.assigned_to_id,
+            "assigned_to":    self.assigned_to.username if self.assigned_to else None,
+            "created_at":     self.created_at.isoformat(),
+            "updated_at":     self.updated_at.isoformat(),
+        }
+
+    def __repr__(self):
+        return f"<QuestReport {self.id} quest={self.quest_id} status={self.status.value}>"
