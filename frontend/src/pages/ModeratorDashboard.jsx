@@ -6,9 +6,9 @@ import { getAdminUsers } from "../services/userService";
 import { getReports, updateReport } from "../services/reportService";
 
 const REPORT_STATUS_META = {
-  reported:    { label: "Reported",    color: "#f87171", border: "rgba(248,113,113,0.30)", bg: "rgba(248,113,113,0.09)" },
-  in_progress: { label: "In Progress", color: "#fbbf24", border: "rgba(251,191,36,0.30)",  bg: "rgba(251,191,36,0.09)"  },
-  solved:      { label: "Solved",      color: "#4ade80", border: "rgba(74,222,128,0.30)",  bg: "rgba(74,222,128,0.09)"  },
+  reported:    { label: "Reported",    color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
+  in_progress: { label: "In Progress", color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
+  solved:      { label: "Solved",      color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
 };
 
 const ROLE_META = {
@@ -18,7 +18,7 @@ const ROLE_META = {
 };
 
 const rowStyle    = { display: "flex", alignItems: "center", gap: "1rem", padding: "0 1.25rem" };
-const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)" };
+const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" };
 
 function ReportStatusBadge({ status }) {
   const m = REPORT_STATUS_META[status] ?? REPORT_STATUS_META.reported;
@@ -85,14 +85,14 @@ export default function ModeratorDashboard() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <span className="badge" style={{ background: "rgba(100,126,255,0.12)", borderColor: "rgba(100,126,255,0.30)", color: "var(--color-indigo-2)" }}>
+          <span className="badge" style={{ background: "var(--color-blue-dim)", borderColor: "var(--color-blue-border)", color: "var(--color-blue)" }}>
             Moderator
           </span>
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">Moderator Panel</h1>
         <p className="text-sub text-sm max-w-lg">
           Review reported content, manage quest submissions, and support users.
-          Logged in as <span className="text-cyan">{user?.username}</span>.
+          Logged in as <span className="text-green">{user?.username}</span>.
         </p>
       </div>
 
@@ -107,9 +107,9 @@ export default function ModeratorDashboard() {
                   padding: "0.35rem 0.75rem", borderRadius: "0.375rem", cursor: "pointer",
                   fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
                   letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s",
-                  border: filter === f ? "1px solid rgba(3,233,244,0.40)" : "1px solid rgba(255,255,255,0.10)",
-                  background: filter === f ? "rgba(3,233,244,0.10)" : "transparent",
-                  color: filter === f ? "var(--color-cyan)" : "rgba(255,255,255,0.40)",
+                  border: filter === f ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.10)",
+                  background: filter === f ? "var(--color-green-dim)" : "transparent",
+                  color: filter === f ? "var(--color-green)" : "rgba(255,255,255,0.40)",
                 }}>
                 {f === "all" ? "All" : REPORT_STATUS_META[f]?.label ?? f}
               </button>
@@ -122,26 +122,26 @@ export default function ModeratorDashboard() {
           <div className="glass-card p-5 mb-4" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.35rem" }}>Quest</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Quest</p>
                 <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Quest #${selected.quest_id}`}</p>
-                <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: "0.15rem" }}>
+                <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
                   Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                 </p>
               </div>
-              <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.30)", fontSize: "1.25rem", lineHeight: 1, flexShrink: 0 }}
+              <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", fontSize: "1.25rem", lineHeight: 1, flexShrink: 0 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.30)")}
               >×</button>
             </div>
 
             <div style={{ padding: "0.75rem 1rem", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", marginBottom: "1.25rem" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem" }}>Reason</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.4rem" }}>Reason</p>
               <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.65 }}>{selected.reason}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.5rem" }}>Status</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Status</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                   {Object.entries(REPORT_STATUS_META).map(([val, m]) => (
                     <button key={val} onClick={() => setPatch((p) => ({ ...p, status: val }))}
@@ -163,7 +163,7 @@ export default function ModeratorDashboard() {
               </div>
 
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.5rem" }}>Assigned To</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Assigned To</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                   <button onClick={() => setPatch((p) => ({ ...p, assigned_to_id: null }))}
                     style={{
@@ -184,15 +184,15 @@ export default function ModeratorDashboard() {
                       style={{
                         display: "flex", alignItems: "center", justifyContent: "space-between",
                         padding: "0.5rem 0.75rem", borderRadius: "0.5rem", cursor: "pointer",
-                        border: patch.assigned_to_id === u.id ? "1px solid rgba(3,233,244,0.40)" : "1px solid rgba(255,255,255,0.08)",
-                        background: patch.assigned_to_id === u.id ? "rgba(3,233,244,0.08)" : "rgba(255,255,255,0.02)", transition: "all 0.15s",
+                        border: patch.assigned_to_id === u.id ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.08)",
+                        background: patch.assigned_to_id === u.id ? "var(--color-green-dim)" : "rgba(255,255,255,0.02)", transition: "all 0.15s",
                       }}>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-cyan)" : "rgba(255,255,255,0.45)" }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>
                         {u.username}
                         <span style={{ marginLeft: "0.4rem", fontSize: "0.55rem", opacity: 0.55 }}>({ROLE_META[u.role]?.label})</span>
                       </span>
                       {patch.assigned_to_id === u.id && (
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--color-cyan)" }}>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--color-green)" }}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                       )}

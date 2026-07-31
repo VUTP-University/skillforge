@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PlayerHUD from "./PlayerHUD";
 import logoImg from "../assets/img/skill_forge_logo.png";
 
 function ChevronDown({ className = "" }) {
@@ -44,22 +45,6 @@ function CogIcon() {
   );
 }
 
-function AvatarWidget({ avatarUrl, username, size = "2rem", fontSize = "0.75rem" }) {
-  const initials = username?.[0]?.toUpperCase() ?? "?";
-  const [imgErr, setImgErr] = useState(false);
-  if (avatarUrl && !imgErr) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={username}
-        onError={() => setImgErr(true)}
-        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-      />
-    );
-  }
-  return <div className="avatar-initials" style={{ width: size, height: size, fontSize }}>{initials}</div>;
-}
-
 export default function Navbar() {
   const { user, logout }  = useAuth();
   const location          = useLocation();
@@ -69,7 +54,6 @@ export default function Navbar() {
   const [userDropOpen, setUserDropOpen] = useState(false);
 
   const dropRef  = useRef(null);
-  const initials = user?.username?.[0]?.toUpperCase() ?? "?";
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -104,20 +88,28 @@ export default function Navbar() {
   return (
     <>
       <nav className="navbar">
+        <div className="term-bar">
+          <span className="term-dot term-dot--red" />
+          <span className="term-dot term-dot--yellow" />
+          <span className="term-dot term-dot--green" />
+          <span className="term-title">{user?.username ?? "guest"}@skillforge — zsh</span>
+        </div>
         <div className="navbar-inner">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0" style={{ textDecoration: "none" }}>
             <img src={logoImg} alt="SkillForge" className="w-7 h-7 object-contain" />
             <span
-              className="hidden sm:block"
+              className="hidden sm:block glow-pulse"
               style={{
                 fontFamily: "var(--font-brand)",
-                fontSize: "1.05rem",
-                color: "#fff",
-                letterSpacing: "0.04em",
+                fontWeight: 800,
+                fontSize: "1.5rem",
+                lineHeight: 1,
+                color: "var(--color-green)",
+                letterSpacing: "0.02em",
               }}
             >
-              SkillForge
+              SkillForge_
             </span>
           </Link>
 
@@ -137,34 +129,24 @@ export default function Navbar() {
               <div className="hidden md:block relative" ref={dropRef}>
                 <button
                   onClick={() => setUserDropOpen((o) => !o)}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 transition-colors duration-150"
-                  style={{ background: userDropOpen ? "rgba(255,255,255,0.05)" : "transparent" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
-                  onMouseLeave={e => { if (!userDropOpen) e.currentTarget.style.background = "transparent"; }}
+                  className={`hud${userDropOpen ? " hud--open" : ""}`}
                 >
-                  <AvatarWidget avatarUrl={user?.avatar_url} username={user?.username} />
-                  <div className="text-left leading-none">
-                    <p className="text-white text-xs font-semibold">{user.username}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "rgba(3,233,244,0.6)", fontSize: "10px" }}>
-                      {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "User"}
-                    </p>
-                  </div>
+                  <PlayerHUD user={user} variant="desktop" />
                   <ChevronDown className={`text-white/30 transition-transform duration-200 ${userDropOpen ? "rotate-180" : ""}`} />
                 </button>
 
                 {/* Dropdown */}
                 {userDropOpen && (
                   <div
-                    className="absolute top-full right-0 mt-2 w-52 rounded-xl overflow-hidden shadow-2xl"
+                    className="absolute top-full right-0 mt-2 w-52 rounded-lg overflow-hidden shadow-2xl"
                     style={{
-                      background: "rgba(13, 23, 40, 0.98)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      backdropFilter: "blur(16px)",
+                      background: "rgba(10, 16, 12, 0.98)",
+                      border: "1px solid var(--color-green-border)",
                     }}
                   >
                     <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                       <p className="text-white text-sm font-semibold">{user.username}</p>
-                      <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      <p className="text-xs truncate" style={{ color: "var(--color-text-tertiary)" }}>
                         {user.email}
                       </p>
                     </div>
@@ -227,10 +209,10 @@ export default function Navbar() {
                   to="/register"
                   className="sf-btn-ghost"
                   style={{
-                    color: "var(--color-cyan)",
-                    borderColor: "rgba(3,233,244,0.25)",
+                    color: "var(--color-green)",
+                    borderColor: "var(--color-green-border)",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(3,233,244,0.08)"; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(77,255,143,0.08)"; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
                 >
                   Register
@@ -266,16 +248,10 @@ export default function Navbar() {
             {/* User chip */}
             {user && (
               <div
-                className="flex items-center gap-3 px-3 py-3 mb-3 rounded-xl"
+                className="px-3 py-3 mb-3 rounded-xl"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <AvatarWidget avatarUrl={user?.avatar_url} username={user?.username} size="2.25rem" fontSize="0.875rem" />
-                <div>
-                  <p className="text-white text-sm font-semibold">{user.username}</p>
-                  <p className="text-xs" style={{ color: "rgba(3,233,244,0.60)" }}>
-                    {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "User"}
-                  </p>
-                </div>
+                <PlayerHUD user={user} variant="mobile" />
               </div>
             )}
 

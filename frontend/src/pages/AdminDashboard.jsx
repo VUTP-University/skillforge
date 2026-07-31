@@ -17,15 +17,15 @@ const LANG_LABELS = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "#4ade80", border: "rgba(74,222,128,0.30)",  bg: "rgba(74,222,128,0.09)"  },
-  cryptic: { label: "Cryptic", color: "#fbbf24", border: "rgba(251,191,36,0.30)",  bg: "rgba(251,191,36,0.09)"  },
-  abyssal: { label: "Abyssal", color: "#f87171", border: "rgba(248,113,113,0.30)", bg: "rgba(248,113,113,0.09)" },
+  shallow: { label: "Shallow", color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
+  cryptic: { label: "Cryptic", color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
+  abyssal: { label: "Abyssal", color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
 };
 
 const ROLE_META = {
-  admin:     { label: "Admin",     color: "#f87171", border: "rgba(248,113,113,0.30)", bg: "rgba(248,113,113,0.09)" },
-  moderator: { label: "Moderator", color: "#818cf8", border: "rgba(129,140,248,0.30)", bg: "rgba(129,140,248,0.09)" },
-  user:      { label: "User",      color: "rgba(255,255,255,0.55)", border: "rgba(255,255,255,0.15)", bg: "rgba(255,255,255,0.05)" },
+  admin:     { label: "Admin",     color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
+  moderator: { label: "Moderator", color: "var(--gem-csharp)", border: "rgba(177,140,255,0.30)", bg: "rgba(177,140,255,0.09)" },
+  user:      { label: "User",      color: "var(--color-text-secondary)", border: "rgba(255,255,255,0.15)", bg: "rgba(255,255,255,0.05)" },
 };
 
 const ALL_ROLES = ["user", "moderator", "admin"];
@@ -40,7 +40,7 @@ function StatCard({ label, value, icon }) {
       <div style={{
         width: "2.25rem", height: "2.25rem", flexShrink: 0,
         borderRadius: "0.65rem",
-        background: "rgba(3,233,244,0.10)", border: "1px solid rgba(3,233,244,0.20)",
+        background: "var(--color-green-dim)", border: "1px solid var(--color-green-border)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         {icon}
@@ -69,7 +69,7 @@ function SearchInput({ value, onChange, placeholder }) {
   return (
     <div style={{ position: "relative", flex: "1 1 220px", maxWidth: "340px" }}>
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
-        style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.25)", pointerEvents: "none" }}>
+        style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-faint)", pointerEvents: "none" }}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
       </svg>
       <input
@@ -105,8 +105,8 @@ function Pagination({ page, totalPages, onChange }) {
         style={{ ...base, borderColor: "rgba(255,255,255,0.10)", background: "transparent", color: page === 1 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.50)", cursor: page === 1 ? "not-allowed" : "pointer" }}>←</button>
       {pages.map((p, i) =>
         p === "…"
-          ? <span key={`e${i}`} style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.7rem", padding: "0 0.25rem" }}>…</span>
-          : <button key={p} onClick={() => onChange(p)} style={{ ...base, borderColor: p === page ? "rgba(3,233,244,0.40)" : "rgba(255,255,255,0.08)", background: p === page ? "rgba(3,233,244,0.10)" : "transparent", color: p === page ? "var(--color-cyan)" : "rgba(255,255,255,0.45)" }}>{p}</button>
+          ? <span key={`e${i}`} style={{ color: "var(--color-text-faint)", fontSize: "0.7rem", padding: "0 0.25rem" }}>…</span>
+          : <button key={p} onClick={() => onChange(p)} style={{ ...base, borderColor: p === page ? "var(--color-green-border)" : "rgba(255,255,255,0.08)", background: p === page ? "var(--color-green-dim)" : "transparent", color: p === page ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>{p}</button>
       )}
       <button disabled={page === totalPages} onClick={() => onChange(page + 1)}
         style={{ ...base, borderColor: "rgba(255,255,255,0.10)", background: "transparent", color: page === totalPages ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.50)", cursor: page === totalPages ? "not-allowed" : "pointer" }}>→</button>
@@ -122,14 +122,14 @@ function DeleteModal({ title, body, onConfirm, onCancel, busy }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}
       onClick={onCancel}>
-      <div className="glass-card p-6" style={{ maxWidth: "400px", width: "100%", border: "1px solid rgba(239,68,68,0.20)" }}
+      <div className="glass-card p-6" style={{ maxWidth: "400px", width: "100%", border: "1px solid var(--color-red-border)" }}
         onClick={(e) => e.stopPropagation()}>
         <h3 className="text-white font-bold text-base mb-2">{title}</h3>
         <p className="text-sub text-sm mb-5">{body}</p>
         <div className="flex gap-3">
           <button className="sf-btn-ghost" style={{ flex: 1 }} onClick={onCancel} disabled={busy}>Cancel</button>
           <button disabled={busy} onClick={onConfirm}
-            style={{ flex: 1, padding: "0.6rem 1rem", borderRadius: "0.5rem", cursor: busy ? "not-allowed" : "pointer", border: "1px solid rgba(239,68,68,0.35)", background: "rgba(239,68,68,0.10)", color: "#f87171", opacity: busy ? 0.6 : 1, fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s" }}>
+            style={{ flex: 1, padding: "0.6rem 1rem", borderRadius: "0.5rem", cursor: busy ? "not-allowed" : "pointer", border: "1px solid var(--color-red-border)", background: "var(--color-red-dim)", color: "var(--color-red-bright)", opacity: busy ? 0.6 : 1, fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s" }}>
             {busy ? "Deleting…" : "Delete"}
           </button>
         </div>
@@ -201,7 +201,7 @@ function RoleModal({ target, selectedRole, onRoleSelect, onConfirm, onCancel, bu
    ═══════════════════════════════════════════════════ */
 
 const rowStyle    = { display: "flex", alignItems: "center", gap: "1rem", padding: "0 1.25rem" };
-const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)" };
+const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" };
 
 /* ═══════════════════════════════════════════════════
    MAIN COMPONENT
@@ -350,7 +350,7 @@ export default function AdminDashboard() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-1">Admin Panel</h1>
           <p className="text-sub text-sm">
-            Logged in as <span className="text-cyan">{self?.username}</span>.
+            Logged in as <span className="text-green">{self?.username}</span>.
           </p>
         </div>
 
@@ -359,10 +359,10 @@ export default function AdminDashboard() {
           <div className="section-divider"><h2>Overview</h2></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <StatCard label="Total Quests" value={questsLoading ? "…" : quests.length}
-              icon={<svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>} />
+              icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>} />
             {["python","javascript","java","csharp"].map((lang) => (
               <StatCard key={lang} label={LANG_LABELS[lang]} value={questsLoading ? "…" : (langCounts[lang] ?? 0)}
-                icon={<svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>} />
+                icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>} />
             ))}
           </div>
         </div>
@@ -413,14 +413,14 @@ export default function AdminDashboard() {
                     <div style={{ ...QC.difficulty, display: "flex", justifyContent: "center" }}>
                       <DiffBadge difficulty={quest.difficulty} />
                     </div>
-                    <div style={QC.xp}><span className="text-cyan font-bold text-sm">{quest.xp_reward}</span></div>
+                    <div style={QC.xp}><span className="text-green font-bold text-sm">{quest.xp_reward}</span></div>
                     <div style={{ ...QC.author, minWidth: 0 }}><span className="text-sub text-xs truncate block">{quest.author ?? "—"}</span></div>
                     <div style={{ ...QC.actions, display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                       <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem" }} onClick={() => navigate(`/admin/quests/${quest.id}/edit`)}>Edit</button>
                       <button onClick={() => setDeleteQ({ id: quest.id, title: quest.title })}
-                        style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid rgba(239,68,68,0.22)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.45)"; e.currentTarget.style.background = "rgba(239,68,68,0.07)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.22)"; e.currentTarget.style.background = "transparent"; }}>
+                        style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-red-bright)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "var(--color-red-dim)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "transparent"; }}>
                         Delete
                       </button>
                     </div>
@@ -499,7 +499,7 @@ export default function AdminDashboard() {
                         <div style={{ minWidth: 0 }}>
                           <p className="text-white text-sm font-semibold truncate">
                             {u.username}
-                            {isSelf && <span className="ml-2 text-cyan" style={{ fontSize: "0.65rem", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>(you)</span>}
+                            {isSelf && <span className="ml-2 text-green" style={{ fontSize: "0.65rem", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>(you)</span>}
                           </p>
                           <p className="text-dim text-xs truncate">{u.email}</p>
                         </div>
@@ -529,9 +529,9 @@ export default function AdminDashboard() {
                         <button
                           disabled={isSelf}
                           onClick={() => !isSelf && setDeleteU({ id: u.id, username: u.username })}
-                          style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid rgba(239,68,68,0.22)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}
-                          onMouseEnter={(e) => { if (!isSelf) { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.45)"; e.currentTarget.style.background = "rgba(239,68,68,0.07)"; }}}
-                          onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.22)"; e.currentTarget.style.background = "transparent"; }}>
+                          style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}
+                          onMouseEnter={(e) => { if (!isSelf) { e.currentTarget.style.color = "var(--color-red-bright)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "var(--color-red-dim)"; }}}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "transparent"; }}>
                           Delete
                         </button>
                       </div>
@@ -570,9 +570,9 @@ export default function AdminDashboard() {
    ═══════════════════════════════════════════════════ */
 
 const REPORT_STATUS_META = {
-  reported:    { label: "Reported",    color: "#f87171", border: "rgba(248,113,113,0.30)", bg: "rgba(248,113,113,0.09)" },
-  in_progress: { label: "In Progress", color: "#fbbf24", border: "rgba(251,191,36,0.30)",  bg: "rgba(251,191,36,0.09)"  },
-  solved:      { label: "Solved",      color: "#4ade80", border: "rgba(74,222,128,0.30)",  bg: "rgba(74,222,128,0.09)"  },
+  reported:    { label: "Reported",    color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
+  in_progress: { label: "In Progress", color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
+  solved:      { label: "Solved",      color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
 };
 
 function ReportStatusBadge({ status }) {
@@ -641,9 +641,9 @@ function QuestReportsSection({ users, navigate }) {
                 padding: "0.35rem 0.75rem", borderRadius: "0.375rem", cursor: "pointer",
                 fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
                 letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s",
-                border: filter === f ? "1px solid rgba(3,233,244,0.40)" : "1px solid rgba(255,255,255,0.10)",
-                background: filter === f ? "rgba(3,233,244,0.10)" : "transparent",
-                color: filter === f ? "var(--color-cyan)" : "rgba(255,255,255,0.40)",
+                border: filter === f ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.10)",
+                background: filter === f ? "var(--color-green-dim)" : "transparent",
+                color: filter === f ? "var(--color-green)" : "rgba(255,255,255,0.40)",
               }}
             >
               {f === "all" ? "All" : REPORT_STATUS_META[f]?.label ?? f}
@@ -657,15 +657,15 @@ function QuestReportsSection({ users, navigate }) {
         <div className="glass-card p-5 mb-4" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.35rem" }}>Quest</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Quest</p>
               <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Quest #${selected.quest_id}`}</p>
-              <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", marginTop: "0.15rem" }}>
+              <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
                 Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
               </p>
             </div>
             <button
               onClick={() => setSelected(null)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.30)", fontSize: "1.25rem", lineHeight: 1, flexShrink: 0 }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", fontSize: "1.25rem", lineHeight: 1, flexShrink: 0 }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.30)")}
             >×</button>
@@ -673,7 +673,7 @@ function QuestReportsSection({ users, navigate }) {
 
           {/* Reason */}
           <div style={{ padding: "0.75rem 1rem", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", marginBottom: "1.25rem" }}>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem" }}>Reason</p>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.4rem" }}>Reason</p>
             <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.65 }}>{selected.reason}</p>
           </div>
 
@@ -681,7 +681,7 @@ function QuestReportsSection({ users, navigate }) {
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             {/* Status picker */}
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.5rem" }}>Status</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Status</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                 {Object.entries(REPORT_STATUS_META).map(([val, m]) => (
                   <button key={val} onClick={() => setPatch((p) => ({ ...p, status: val }))}
@@ -705,7 +705,7 @@ function QuestReportsSection({ users, navigate }) {
 
             {/* Assign to */}
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.5rem" }}>Assigned To</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Assigned To</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                 <button onClick={() => setPatch((p) => ({ ...p, assigned_to_id: null }))}
                   style={{
@@ -727,16 +727,16 @@ function QuestReportsSection({ users, navigate }) {
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
                       padding: "0.5rem 0.75rem", borderRadius: "0.5rem", cursor: "pointer",
-                      border: patch.assigned_to_id === u.id ? "1px solid rgba(3,233,244,0.40)" : "1px solid rgba(255,255,255,0.08)",
-                      background: patch.assigned_to_id === u.id ? "rgba(3,233,244,0.08)" : "rgba(255,255,255,0.02)",
+                      border: patch.assigned_to_id === u.id ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.08)",
+                      background: patch.assigned_to_id === u.id ? "var(--color-green-dim)" : "rgba(255,255,255,0.02)",
                       transition: "all 0.15s",
                     }}>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-cyan)" : "rgba(255,255,255,0.45)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>
                       {u.username}
                       <span style={{ marginLeft: "0.4rem", fontSize: "0.55rem", opacity: 0.55 }}>({ROLE_META[u.role]?.label})</span>
                     </span>
                     {patch.assigned_to_id === u.id && (
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--color-cyan)" }}>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--color-green)" }}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     )}

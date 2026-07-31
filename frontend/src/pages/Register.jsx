@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import logoImg    from "../assets/img/skill_forge_logo.png";
-import heroAvatar from "../assets/img/hero_avatar.png";
+import logoImg from "../assets/img/skill_forge_logo.png";
 
 /* ── Icons ─────────────────────────────────────── */
 
@@ -37,7 +36,9 @@ function BrandLogo() {
   return (
     <div className="flex items-center gap-3">
       <img src={logoImg} alt="SkillForge" className="w-9 h-9 object-contain" />
-      <span className="font-brand text-xl text-white tracking-wide">Skill Forge</span>
+      <span className="font-brand glow-pulse" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
+        SkillForge_
+      </span>
     </div>
   );
 }
@@ -47,27 +48,27 @@ function BrandLogo() {
 const FEATURES = [
   {
     icon: (
-      <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
       </svg>
     ),
-    text: "Free to join. No tribute required.",
+    text: "Free to join — no strings attached.",
   },
   {
     icon: (
-      <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
       </svg>
     ),
-    text: "Chronicle your progress across all quests and tongues.",
+    text: "Track your progress across every language.",
   },
   {
     icon: (
-      <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
       </svg>
     ),
-    text: "Earn relics, claim leaderboard glory, conquer the Underworld.",
+    text: "Earn XP, climb the leaderboard, survive the Underworld.",
   },
 ];
 
@@ -83,7 +84,7 @@ function PasswordStrength({ password }) {
   ];
   const score  = checks.filter(Boolean).length;
   const labels = ["Weak", "Fair", "Good", "Strong"];
-  const colors = ["#f87171", "#fb923c", "#a3e635", "#4ade80"];
+  const colors = ["#ff5f56", "#ffcc66", "#8dffb8", "#4dff8f"];
   const color  = colors[score - 1] || colors[0];
 
   return (
@@ -148,26 +149,26 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      {/* Ambient orbs */}
+      {/* Ambient glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="orb w-96 h-96 -top-48 -right-48" style={{ background: "rgba(3,233,244,0.07)" }} />
-        <div className="orb w-80 h-80 top-1/2 -left-48"  style={{ background: "rgba(59,130,246,0.07)" }} />
-        <div className="orb w-72 h-72 -bottom-48 right-1/3" style={{ background: "rgba(3,233,244,0.04)" }} />
+        <div className="orb w-96 h-96 -top-48 -right-48" style={{ background: "rgba(77,255,143,0.07)" }} />
+        <div className="orb w-80 h-80 top-1/2 -left-48"  style={{ background: "rgba(94,200,255,0.06)" }} />
+        <div className="orb w-72 h-72 -bottom-48 right-1/3" style={{ background: "rgba(77,255,143,0.04)" }} />
       </div>
 
       {/* Left branding panel */}
-      <div className="auth-left dot-grid">
+      <div className="auth-left">
         <BrandLogo />
 
         <div className="space-y-10">
           <div>
             <h1 className="text-5xl font-bold text-white leading-tight mb-5">
-              Join the Order.
+              Initialize your profile.
               <br />
-              <span className="text-cyan">Shape thy destiny.</span>
+              <span className="text-green">Ship your first quest.</span>
             </h1>
             <p className="text-sub text-lg leading-relaxed max-w-sm font-body">
-              Create thy free account and unlock a world of quests, relics, and a fellowship that grows with thee.
+              Create your free account and unlock coding quests, XP tracking, and a leaderboard that grows with you.
             </p>
           </div>
 
@@ -175,8 +176,8 @@ export default function Register() {
             {FEATURES.map((f, i) => (
               <div key={i} className="flex items-center gap-3.5">
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(3,233,244,0.10)", border: "1px solid rgba(3,233,244,0.15)" }}
+                  className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
+                  style={{ background: "var(--color-green-dim)", border: "1px solid var(--color-green-border)" }}
                 >
                   {f.icon}
                 </div>
@@ -186,163 +187,157 @@ export default function Register() {
           </div>
         </div>
 
-        <p className="text-dim font-body text-sm">© 2026 Skill Forge. All rights reserved.</p>
+        <p className="text-dim font-body text-sm">© 2026 SkillForge. All rights reserved.</p>
       </div>
 
       {/* Right form panel */}
       <div className="auth-right">
-        {/* Decorative hero avatar */}
-        <img
-          src={heroAvatar}
-          alt=""
-          aria-hidden="true"
-          className="absolute bottom-[-5%] right-[-8%] w-72 opacity-35 pointer-events-none select-none object-contain hidden lg:block"
-        />
-
         <div className="w-full max-w-[420px] relative z-10">
           {/* Mobile logo */}
           <div className="flex lg:hidden mb-9">
             <BrandLogo />
           </div>
 
-          {/* Form card with corner ornaments */}
+          {/* Form card — terminal window */}
           <div className="auth-card">
-            <span className="corner-tr" />
-            <span className="corner-bl" />
-
-            <div className="mb-7">
-              <h2 className="text-3xl font-bold text-white mb-1.5">Join the Order</h2>
-              <p className="text-sub font-body text-lg">Begin thy quest. Glory awaits the worthy.</p>
+            <div className="term-bar">
+              <span className="term-dot term-dot--red" />
+              <span className="term-dot term-dot--yellow" />
+              <span className="term-dot term-dot--green" />
+              <span className="term-title">register.sh</span>
             </div>
 
-            <div className="divider-ornate mb-6">✦</div>
-
-            <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-              {/* Username */}
-              <div>
-                <label className="sf-label" htmlFor="username">Username</label>
-                <input
-                  id="username"
-                  type="text"
-                  className="sf-input"
-                  placeholder="brave_adventurer"
-                  value={form.username}
-                  onChange={update("username")}
-                  autoComplete="username"
-                  minLength={3}
-                  maxLength={30}
-                  required
-                />
+            <div className="auth-card-body">
+              <div className="mb-7">
+                <h2 className="text-3xl font-bold text-white mb-1.5">Create account</h2>
+                <p className="text-sub font-body text-lg">Start solving quests and tracking XP.</p>
               </div>
 
-              {/* Email */}
-              <div>
-                <label className="sf-label" htmlFor="email">Email address</label>
-                <input
-                  id="email"
-                  type="email"
-                  className="sf-input"
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={update("email")}
-                  autoComplete="email"
-                  required
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="sf-label" htmlFor="password">Password</label>
-                <div className="sf-input-wrap">
+              <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+                {/* Username */}
+                <div>
+                  <label className="sf-label" htmlFor="username">Username</label>
                   <input
-                    id="password"
-                    type={showPw ? "text" : "password"}
+                    id="username"
+                    type="text"
                     className="sf-input"
+                    placeholder="brave_adventurer"
+                    value={form.username}
+                    onChange={update("username")}
+                    autoComplete="username"
+                    minLength={3}
+                    maxLength={30}
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="sf-label" htmlFor="email">Email address</label>
+                  <input
+                    id="email"
+                    type="email"
+                    className="sf-input"
+                    placeholder="you@example.com"
+                    value={form.email}
+                    onChange={update("email")}
+                    autoComplete="email"
+                    required
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="sf-label" htmlFor="password">Password</label>
+                  <div className="sf-input-wrap">
+                    <input
+                      id="password"
+                      type={showPw ? "text" : "password"}
+                      className="sf-input"
+                      placeholder="••••••••"
+                      value={form.password}
+                      onChange={update("password")}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="sf-input-icon-btn"
+                      onClick={() => setShowPw((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showPw ? <EyeOffIcon /> : <EyeIcon />}
+                    </button>
+                  </div>
+                  <PasswordStrength password={form.password} />
+                </div>
+
+                {/* Confirm password */}
+                <div>
+                  <label className="sf-label" htmlFor="confirm">Confirm password</label>
+                  <input
+                    id="confirm"
+                    type="password"
+                    className={`sf-input${mismatch ? " error" : ""}`}
                     placeholder="••••••••"
-                    value={form.password}
-                    onChange={update("password")}
+                    value={form.confirm}
+                    onChange={update("confirm")}
                     autoComplete="new-password"
                     required
                   />
-                  <button
-                    type="button"
-                    className="sf-input-icon-btn"
-                    onClick={() => setShowPw((v) => !v)}
-                    tabIndex={-1}
+                  {mismatch && (
+                    <p className="mt-1 font-body text-xs" style={{ color: "var(--color-error-text)" }}>
+                      Passwords do not match
+                    </p>
+                  )}
+                </div>
+
+                {/* Terms */}
+                <div className="flex items-start gap-2.5 pt-0.5">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    required
+                    className="w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0"
+                    style={{ accentColor: "var(--color-green)" }}
+                  />
+                  <label htmlFor="terms" className="font-body text-sm text-dim cursor-pointer select-none leading-snug">
+                    I agree to the{" "}
+                    <a href="#" style={{ color: "var(--color-blue)" }}>Terms of Service</a>
+                    {" "}and{" "}
+                    <a href="#" style={{ color: "var(--color-blue)" }}>Privacy Policy</a>
+                  </label>
+                </div>
+
+                {/* Error */}
+                {error && (
+                  <div className="sf-error">
+                    <AlertIcon />
+                    {error}
+                  </div>
+                )}
+
+                {/* Submit */}
+                <button type="submit" className="sf-btn" disabled={loading} style={{ marginTop: "0.5rem" }}>
+                  {loading ? (
+                    <><span className="sf-spinner" />Creating account…</>
+                  ) : (
+                    "Create Account"
+                  )}
+                </button>
+
+                <p className="text-center font-body text-dim" style={{ fontSize: "0.92rem" }}>
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="font-heading"
+                    style={{ color: "var(--color-blue)", fontSize: "0.7rem", letterSpacing: "0.04em" }}
                   >
-                    {showPw ? <EyeOffIcon /> : <EyeIcon />}
-                  </button>
-                </div>
-                <PasswordStrength password={form.password} />
-              </div>
-
-              {/* Confirm password */}
-              <div>
-                <label className="sf-label" htmlFor="confirm">Confirm password</label>
-                <input
-                  id="confirm"
-                  type="password"
-                  className={`sf-input${mismatch ? " error" : ""}`}
-                  placeholder="••••••••"
-                  value={form.confirm}
-                  onChange={update("confirm")}
-                  autoComplete="new-password"
-                  required
-                />
-                {mismatch && (
-                  <p className="mt-1 font-body text-xs" style={{ color: "var(--color-error-text)" }}>
-                    Passwords do not match
-                  </p>
-                )}
-              </div>
-
-              {/* Terms */}
-              <div className="flex items-start gap-2.5 pt-0.5">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  required
-                  className="w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0"
-                  style={{ accentColor: "var(--color-cyan)" }}
-                />
-                <label htmlFor="terms" className="font-body text-sm text-dim cursor-pointer select-none leading-snug">
-                  I swear upon the{" "}
-                  <a href="#" style={{ color: "var(--color-indigo)" }}>Terms of Service</a>
-                  {" "}and{" "}
-                  <a href="#" style={{ color: "var(--color-indigo)" }}>Privacy Covenant</a>
-                </label>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="sf-error">
-                  <AlertIcon />
-                  {error}
-                </div>
-              )}
-
-              {/* Submit */}
-              <button type="submit" className="sf-btn" disabled={loading} style={{ marginTop: "0.5rem" }}>
-                {loading ? (
-                  <><span className="sf-spinner" />Forging thy account…</>
-                ) : (
-                  "Begin thy Quest"
-                )}
-              </button>
-
-              <div className="divider-ornate">✦</div>
-
-              <p className="text-center font-body text-dim" style={{ fontSize: "1rem" }}>
-                Already a member?{" "}
-                <Link
-                  to="/login"
-                  className="font-heading"
-                  style={{ color: "var(--color-indigo)", fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase" }}
-                >
-                  Return to the Realm
-                </Link>
-              </p>
-            </form>
+                    Sign in
+                  </Link>
+                </p>
+              </form>
+            </div>
           </div>
         </div>
       </div>

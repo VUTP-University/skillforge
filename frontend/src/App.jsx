@@ -33,7 +33,7 @@ function LoadingScreen() {
       }}
     >
       <div className="sf-spinner" style={{ width: "28px", height: "28px", borderWidth: "3px" }} />
-      <p style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+      <p style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--color-text-tertiary)", fontWeight: 600, fontFamily: "var(--font-heading)" }}>
         Loading…
       </p>
     </div>

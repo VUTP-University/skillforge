@@ -8,9 +8,9 @@ import { submitTrivia } from "../services/triviaService";
 const OPTION_LABELS = ["A", "B", "C", "D"];
 
 const DIFF_META = {
-  easy:   { label: "Easy",   color: "#4ade80", border: "rgba(74,222,128,0.35)",  bg: "rgba(74,222,128,0.08)"  },
-  medium: { label: "Medium", color: "#fbbf24", border: "rgba(251,191,36,0.35)",  bg: "rgba(251,191,36,0.08)"  },
-  hard:   { label: "Hard",   color: "#f87171", border: "rgba(248,113,113,0.35)", bg: "rgba(248,113,113,0.08)" },
+  easy:   { label: "Easy",   color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
+  medium: { label: "Medium", color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
+  hard:   { label: "Hard",   color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
 };
 
 const FEEDBACK_DELAY_CORRECT = 900;
@@ -22,9 +22,9 @@ const RING_R   = 52;
 const RING_C   = 2 * Math.PI * RING_R; // ≈ 326.7
 
 function timerColor(seconds) {
-  if (seconds > 120) return "#03e9f4";
-  if (seconds > 60)  return "#eab308";
-  return "#f87171";
+  if (seconds > 120) return "var(--color-green)";
+  if (seconds > 60)  return "var(--color-amber)";
+  return "var(--color-red-bright)";
 }
 
 function TimerRing({ timeLeft, total = 300 }) {
@@ -65,7 +65,7 @@ function TimerRing({ timeLeft, total = 300 }) {
         }}>
           {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
         </span>
-        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.42rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)" }}>
+        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.42rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
           remaining
         </span>
       </div>
@@ -79,9 +79,9 @@ function ProgressGem({ state }) {
   // state: "pending" | "correct" | "wrong" | "current"
   const colors = {
     pending: { fill: "transparent",  border: "rgba(255,255,255,0.15)" },
-    current: { fill: "rgba(3,233,244,0.25)", border: "#03e9f4" },
-    correct: { fill: "#4ade80",      border: "#4ade80" },
-    wrong:   { fill: "#f87171",      border: "#f87171" },
+    current: { fill: "var(--color-green-dim)", border: "var(--color-green)" },
+    correct: { fill: "var(--color-green)",      border: "var(--color-green)" },
+    wrong:   { fill: "var(--color-red-bright)",      border: "var(--color-red-bright)" },
   };
   const c = colors[state];
   return (
@@ -90,7 +90,7 @@ function ProgressGem({ state }) {
       background: c.fill,
       border: `1px solid ${c.border}`,
       borderRadius: "2px",
-      boxShadow: state === "current" ? "0 0 8px rgba(3,233,244,0.50)" : state === "correct" ? "0 0 6px rgba(74,222,128,0.50)" : "none",
+      boxShadow: state === "current" ? "0 0 8px var(--color-green)" : state === "correct" ? "0 0 6px var(--color-green)" : "none",
       transition: "all 0.3s ease",
       flexShrink: 0,
     }} />
@@ -140,34 +140,34 @@ function ResultsScreen({ data, timedOut }) {
   return (
     <div style={{ maxWidth: "580px", margin: "0 auto", textAlign: "center" }}>
       {/* Icon */}
-      <div style={{ margin: "0 auto 1.25rem", width: 72, height: 72, borderRadius: "50%", background: timedOut ? "rgba(248,113,113,0.10)" : "rgba(234,179,8,0.12)", border: `1px solid ${timedOut ? "rgba(248,113,113,0.30)" : "rgba(234,179,8,0.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 32px ${timedOut ? "rgba(248,113,113,0.12)" : "rgba(234,179,8,0.15)"}` }}>
+      <div style={{ margin: "0 auto 1.25rem", width: 72, height: 72, borderRadius: "8px", background: timedOut ? "var(--color-red-dim)" : "var(--color-amber-dim)", border: `1px solid ${timedOut ? "var(--color-red-border)" : "var(--color-amber-border)"}`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 32px ${timedOut ? "var(--color-red-dim)" : "var(--color-amber-dim)"}` }}>
         {timedOut ? (
-          <svg style={{ width: 30, height: 30, color: "#f87171" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <svg style={{ width: 30, height: 30, color: "var(--color-red-bright)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         ) : (
-          <svg style={{ width: 30, height: 30, color: "#eab308" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <svg style={{ width: 30, height: 30, color: "var(--color-amber)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
           </svg>
         )}
       </div>
 
-      <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "1.9rem", fontWeight: 700, color: timedOut ? "#f87171" : "#fde047", marginBottom: "0.4rem", textShadow: `0 0 30px ${timedOut ? "rgba(248,113,113,0.30)" : "rgba(234,179,8,0.40)"}` }}>
+      <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "1.9rem", fontWeight: 700, color: timedOut ? "var(--color-red-bright)" : "var(--color-amber)", marginBottom: "0.4rem", textShadow: `0 0 30px ${timedOut ? "var(--color-red-border)" : "var(--color-amber)"}` }}>
         {timedOut ? "Time Expired" : "Trial Complete"}
       </h1>
-      <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.40)", marginBottom: "2rem" }}>
-        {timedOut ? "The Oracle's hourglass ran out." : "The Oracle acknowledges your knowledge."}
+      <p style={{ fontSize: "0.88rem", color: "var(--color-text-secondary)", marginBottom: "2rem" }}>
+        {timedOut ? "You ran out of time." : "Nice work — results are in."}
       </p>
 
       {/* XP counter */}
-      <div style={{ marginBottom: "2rem", padding: "1.5rem", borderRadius: "16px", background: "rgba(234,179,8,0.07)", border: "1px solid rgba(234,179,8,0.25)" }}>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)", marginBottom: "0.5rem" }}>
+      <div style={{ marginBottom: "2rem", padding: "1.5rem", borderRadius: "16px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>
           XP Earned
         </p>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "3.5rem", fontWeight: 700, color: "#fde047", lineHeight: 1, textShadow: "0 0 50px rgba(234,179,8,0.55), 0 0 20px rgba(234,179,8,0.30)" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "3.5rem", fontWeight: 700, color: "var(--color-amber)", lineHeight: 1, textShadow: "0 0 50px var(--color-amber), 0 0 20px var(--color-amber-border)" }}>
           +{animXP}
         </p>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", marginTop: "0.4rem" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.08em", color: "var(--color-text-secondary)", marginTop: "0.4rem" }}>
           {data.correct_count} of {data.total} correct · {accuracy}% accuracy
         </p>
       </div>
@@ -181,7 +181,7 @@ function ResultsScreen({ data, timedOut }) {
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", fontWeight: 700, color: m.color, lineHeight: 1, marginBottom: "0.25rem" }}>
                 {correct}/{total}
               </p>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.40)" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-secondary)" }}>
                 {m.label}
               </p>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", color: m.color, marginTop: "0.2rem" }}>
@@ -194,26 +194,26 @@ function ResultsScreen({ data, timedOut }) {
 
       {/* Question review */}
       <div style={{ textAlign: "left", marginBottom: "2rem" }}>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.75rem" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.75rem" }}>
           Answer Review
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "320px", overflowY: "auto", paddingRight: "0.25rem" }}>
           {data.results.map((r, i) => (
-            <div key={r.id} style={{ padding: "0.7rem 0.9rem", borderRadius: "9px", background: r.was_correct ? "rgba(74,222,128,0.05)" : "rgba(248,113,113,0.05)", border: `1px solid ${r.was_correct ? "rgba(74,222,128,0.18)" : "rgba(248,113,113,0.18)"}`, display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: r.was_correct ? "#4ade80" : "#f87171", flexShrink: 0, marginTop: "1px" }}>
+            <div key={r.id} style={{ padding: "0.7rem 0.9rem", borderRadius: "9px", background: r.was_correct ? "var(--color-green-dim)" : "var(--color-red-dim)", border: `1px solid ${r.was_correct ? "var(--color-green-border)" : "var(--color-red-border)"}`, display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: r.was_correct ? "var(--color-green)" : "var(--color-red-bright)", flexShrink: 0, marginTop: "1px" }}>
                 {r.was_correct ? "✓" : "✗"}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: "0.80rem", color: "rgba(255,255,255,0.72)", marginBottom: r.was_correct ? 0 : "0.3rem", lineHeight: 1.5 }}>
+                <p style={{ fontSize: "0.80rem", color: "var(--color-text-secondary)", marginBottom: r.was_correct ? 0 : "0.3rem", lineHeight: 1.5 }}>
                   {i + 1}. {r.question}
                 </p>
                 {!r.was_correct && (
-                  <p style={{ fontSize: "0.73rem", color: "#4ade80" }}>
+                  <p style={{ fontSize: "0.73rem", color: "var(--color-green)" }}>
                     ✓ {r.options[r.correct_index]}
                   </p>
                 )}
               </div>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, color: r.was_correct ? "#4ade80" : "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, color: r.was_correct ? "var(--color-green)" : "var(--color-text-faint)", flexShrink: 0 }}>
                 {r.was_correct ? `+${r.xp}` : "0"} XP
               </span>
             </div>
@@ -226,16 +226,16 @@ function ResultsScreen({ data, timedOut }) {
         style={{
           display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
           width: "100%", maxWidth: 320, padding: "0.7rem 1.5rem",
-          borderRadius: "10px", border: "1px solid rgba(234,179,8,0.35)",
-          background: "rgba(234,179,8,0.09)", color: "#fde047",
+          borderRadius: "10px", border: "1px solid var(--color-amber-border)",
+          background: "var(--color-amber-dim)", color: "var(--color-amber)",
           fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700,
           letterSpacing: "0.10em", textTransform: "uppercase",
           textDecoration: "none", margin: "0 auto", transition: "all 0.15s",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(234,179,8,0.18)")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(234,179,8,0.09)")}
+        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-amber-border)")}
+        onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-amber-dim)")}
       >
-        Return to the Sanctum
+        Back to Trivia
       </Link>
     </div>
   );
@@ -396,10 +396,10 @@ function TriviaPlay({ sessionData }) {
 
     if (phase === "feedback") {
       if (idx === question.correct_index) {
-        return { ...base, background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.45)", cursor: "default" };
+        return { ...base, background: "var(--color-green-dim)", border: "1px solid var(--color-green-border)", cursor: "default" };
       }
       if (idx === selected && idx !== question.correct_index) {
-        return { ...base, background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.45)", cursor: "default" };
+        return { ...base, background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)", cursor: "default" };
       }
       return { ...base, opacity: 0.45, cursor: "default" };
     }
@@ -409,11 +409,11 @@ function TriviaPlay({ sessionData }) {
 
   const getOptionColor = (idx) => {
     if (phase === "feedback") {
-      if (idx === question.correct_index) return "#4ade80";
-      if (idx === selected && idx !== question.correct_index) return "#f87171";
-      return "rgba(255,255,255,0.30)";
+      if (idx === question.correct_index) return "var(--color-green)";
+      if (idx === selected && idx !== question.correct_index) return "var(--color-red-bright)";
+      return "var(--color-text-tertiary)";
     }
-    return "rgba(255,255,255,0.75)";
+    return "var(--color-text-secondary)";
   };
 
   const getBadgeStyle = (idx) => {
@@ -429,10 +429,10 @@ function TriviaPlay({ sessionData }) {
 
     if (phase === "feedback") {
       if (idx === question.correct_index) {
-        return { ...base, background: "rgba(74,222,128,0.20)", border: "1px solid rgba(74,222,128,0.50)", color: "#4ade80" };
+        return { ...base, background: "var(--color-green-border)", border: "1px solid var(--color-green)", color: "var(--color-green)" };
       }
       if (idx === selected && idx !== question.correct_index) {
-        return { ...base, background: "rgba(248,113,113,0.20)", border: "1px solid rgba(248,113,113,0.50)", color: "#f87171" };
+        return { ...base, background: "var(--color-red-border)", border: "1px solid var(--color-red-border)", color: "var(--color-red-bright)" };
       }
     }
     return base;
@@ -443,7 +443,7 @@ function TriviaPlay({ sessionData }) {
 
       {/* ── Error banner ── */}
       {submitErr && (
-        <div style={{ marginBottom: "1rem", padding: "0.7rem 1rem", borderRadius: "9px", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.25)", color: "#f87171", fontSize: "0.80rem" }}>
+        <div style={{ marginBottom: "1rem", padding: "0.7rem 1rem", borderRadius: "9px", background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)", color: "var(--color-red-bright)", fontSize: "0.80rem" }}>
           {submitErr}
         </div>
       )}
@@ -456,10 +456,10 @@ function TriviaPlay({ sessionData }) {
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)" }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
             Q {qIdx + 1} / {questions.length}
           </span>
-          <span style={{ padding: "0.15rem 0.55rem", borderRadius: "99px", background: "rgba(234,179,8,0.10)", border: "1px solid rgba(234,179,8,0.30)", fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700, color: "#eab308" }}>
+          <span style={{ padding: "0.15rem 0.55rem", borderRadius: "3px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)", fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700, color: "var(--color-amber)" }}>
             +{earnedSoFar} XP
           </span>
         </div>
@@ -474,7 +474,7 @@ function TriviaPlay({ sessionData }) {
             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.6rem", flexWrap: "wrap" }}>
               <span style={{
                 display: "inline-flex", alignItems: "center", gap: "0.28rem",
-                padding: "0.18rem 0.55rem", borderRadius: "99px",
+                padding: "0.18rem 0.55rem", borderRadius: "3px",
                 border: `1px solid ${diff.border}`, background: diff.bg, color: diff.color,
                 fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
                 letterSpacing: "0.10em", textTransform: "uppercase",
@@ -486,14 +486,14 @@ function TriviaPlay({ sessionData }) {
                 +{question.xp} XP
               </span>
             </div>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)" }}>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
               Question
             </p>
           </div>
         </div>
 
         {/* Question text */}
-        <p style={{ fontSize: "1.05rem", color: "rgba(255,255,255,0.92)", lineHeight: 1.65, fontFamily: "var(--font-body)" }}>
+        <p style={{ fontSize: "1.05rem", color: "var(--color-text)", lineHeight: 1.65, fontFamily: "var(--font-body)" }}>
           {question.question}
         </p>
       </div>
@@ -528,12 +528,12 @@ function TriviaPlay({ sessionData }) {
             </span>
             {/* Feedback icon */}
             {phase === "feedback" && idx === question.correct_index && (
-              <svg style={{ width: 16, height: 16, color: "#4ade80", marginLeft: "auto", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <svg style={{ width: 16, height: 16, color: "var(--color-green)", marginLeft: "auto", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
             )}
             {phase === "feedback" && idx === selected && idx !== question.correct_index && (
-              <svg style={{ width: 16, height: 16, color: "#f87171", marginLeft: "auto", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <svg style={{ width: 16, height: 16, color: "var(--color-red-bright)", marginLeft: "auto", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             )}
@@ -545,7 +545,7 @@ function TriviaPlay({ sessionData }) {
       {phase === "feedback" && (
         <div style={{ marginTop: "0.85rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <div className="sf-spinner" style={{ width: 12, height: 12, borderWidth: 2 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.60rem", letterSpacing: "0.08em", color: "rgba(255,255,255,0.28)" }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.60rem", letterSpacing: "0.08em", color: "var(--color-text-tertiary)" }}>
             Next question loading…
           </span>
         </div>
@@ -555,8 +555,8 @@ function TriviaPlay({ sessionData }) {
       {phase === "submitting" && (
         <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem" }}>
           <div className="sf-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.10em", color: "rgba(255,255,255,0.45)" }}>
-            Consulting the Oracle…
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.10em", color: "var(--color-text-secondary)" }}>
+            Submitting…
           </span>
         </div>
       )}

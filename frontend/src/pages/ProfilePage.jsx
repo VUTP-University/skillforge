@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { RANK_STYLE } from "../constants/ranks";
+import Avatar from "../components/Avatar";
+import Badge from "../components/Badge";
+import SectionDivider from "../components/SectionDivider";
 import {
   deleteAvatar,
   getMyProfile,
@@ -44,97 +48,35 @@ const BOSS_IMAGES = {
 };
 
 const UW_DIFF_META = {
-  cursed:   { label: "Cursed",   color: "#ef4444" },
-  damned:   { label: "Damned",   color: "#f97316" },
-  infernal: { label: "Infernal", color: "#a855f7" },
+  cursed:   { label: "Cursed",   color: "var(--color-red-bright)" },
+  damned:   { label: "Damned",   color: "var(--color-amber)" },
+  infernal: { label: "Infernal", color: "var(--color-blue)" },
 };
 
 const LANG_CONFIG = {
-  python:     { name: "Python",     color: "#3b82f6" },
-  javascript: { name: "JavaScript", color: "#fbbf24" },
-  java:       { name: "Java",       color: "#f97316" },
-  csharp:     { name: "C#",         color: "#a78bfa" },
+  python:     { name: "Python",     color: "var(--gem-python)" },
+  javascript: { name: "JavaScript", color: "var(--gem-javascript)" },
+  java:       { name: "Java",       color: "var(--gem-java)" },
+  csharp:     { name: "C#",         color: "var(--gem-csharp)" },
 };
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "#4ade80" },
-  cryptic: { label: "Cryptic", color: "#fbbf24" },
-  abyssal: { label: "Abyssal", color: "#f87171" },
-};
-
-const RANK_STYLE = {
-  "Novice":       { color: "rgba(255,255,255,0.45)", bg: "rgba(255,255,255,0.05)",  border: "rgba(255,255,255,0.12)" },
-  "Initiate":     { color: "#86efac",                bg: "rgba(134,239,172,0.08)", border: "rgba(134,239,172,0.22)" },
-  "Apprentice":   { color: "#4ade80",                bg: "rgba(74,222,128,0.09)",  border: "rgba(74,222,128,0.26)"  },
-  "Scribe":       { color: "#34d399",                bg: "rgba(52,211,153,0.09)",  border: "rgba(52,211,153,0.26)"  },
-  "Acolyte":      { color: "#2dd4bf",                bg: "rgba(45,212,191,0.09)",  border: "rgba(45,212,191,0.26)"  },
-  "Scholar":      { color: "#22d3ee",                bg: "rgba(34,211,238,0.09)",  border: "rgba(34,211,238,0.26)"  },
-  "Artisan":      { color: "#38bdf8",                bg: "rgba(56,189,248,0.09)",  border: "rgba(56,189,248,0.26)"  },
-  "Adept":        { color: "#60a5fa",                bg: "rgba(96,165,250,0.09)",  border: "rgba(96,165,250,0.26)"  },
-  "Journeyman":   { color: "#818cf8",                bg: "rgba(129,140,248,0.09)", border: "rgba(129,140,248,0.26)" },
-  "Crusader":     { color: "#a78bfa",                bg: "rgba(167,139,250,0.09)", border: "rgba(167,139,250,0.26)" },
-  "Knight":       { color: "#c084fc",                bg: "rgba(192,132,252,0.09)", border: "rgba(192,132,252,0.26)" },
-  "Champion":     { color: "#e879f9",                bg: "rgba(232,121,249,0.09)", border: "rgba(232,121,249,0.26)" },
-  "Sentinel":     { color: "#f472b6",                bg: "rgba(244,114,182,0.09)", border: "rgba(244,114,182,0.26)" },
-  "Warden":       { color: "#fb7185",                bg: "rgba(251,113,133,0.09)", border: "rgba(251,113,133,0.26)" },
-  "Paladin":      { color: "#f97316",                bg: "rgba(249,115,22,0.09)",  border: "rgba(249,115,22,0.26)"  },
-  "Sage":         { color: "#fb923c",                bg: "rgba(251,146,60,0.09)",  border: "rgba(251,146,60,0.26)"  },
-  "Elder":        { color: "#fbbf24",                bg: "rgba(251,191,36,0.09)",  border: "rgba(251,191,36,0.30)"  },
-  "Archmage":     { color: "#facc15",                bg: "rgba(250,204,21,0.09)",  border: "rgba(250,204,21,0.32)"  },
-  "Master":       { color: "#fcd34d",                bg: "rgba(252,211,77,0.10)",  border: "rgba(252,211,77,0.38)"  },
-  "Grand Master": { color: "#fef08a",                bg: "rgba(254,240,138,0.10)", border: "rgba(254,240,138,0.45)" },
+  shallow: { label: "Shallow", color: "var(--color-green)" },
+  cryptic: { label: "Cryptic", color: "var(--color-amber)" },
+  abyssal: { label: "Abyssal", color: "var(--color-red-bright)" },
 };
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
-
-function Avatar({ avatarUrl, username, size = 88 }) {
-  const [imgError, setImgError] = useState(false);
-
-  if (avatarUrl && !imgError) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={username}
-        onError={() => setImgError(true)}
-        style={{
-          width: size, height: size,
-          borderRadius: "50%",
-          objectFit: "cover",
-          border: "2px solid rgba(3,233,244,0.30)",
-          flexShrink: 0,
-        }}
-      />
-    );
-  }
-
-  return (
-    <div
-      style={{
-        width: size, height: size,
-        borderRadius: "50%",
-        background: "rgba(3,233,244,0.12)",
-        border: "2px solid rgba(3,233,244,0.25)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: Math.round(size * 0.38),
-        fontFamily: "var(--font-heading)", fontWeight: 700,
-        color: "var(--color-cyan)", flexShrink: 0,
-        letterSpacing: "-0.02em",
-      }}
-    >
-      {username?.[0]?.toUpperCase() ?? "?"}
-    </div>
-  );
-}
 
 function StatChip({ icon, value, label, valueColor }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
       {icon}
-      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: valueColor ?? "rgba(255,255,255,0.85)" }}>
+      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: valueColor ?? "var(--color-text)" }}>
         {value}
       </span>
       {label && (
-        <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.30)" }}>{label}</span>
+        <span style={{ fontSize: "0.65rem", color: "var(--color-text-tertiary)" }}>{label}</span>
       )}
     </div>
   );
@@ -289,22 +231,11 @@ export default function ProfilePage() {
   if (loadErr || !profile) {
     return (
       <div className="flex flex-col items-center gap-4 py-32 text-center">
-        <p style={{ fontSize: "2.5rem" }}>⚗</p>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", fontWeight: 700, color: "rgba(255,255,255,0.60)" }}>
+        <p style={{ fontFamily: "var(--font-brand)", fontSize: "2.5rem", color: "var(--color-red-bright)" }}>404</p>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", fontWeight: 700, color: "var(--color-text-secondary)" }}>
           {loadErr ?? "Profile not found."}
         </p>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            marginTop: "0.25rem", padding: "0.45rem 1rem",
-            borderRadius: "8px",
-            border: "1px solid rgba(255,255,255,0.12)",
-            background: "rgba(255,255,255,0.04)",
-            color: "rgba(255,255,255,0.55)",
-            fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-            letterSpacing: "0.10em", textTransform: "uppercase", cursor: "pointer",
-          }}
-        >
+        <button onClick={() => navigate(-1)} className="sf-btn-ghost">
           Go Back
         </button>
       </div>
@@ -333,126 +264,125 @@ export default function ProfilePage() {
         <Link
           to="/users"
           className="text-sub text-xs flex items-center gap-1.5 w-fit"
-          style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", transition: "color 0.15s" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.70)")}
+          style={{ fontFamily: "var(--font-heading)", textDecoration: "none", transition: "color 0.15s" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text)")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "")}
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          The Guild
+          cd ../users
         </Link>
       )}
 
-      {/* ── Profile header ── */}
-      <div className="glass-card" style={{ padding: "1.75rem" }}>
-        <div className="flex flex-col sm:flex-row gap-5 sm:items-center">
+      {/* ── Profile header — the page's one major panel ── */}
+      <div className="term-window">
+        <div className="term-bar">
+          <span className="term-dot term-dot--red" />
+          <span className="term-dot term-dot--yellow" />
+          <span className="term-dot term-dot--green" />
+          <span className="term-title">cat ~/users/{profile.username}.json</span>
+        </div>
+        <div className="term-body">
+          <div className="flex flex-col sm:flex-row gap-5 sm:items-center">
 
-          <Avatar avatarUrl={profile.avatar_url} username={profile.username} size={88} />
+            <Avatar src={profile.avatar_url} username={profile.username} size={88} />
 
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {/* Name + badges */}
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.55rem", marginBottom: "0.25rem" }}>
-              <h1 style={{
-                fontSize: "1.65rem", fontWeight: 700, color: "#fff",
-                fontFamily: "var(--font-heading)", lineHeight: 1.2, margin: 0,
-              }}>
-                {profile.username}
-              </h1>
-
-              {/* Rank badge */}
-              <span style={{
-                padding: "0.2rem 0.65rem", borderRadius: "99px",
-                border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
-                fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                letterSpacing: "0.10em", textTransform: "uppercase",
-              }}>
-                {profile.rank}
-              </span>
-
-              {/* Role badge — non-regular users only */}
-              {profile.role !== "user" && (
-                <span style={{
-                  padding: "0.2rem 0.65rem", borderRadius: "99px",
-                  border: "1px solid rgba(3,233,244,0.28)", background: "rgba(3,233,244,0.08)",
-                  color: "var(--color-cyan)",
-                  fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                  letterSpacing: "0.10em", textTransform: "uppercase",
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Name + badges */}
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.55rem", marginBottom: "0.25rem" }}>
+                <h1 style={{
+                  fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text)",
+                  fontFamily: "var(--font-heading)", lineHeight: 1.2, margin: 0,
                 }}>
-                  {profile.role}
+                  {profile.username}
+                </h1>
+
+                {/* Rank badge */}
+                <span style={{
+                  padding: "0.2rem 0.65rem", borderRadius: "3px",
+                  border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
+                  fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                }}>
+                  {profile.rank}
                 </span>
-              )}
-            </div>
 
-            {/* Email — own profile only */}
-            {isOwnProfile && profile.email && (
-              <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.38)", marginBottom: "0.5rem" }}>
-                {profile.email}
+                {/* Role badge — non-regular users only */}
+                {profile.role !== "user" && (
+                  <Badge variant="green">{profile.role}</Badge>
+                )}
+              </div>
+
+              {/* Email — own profile only */}
+              {isOwnProfile && profile.email && (
+                <p style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>
+                  {profile.email}
+                </p>
+              )}
+
+              {/* Member since */}
+              <p style={{
+                fontSize: "0.68rem", color: "var(--color-text-tertiary)",
+                fontFamily: "var(--font-heading)", marginBottom: "1rem",
+              }}>
+                // member since {new Date(profile.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
               </p>
-            )}
 
-            {/* Member since */}
-            <p style={{
-              fontSize: "0.68rem", color: "rgba(255,255,255,0.26)",
-              fontFamily: "var(--font-heading)", letterSpacing: "0.04em", marginBottom: "1rem",
-            }}>
-              Member since {new Date(profile.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-            </p>
-
-            {/* Stat chips */}
-            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-              <StatChip
-                icon={
-                  <svg style={{ width: 14, height: 14, color: "var(--color-cyan)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                  </svg>
-                }
-                value={profile.total_xp.toLocaleString()}
-                label="XP"
-                valueColor="var(--color-cyan)"
-              />
-              <StatChip
-                icon={
-                  <svg style={{ width: 14, height: 14, color: "rgba(255,255,255,0.35)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                  </svg>
-                }
-                value={`Level ${profile.level}`}
-              />
-              <StatChip
-                icon={
-                  <svg style={{ width: 14, height: 14, color: "rgba(255,255,255,0.35)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                }
-                value={comps.length}
-                label={comps.length === 1 ? "Quest" : "Quests"}
-              />
-              {bossChallenges.length > 0 && (
+              {/* Stat chips */}
+              <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
                 <StatChip
                   icon={
-                    <svg style={{ width: 14, height: 14, color: "#f87171", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                    <svg style={{ width: 14, height: 14, color: "var(--color-green)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                     </svg>
                   }
-                  value={vanquishedCount}
-                  label={vanquishedCount === 1 ? "Boss" : "Bosses"}
-                  valueColor="#fca5a5"
+                  value={profile.total_xp.toLocaleString()}
+                  label="XP"
+                  valueColor="var(--color-green)"
                 />
-              )}
-              {triviaSessions.length > 0 && (
                 <StatChip
                   icon={
-                    <svg style={{ width: 14, height: 14, color: "#eab308", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                    <svg style={{ width: 14, height: 14, color: "var(--color-text-tertiary)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                     </svg>
                   }
-                  value={triviaCompleted}
-                  label={triviaCompleted === 1 ? "Trial" : "Trials"}
-                  valueColor="#eab308"
+                  value={`Level ${profile.level}`}
                 />
-              )}
+                <StatChip
+                  icon={
+                    <svg style={{ width: 14, height: 14, color: "var(--color-text-tertiary)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  }
+                  value={comps.length}
+                  label={comps.length === 1 ? "Quest" : "Quests"}
+                />
+                {bossChallenges.length > 0 && (
+                  <StatChip
+                    icon={
+                      <svg style={{ width: 14, height: 14, color: "var(--color-red-bright)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                      </svg>
+                    }
+                    value={vanquishedCount}
+                    label={vanquishedCount === 1 ? "Boss" : "Bosses"}
+                    valueColor="var(--color-red-bright)"
+                  />
+                )}
+                {triviaSessions.length > 0 && (
+                  <StatChip
+                    icon={
+                      <svg style={{ width: 14, height: 14, color: "var(--color-amber)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                      </svg>
+                    }
+                    value={triviaCompleted}
+                    label={triviaCompleted === 1 ? "Trial" : "Trials"}
+                    valueColor="var(--color-amber)"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -464,43 +394,31 @@ export default function ProfilePage() {
 
           {/* Email */}
           <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)" }}>
-              Update Email
-            </p>
+            <p className="sf-label" style={{ marginBottom: 0 }}>Update email</p>
             <input
               type="email"
+              className="sf-input"
               value={emailVal}
               onChange={(e) => { setEmailVal(e.target.value); setEmailMsg(null); }}
-              style={{
-                width: "100%", padding: "0.55rem 0.85rem",
-                borderRadius: "8px", border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.85)",
-                fontSize: "0.82rem", outline: "none", transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "rgba(3,233,244,0.35)")}
-              onBlur={(e)  => (e.target.style.borderColor = "rgba(255,255,255,0.10)")}
               placeholder="new@email.com"
             />
             {emailMsg && (
-              <p style={{ fontSize: "0.72rem", color: emailMsg.ok ? "#4ade80" : "#f87171", marginTop: "-0.25rem" }}>
+              <p style={{ fontSize: "0.72rem", color: emailMsg.ok ? "var(--color-green)" : "var(--color-red-bright)", marginTop: "-0.25rem" }}>
                 {emailMsg.text}
               </p>
             )}
             <button
               onClick={handleEmailSave}
               disabled={emailBusy || !emailDirty}
+              className="sf-btn-ghost"
               style={{
-                padding: "0.5rem 1rem", borderRadius: "8px",
-                border: "1px solid rgba(3,233,244,0.25)", background: "rgba(3,233,244,0.08)",
-                color: "var(--color-cyan)",
-                fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-                letterSpacing: "0.10em", textTransform: "uppercase",
-                cursor: (emailBusy || !emailDirty) ? "not-allowed" : "pointer",
+                justifyContent: "center",
+                color: "var(--color-green)",
+                borderColor: "var(--color-green-border)",
+                background: "var(--color-green-dim)",
                 opacity: (emailBusy || !emailDirty) ? 0.45 : 1,
-                transition: "all 0.15s",
+                cursor: (emailBusy || !emailDirty) ? "not-allowed" : "pointer",
               }}
-              onMouseEnter={(e) => { if (!emailBusy && emailDirty) e.currentTarget.style.background = "rgba(3,233,244,0.14)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(3,233,244,0.08)"; }}
             >
               {emailBusy ? "Saving…" : "Save Email"}
             </button>
@@ -508,14 +426,12 @@ export default function ProfilePage() {
 
           {/* Avatar */}
           <div className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.30)" }}>
-              Avatar
-            </p>
+            <p className="sf-label" style={{ marginBottom: 0 }}>Avatar</p>
 
             <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-              <Avatar avatarUrl={avatarPreview ?? profile.avatar_url} username={profile.username} size={56} />
+              <Avatar src={avatarPreview ?? profile.avatar_url} username={profile.username} size={56} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", marginBottom: "0.4rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <p style={{ fontSize: "0.68rem", color: "var(--color-text-secondary)", marginBottom: "0.4rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {avatarFile ? avatarFile.name : "JPEG or PNG, max 2 MB"}
                 </p>
                 <input
@@ -525,26 +441,14 @@ export default function ProfilePage() {
                   onChange={handleFileSelect}
                   style={{ display: "none" }}
                 />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    padding: "0.3rem 0.7rem", borderRadius: "6px",
-                    border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)",
-                    color: "rgba(255,255,255,0.60)",
-                    fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                    letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                >
+                <button onClick={() => fileInputRef.current?.click()} className="sf-btn-ghost">
                   Choose File
                 </button>
               </div>
             </div>
 
             {avatarMsg && (
-              <p style={{ fontSize: "0.72rem", color: avatarMsg.ok ? "#4ade80" : "#f87171" }}>
+              <p style={{ fontSize: "0.72rem", color: avatarMsg.ok ? "var(--color-green)" : "var(--color-red-bright)" }}>
                 {avatarMsg.text}
               </p>
             )}
@@ -553,18 +457,15 @@ export default function ProfilePage() {
               <button
                 onClick={handleAvatarUpload}
                 disabled={!avatarFile || avatarBusy}
+                className="sf-btn-ghost"
                 style={{
-                  flex: 1, padding: "0.5rem", borderRadius: "8px",
-                  border: "1px solid rgba(3,233,244,0.25)", background: "rgba(3,233,244,0.08)",
-                  color: "var(--color-cyan)",
-                  fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-                  letterSpacing: "0.10em", textTransform: "uppercase",
-                  cursor: (!avatarFile || avatarBusy) ? "not-allowed" : "pointer",
+                  flex: 1, justifyContent: "center",
+                  color: "var(--color-green)",
+                  borderColor: "var(--color-green-border)",
+                  background: "var(--color-green-dim)",
                   opacity: (!avatarFile || avatarBusy) ? 0.45 : 1,
-                  transition: "all 0.15s",
+                  cursor: (!avatarFile || avatarBusy) ? "not-allowed" : "pointer",
                 }}
-                onMouseEnter={(e) => { if (avatarFile && !avatarBusy) e.currentTarget.style.background = "rgba(3,233,244,0.14)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(3,233,244,0.08)"; }}
               >
                 {avatarBusy && !avatarFile ? "Removing…" : avatarBusy ? "Uploading…" : "Upload"}
               </button>
@@ -573,17 +474,14 @@ export default function ProfilePage() {
                 <button
                   onClick={handleAvatarRemove}
                   disabled={avatarBusy}
+                  className="sf-btn-ghost"
                   style={{
-                    padding: "0.5rem 0.8rem", borderRadius: "8px",
-                    border: "1px solid rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.06)",
-                    color: "#f87171",
-                    fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-                    letterSpacing: "0.10em", textTransform: "uppercase",
+                    color: "var(--color-red-bright)",
+                    borderColor: "var(--color-red-border)",
+                    background: "var(--color-red-dim)",
+                    opacity: avatarBusy ? 0.45 : 1,
                     cursor: avatarBusy ? "not-allowed" : "pointer",
-                    opacity: avatarBusy ? 0.45 : 1, transition: "all 0.15s",
                   }}
-                  onMouseEnter={(e) => { if (!avatarBusy) e.currentTarget.style.background = "rgba(239,68,68,0.12)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.06)"; }}
                 >
                   Remove
                 </button>
@@ -595,14 +493,7 @@ export default function ProfilePage() {
 
       {/* ── Quest progress ── */}
       <div className="space-y-4">
-          {/* Section label */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ height: "1px", flex: 1, background: "rgba(255,255,255,0.07)" }} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", flexShrink: 0 }}>
-              Progress
-            </span>
-            <div style={{ height: "1px", flex: 1, background: "rgba(255,255,255,0.07)" }} />
-          </div>
+          <SectionDivider title="Progress" />
 
           {/* Language breakdown */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -614,11 +505,11 @@ export default function ProfilePage() {
                   className="glass-card"
                   style={{ padding: "0.85rem 1rem", display: "flex", alignItems: "center", gap: "0.75rem", opacity: count === 0 ? 0.40 : 1 }}
                 >
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.color, flexShrink: 0 }} />
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.75)", flex: 1 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "2px", background: cfg.color, flexShrink: 0 }} />
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-text-secondary)", flex: 1 }}>
                     {cfg.name}
                   </span>
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.88rem", fontWeight: 700, color: count > 0 ? "var(--color-cyan)" : "rgba(255,255,255,0.20)" }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.88rem", fontWeight: 700, color: count > 0 ? "var(--color-green)" : "var(--color-text-faint)" }}>
                     {count}
                   </span>
                 </div>
@@ -630,17 +521,17 @@ export default function ProfilePage() {
           <>
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingLeft: "0.25rem" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", flex: 1 }}>
-                {isOwnProfile ? "Submission History" : "Quest Submissions"}
-                {subs ? ` — ${subs.total.toLocaleString()} run${subs.total !== 1 ? "s" : ""}` : ""}
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-text-tertiary)", flex: 1 }}>
+                {isOwnProfile ? "// submission_history" : "// quest_submissions"}
+                {subs ? ` (${subs.total.toLocaleString()} run${subs.total !== 1 ? "s" : ""})` : ""}
               </p>
               {!isOwnProfile && (
-                <span style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.18)", flexShrink: 0, fontStyle: "italic" }}>
+                <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0, fontStyle: "italic" }}>
                   code hidden
                 </span>
               )}
               {subs && subs.pages > 1 && (
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", color: "rgba(255,255,255,0.20)", flexShrink: 0 }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
                   page {subs.page} of {subs.pages}
                 </span>
               )}
@@ -652,11 +543,11 @@ export default function ProfilePage() {
               <div style={{
                 display: "grid", gridTemplateColumns: "1fr auto auto auto auto",
                 gap: "0.5rem", padding: "0.45rem 1rem 0.45rem 1.25rem",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
-                background: "rgba(255,255,255,0.02)",
+                borderBottom: "1px solid var(--color-border-2)",
+                background: "rgba(77,255,143,0.02)",
               }}>
                 {["Quest", "Language", "Score", "Status", "Date"].map(h => (
-                  <span key={h} style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.20)" }}>
+                  <span key={h} style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                     {h}
                   </span>
                 ))}
@@ -664,43 +555,42 @@ export default function ProfilePage() {
 
               {/* Loading / empty / rows */}
               {subsLoading && !subs ? (
-                <div style={{ padding: "2rem", textAlign: "center", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-heading)", fontSize: "0.7rem" }}>
+                <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.7rem" }}>
                   Loading…
                 </div>
               ) : subs && subs.items.length === 0 ? (
                 <div style={{ padding: "2.5rem", textAlign: "center" }}>
-                  <p style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>⚔</p>
-                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: "0.3rem" }}>
+                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
                     No submissions yet
                   </p>
-                  <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)" }}>
+                  <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)" }}>
                     {isOwnProfile
-                      ? "Start solving quests to earn XP and build your legend."
-                      : "This adventurer hasn't submitted any quests yet."}
+                      ? "Start solving quests to earn XP and build your history."
+                      : "This user hasn't submitted any quests yet."}
                   </p>
                 </div>
               ) : (subs?.items ?? []).map((s, i) => {
                 const lang       = LANG_CONFIG[s.language];
                 const passed     = s.passed ?? 0;
                 const total      = s.total  ?? 0;
-                const scoreColor = s.all_passed ? "#4ade80" : (passed > 0 ? "#fb923c" : "#f87171");
+                const scoreColor = s.all_passed ? "var(--color-green)" : (passed > 0 ? "var(--color-amber)" : "var(--color-red-bright)");
                 const rowBase    = {
                   display: "grid", gridTemplateColumns: "1fr auto auto auto auto",
                   gap: "0.5rem", alignItems: "center", width: "100%",
                   padding: "0.6rem 1rem 0.6rem 0.85rem",
                   borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.04)",
-                  borderLeft: `3px solid ${s.all_passed ? "rgba(74,222,128,0.5)" : "rgba(248,113,113,0.35)"}`,
+                  borderLeft: `3px solid ${s.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                   background: "transparent", textAlign: "left",
                   transition: "background 0.10s",
                 };
                 const rowCells = (
                   <>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.82)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {s.quest_title}
                     </span>
                     <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
-                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.07em", color: "rgba(255,255,255,0.28)", textTransform: "uppercase" }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                         {lang?.name ?? s.language}
                       </span>
                     </span>
@@ -708,15 +598,15 @@ export default function ProfilePage() {
                       {total > 0 ? `${passed}/${total}` : "—"}
                     </span>
                     <span style={{
-                      flexShrink: 0, padding: "0.18rem 0.5rem", borderRadius: "4px",
-                      fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-                      background: s.all_passed ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.10)",
-                      color:      s.all_passed ? "#4ade80"               : "#f87171",
-                      border:     `1px solid ${s.all_passed ? "rgba(74,222,128,0.25)" : "rgba(248,113,113,0.20)"}`,
+                      flexShrink: 0, padding: "0.18rem 0.5rem", borderRadius: "3px",
+                      fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700,
+                      background: s.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
+                      color:      s.all_passed ? "var(--color-green)"    : "var(--color-red-bright)",
+                      border:     `1px solid ${s.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                     }}>
-                      {s.all_passed ? "Passed" : "Failed"}
+                      {s.all_passed ? "PASS" : "FAIL"}
                     </span>
-                    <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.22)", flexShrink: 0, minWidth: "72px", textAlign: "right" }}>
+                    <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "72px", textAlign: "right" }}>
                       {new Date(s.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   </>
@@ -727,7 +617,7 @@ export default function ProfilePage() {
                     <button
                       key={s.id}
                       style={{ ...rowBase, cursor: "pointer" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(77,255,143,0.03)"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                       onClick={async () => {
                         setSubModal({ id: s.id, quest_title: s.quest_title, language: s.language, difficulty: s.difficulty, all_passed: s.all_passed });
@@ -758,35 +648,23 @@ export default function ProfilePage() {
             {/* Pagination controls */}
             {subs && subs.pages > 1 && (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "0.25rem" }}>
-                <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.22)" }}>
+                <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)" }}>
                   {((subs.page - 1) * subs.per_page + 1).toLocaleString()}–{Math.min(subs.page * subs.per_page, subs.total).toLocaleString()} of {subs.total.toLocaleString()}
                 </span>
                 <div style={{ display: "flex", gap: "0.4rem" }}>
                   <button
                     disabled={subs.page <= 1 || subsLoading}
                     onClick={() => setSubsPage(p => p - 1)}
-                    style={{
-                      fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                      letterSpacing: "0.08em", textTransform: "uppercase",
-                      padding: "0.3rem 0.7rem", borderRadius: "6px",
-                      border: "1px solid rgba(255,255,255,0.12)", background: "transparent",
-                      color: subs.page <= 1 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.55)",
-                      cursor: subs.page <= 1 ? "default" : "pointer",
-                    }}
+                    className="sf-btn-ghost"
+                    style={{ opacity: subs.page <= 1 ? 0.4 : 1 }}
                   >
                     ← Prev
                   </button>
                   <button
                     disabled={subs.page >= subs.pages || subsLoading}
                     onClick={() => setSubsPage(p => p + 1)}
-                    style={{
-                      fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                      letterSpacing: "0.08em", textTransform: "uppercase",
-                      padding: "0.3rem 0.7rem", borderRadius: "6px",
-                      border: "1px solid rgba(255,255,255,0.12)", background: "transparent",
-                      color: subs.page >= subs.pages ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.55)",
-                      cursor: subs.page >= subs.pages ? "default" : "pointer",
-                    }}
+                    className="sf-btn-ghost"
+                    style={{ opacity: subs.page >= subs.pages ? 0.4 : 1 }}
                   >
                     Next →
                   </button>
@@ -799,26 +677,26 @@ export default function ProfilePage() {
       {/* ── Underworld Chronicles ── */}
       {bossChallenges.length > 0 ? (
         <div className="space-y-4">
-          {/* Section label */}
+          {/* Section label — red, matches Underworld */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ height: "1px", flex: 1, background: "rgba(220,38,38,0.15)" }} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(220,38,38,0.55)", flexShrink: 0 }}>
-              Underworld Chronicles
+            <div style={{ height: "1px", flex: 1, background: "var(--color-red-dim)" }} />
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
+              // underworld_chronicles
             </span>
-            <div style={{ height: "1px", flex: 1, background: "rgba(220,38,38,0.15)" }} />
+            <div style={{ height: "1px", flex: 1, background: "var(--color-red-dim)" }} />
           </div>
 
           {/* Challenge list */}
           <div
             style={{
-              borderRadius: "0.875rem",
+              borderRadius: "6px",
               overflow: "hidden",
-              border: "1px solid rgba(220,38,38,0.12)",
-              background: "rgba(127,29,29,0.08)",
+              border: "1px solid var(--color-red-dim)",
+              background: "rgba(255,95,86,0.04)",
             }}
           >
             {bossChallenges.map((c, i) => {
-              const uwDiff  = UW_DIFF_META[c.difficulty] ?? { label: c.difficulty, color: "#ef4444" };
+              const uwDiff  = UW_DIFF_META[c.difficulty] ?? { label: c.difficulty, color: "var(--color-red-bright)" };
               const lang    = LANG_CONFIG[c.language];
               const imgSrc  = BOSS_IMAGES[c.boss_avatar];
               const verdict = c.boss_verdict ?? "";
@@ -829,17 +707,17 @@ export default function ProfilePage() {
                   style={{
                     display: "flex", alignItems: "center", gap: "0.75rem",
                     padding: "0.75rem 1rem",
-                    borderTop: i === 0 ? "none" : "1px solid rgba(220,38,38,0.06)",
+                    borderTop: i === 0 ? "none" : "1px solid rgba(255,95,86,0.10)",
                     borderLeft: `3px solid ${uwDiff.color}`,
                     transition: "background 0.12s",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(220,38,38,0.05)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,95,86,0.05)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
                   {/* Boss portrait */}
                   <div style={{
-                    width: 38, height: 38, borderRadius: "50%", overflow: "hidden", flexShrink: 0,
-                    border: `2px solid ${uwDiff.color}44`,
+                    width: 38, height: 38, borderRadius: "4px", overflow: "hidden", flexShrink: 0,
+                    border: `2px solid ${uwDiff.color}`,
                     background: "rgba(0,0,0,0.35)",
                   }}>
                     {imgSrc && (
@@ -855,14 +733,14 @@ export default function ProfilePage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700,
-                      color: "rgba(255,255,255,0.85)", margin: 0,
+                      color: "var(--color-text-secondary)", margin: 0,
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>
                       {c.boss_name}
                     </p>
                     {verdict && (
                       <p style={{
-                        fontSize: "0.60rem", color: "rgba(255,255,255,0.25)", margin: 0,
+                        fontSize: "0.60rem", color: "var(--color-text-tertiary)", margin: 0,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                         fontStyle: "italic",
                       }}>
@@ -873,48 +751,47 @@ export default function ProfilePage() {
 
                   {/* Language */}
                   <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase" }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                       {lang?.name ?? c.language}
                     </span>
                   </span>
 
                   {/* Difficulty */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.08em", color: uwDiff.color, textTransform: "uppercase", flexShrink: 0 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: uwDiff.color, flexShrink: 0 }}>
                     {uwDiff.label}
                   </span>
 
                   {/* Status badge */}
                   <span style={{
-                    padding: "0.15rem 0.55rem", borderRadius: "99px", flexShrink: 0,
-                    background: c.status === "completed" ? "rgba(74,222,128,0.10)" : "rgba(239,68,68,0.10)",
-                    border: `1px solid ${c.status === "completed" ? "rgba(74,222,128,0.28)" : "rgba(239,68,68,0.28)"}`,
-                    color: c.status === "completed" ? "#4ade80" : "#f87171",
+                    padding: "0.15rem 0.55rem", borderRadius: "3px", flexShrink: 0,
+                    background: c.status === "completed" ? "var(--color-green-dim)" : "var(--color-red-dim)",
+                    border: `1px solid ${c.status === "completed" ? "var(--color-green-border)" : "var(--color-red-border)"}`,
+                    color: c.status === "completed" ? "var(--color-green)" : "var(--color-red-bright)",
                     fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
-                    letterSpacing: "0.08em", textTransform: "uppercase",
                   }}>
-                    {c.status === "completed" ? "Vanquished" : "Fallen"}
+                    {c.status === "completed" ? "VANQUISHED" : "FALLEN"}
                   </span>
 
                   {/* Score bar + XP — completed only */}
                   {c.status === "completed" && (
                     <>
                       <div style={{ width: 44, flexShrink: 0 }}>
-                        <div style={{ height: 3, borderRadius: 2, background: "rgba(220,38,38,0.18)", marginBottom: "0.2rem" }}>
+                        <div style={{ height: 3, borderRadius: 2, background: "rgba(255,95,86,0.15)", marginBottom: "0.2rem" }}>
                           <div style={{ height: 3, borderRadius: 2, background: uwDiff.color, width: `${c.score_pct ?? 0}%` }} />
                         </div>
-                        <span style={{ fontSize: "0.50rem", color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-heading)" }}>
+                        <span style={{ fontSize: "0.50rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)" }}>
                           {c.score_pct ?? 0}%
                         </span>
                       </div>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "#fca5a5", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
                         +{c.xp_earned}
                       </span>
                     </>
                   )}
 
                   {/* Date */}
-                  <span style={{ fontSize: "0.60rem", color: "rgba(255,255,255,0.20)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
+                  <span style={{ fontSize: "0.60rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
                     {new Date(c.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                 </div>
@@ -925,26 +802,20 @@ export default function ProfilePage() {
       ) : isOwnProfile ? (
         <div
           style={{
-            borderRadius: "0.875rem", padding: "2rem", textAlign: "center",
-            border: "1px dashed rgba(220,38,38,0.18)", background: "rgba(127,29,29,0.06)",
+            borderRadius: "6px", padding: "2rem", textAlign: "center",
+            border: "1px dashed var(--color-red-border)", background: "rgba(255,95,86,0.04)",
           }}
         >
-          <p style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>🔥</p>
-          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", marginBottom: "0.3rem" }}>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
             No Underworld battles yet
           </p>
-          <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)", marginBottom: "1rem" }}>
+          <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
             Dare to challenge the ancient lords of code.
           </p>
           <Link
             to="/underworld"
-            style={{
-              display: "inline-block", padding: "0.45rem 1.1rem", borderRadius: "8px",
-              border: "1px solid rgba(220,38,38,0.35)", background: "rgba(220,38,38,0.10)",
-              color: "#fca5a5",
-              fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-              letterSpacing: "0.10em", textTransform: "uppercase", textDecoration: "none",
-            }}
+            className="sf-btn-ghost"
+            style={{ display: "inline-flex", color: "var(--color-red-bright)", borderColor: "var(--color-red-border)", background: "var(--color-red-dim)" }}
           >
             Enter the Underworld
           </Link>
@@ -954,13 +825,13 @@ export default function ProfilePage() {
       {/* ── Oracle's Trials ── */}
       {triviaSessions.length > 0 ? (
         <div className="space-y-4">
-          {/* Section label */}
+          {/* Section label — amber, matches Trivia */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ height: "1px", flex: 1, background: "rgba(234,179,8,0.20)" }} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(234,179,8,0.65)", flexShrink: 0 }}>
-              Oracle's Trials
+            <div style={{ height: "1px", flex: 1, background: "var(--color-amber-dim)" }} />
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-amber)", flexShrink: 0 }}>
+              // oracles_trials
             </span>
-            <div style={{ height: "1px", flex: 1, background: "rgba(234,179,8,0.20)" }} />
+            <div style={{ height: "1px", flex: 1, background: "var(--color-amber-dim)" }} />
           </div>
 
           {/* Summary chips */}
@@ -970,27 +841,27 @@ export default function ProfilePage() {
               [`${triviaCompleted}`, "Completed"],
               [`+${triviaXP} XP`, "Total earned"],
             ].map(([val, lbl]) => (
-              <div key={lbl} style={{ padding: "0.4rem 0.85rem", borderRadius: "8px", background: "rgba(234,179,8,0.07)", border: "1px solid rgba(234,179,8,0.22)", display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: "#eab308" }}>{val}</span>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)" }}>{lbl}</span>
+              <div key={lbl} style={{ padding: "0.4rem 0.85rem", borderRadius: "4px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)", display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: "var(--color-amber)" }}>{val}</span>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)" }}>{lbl}</span>
               </div>
             ))}
           </div>
 
           {/* Session list */}
-          <div style={{ borderRadius: "0.875rem", overflow: "hidden", border: "1px solid rgba(234,179,8,0.15)", background: "rgba(120,90,0,0.06)" }}>
+          <div style={{ borderRadius: "6px", overflow: "hidden", border: "1px solid var(--color-amber-dim)", background: "rgba(255,204,102,0.03)" }}>
             {triviaSessions.map((s, i) => {
               const langMeta = {
-                python:     { label: "Python",     glyph: "Py", color: "#4ade80" },
-                javascript: { label: "JavaScript", glyph: "JS", color: "#fbbf24" },
-                java:       { label: "Java",       glyph: "Jv", color: "#f97316" },
-                csharp:     { label: "C#",         glyph: "C#", color: "#a78bfa" },
-                mix:        { label: "All Paths",  glyph: "∞",  color: "#03e9f4" },
-              }[s.language] ?? { label: s.language, glyph: "?", color: "#fbbf24" };
+                python:     { label: "Python",     glyph: "py", color: "var(--gem-python)" },
+                javascript: { label: "JavaScript", glyph: "js", color: "var(--gem-javascript)" },
+                java:       { label: "Java",       glyph: "jv", color: "var(--gem-java)" },
+                csharp:     { label: "C#",         glyph: "c#", color: "var(--gem-csharp)" },
+                mix:        { label: "All Paths",  glyph: "**", color: "var(--color-blue)" },
+              }[s.language] ?? { label: s.language, glyph: "?", color: "var(--color-amber)" };
 
               const completed = s.status === "completed";
               const accuracy  = s.total_questions > 0 ? Math.round((s.correct_count / s.total_questions) * 100) : 0;
-              const barColor  = accuracy >= 75 ? "#4ade80" : accuracy >= 50 ? "#fbbf24" : "#f87171";
+              const barColor  = accuracy >= 75 ? "var(--color-green)" : accuracy >= 50 ? "var(--color-amber)" : "var(--color-red-bright)";
 
               return (
                 <div
@@ -998,18 +869,18 @@ export default function ProfilePage() {
                   style={{
                     display: "flex", alignItems: "center", gap: "0.85rem",
                     padding: "0.75rem 1rem",
-                    borderTop: i === 0 ? "none" : "1px solid rgba(234,179,8,0.07)",
-                    borderLeft: `3px solid ${completed ? "rgba(234,179,8,0.60)" : "rgba(255,255,255,0.15)"}`,
+                    borderTop: i === 0 ? "none" : "1px solid rgba(255,204,102,0.08)",
+                    borderLeft: `3px solid ${completed ? "var(--color-amber)" : "rgba(255,255,255,0.15)"}`,
                     transition: "background 0.12s",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(234,179,8,0.05)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,204,102,0.05)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
                   {/* Language glyph */}
                   <div style={{
-                    width: 34, height: 34, borderRadius: "8px", flexShrink: 0,
+                    width: 34, height: 34, borderRadius: "4px", flexShrink: 0,
                     background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    border: "1px solid var(--color-border-2)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
                     color: langMeta.color,
@@ -1019,14 +890,14 @@ export default function ProfilePage() {
 
                   {/* Language + accuracy bar */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.82)", margin: 0, marginBottom: "0.25rem" }}>
+                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", margin: 0, marginBottom: "0.25rem" }}>
                       {langMeta.label}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <div style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.07)", maxWidth: 80 }}>
                         <div style={{ height: 3, borderRadius: 2, background: barColor, width: `${accuracy}%`, transition: "width 0.4s ease" }} />
                       </div>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", letterSpacing: "0.06em", color: "rgba(255,255,255,0.30)" }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", color: "var(--color-text-tertiary)" }}>
                         {s.correct_count}/{s.total_questions} correct
                       </span>
                     </div>
@@ -1034,23 +905,22 @@ export default function ProfilePage() {
 
                   {/* Status badge */}
                   <span style={{
-                    padding: "0.15rem 0.55rem", borderRadius: "99px", flexShrink: 0,
-                    background: completed ? "rgba(234,179,8,0.10)" : "rgba(255,255,255,0.05)",
-                    border: `1px solid ${completed ? "rgba(234,179,8,0.32)" : "rgba(255,255,255,0.10)"}`,
-                    color: completed ? "#eab308" : "rgba(255,255,255,0.35)",
+                    padding: "0.15rem 0.55rem", borderRadius: "3px", flexShrink: 0,
+                    background: completed ? "var(--color-amber-dim)" : "rgba(255,255,255,0.05)",
+                    border: `1px solid ${completed ? "var(--color-amber-border)" : "var(--color-border-2)"}`,
+                    color: completed ? "var(--color-amber)" : "var(--color-text-tertiary)",
                     fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700,
-                    letterSpacing: "0.08em", textTransform: "uppercase",
                   }}>
-                    {completed ? "Completed" : "Expired"}
+                    {completed ? "COMPLETED" : "EXPIRED"}
                   </span>
 
                   {/* XP */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: s.score_xp > 0 ? "#eab308" : "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: s.score_xp > 0 ? "var(--color-amber)" : "var(--color-text-faint)", flexShrink: 0 }}>
                     +{s.score_xp} XP
                   </span>
 
                   {/* Date */}
-                  <span style={{ fontSize: "0.60rem", color: "rgba(255,255,255,0.20)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
+                  <span style={{ fontSize: "0.60rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
                     {new Date(s.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                 </div>
@@ -1059,103 +929,100 @@ export default function ProfilePage() {
           </div>
         </div>
       ) : isOwnProfile ? (
-        <div style={{ borderRadius: "0.875rem", padding: "2rem", textAlign: "center", border: "1px dashed rgba(234,179,8,0.22)", background: "rgba(120,90,0,0.05)" }}>
-          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.40)", marginBottom: "0.3rem" }}>
+        <div style={{ borderRadius: "6px", padding: "2rem", textAlign: "center", border: "1px dashed var(--color-amber-border)", background: "rgba(255,204,102,0.03)" }}>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
             No trials completed yet
           </p>
-          <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)", marginBottom: "1rem" }}>
+          <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
             Face the Oracle's weekly trial and prove your knowledge.
           </p>
           <Link
             to="/trivia"
-            style={{
-              display: "inline-block", padding: "0.45rem 1.1rem", borderRadius: "8px",
-              border: "1px solid rgba(234,179,8,0.32)", background: "rgba(234,179,8,0.09)",
-              color: "#eab308",
-              fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-              letterSpacing: "0.10em", textTransform: "uppercase", textDecoration: "none",
-            }}
+            className="sf-btn-ghost"
+            style={{ display: "inline-flex", color: "var(--color-amber)", borderColor: "var(--color-amber-border)", background: "var(--color-amber-dim)" }}
           >
             Enter the Sanctum
           </Link>
         </div>
       ) : null}
 
-      {/* ── Submission detail modal ── */}
+      {/* ── Submission detail modal — floats as its own terminal window ── */}
       {(subModal || subModalLoading) && (
         <div
           style={{
             position: "fixed", inset: 0, zIndex: 9000,
-            background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)",
+            background: "rgba(0,0,0,0.75)",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "1rem",
           }}
           onClick={() => { setSubModal(null); setSubModalLoading(false); }}
         >
           <div
-            className="glass-card"
-            style={{
-              width: "100%", maxWidth: "780px", maxHeight: "90vh",
-              overflow: "hidden", display: "flex", flexDirection: "column",
-              padding: 0,
-            }}
+            className="term-window"
+            style={{ width: "100%", maxWidth: "780px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal header */}
-            <div style={{ padding: "1rem 1.4rem 0.85rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {subModal?.quest_title ?? "Loading…"}
-              </span>
-              {subModal?.language && (() => {
-                const diff = DIFF_META[subModal.difficulty] ?? DIFF_META.shallow;
-                const lang = LANG_CONFIG[subModal.language];
-                return (
-                  <>
-                    <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: lang?.color ?? "#fff" }} />
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase" }}>
-                        {lang?.name ?? subModal.language}
-                      </span>
-                    </span>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: diff.color, textTransform: "uppercase", flexShrink: 0 }}>
-                      {diff.label}
-                    </span>
-                    <span style={{
-                      padding: "0.18rem 0.5rem", borderRadius: "4px",
-                      fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-                      background: subModal.all_passed ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.10)",
-                      color:      subModal.all_passed ? "#4ade80"               : "#f87171",
-                      border:     `1px solid ${subModal.all_passed ? "rgba(74,222,128,0.25)" : "rgba(248,113,113,0.20)"}`,
-                      flexShrink: 0,
-                    }}>
-                      {subModal.all_passed ? "Passed" : "Failed"}
-                    </span>
-                  </>
-                );
-              })()}
+            <div className="term-bar">
+              <span className="term-dot term-dot--red" />
+              <span className="term-dot term-dot--yellow" />
+              <span className="term-dot term-dot--green" />
+              <span className="term-title">{subModal?.quest_title ?? "loading…"}</span>
               <button
                 onClick={() => { setSubModal(null); setSubModalLoading(false); }}
-                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.32)", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1, padding: "0.2rem 0.4rem", borderRadius: "4px", flexShrink: 0 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.72)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.32)")}
+                style={{ background: "none", border: "none", color: "var(--color-text-tertiary)", cursor: "pointer", fontSize: "1rem", lineHeight: 1, padding: "0 0.2rem", flexShrink: 0 }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-tertiary)")}
               >
                 ✕
               </button>
             </div>
 
+            {/* Meta row */}
+            {subModal?.language && (
+              <div style={{ padding: "0.6rem 1.4rem", borderBottom: "1px solid var(--color-border-2)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                {(() => {
+                  const diff = DIFF_META[subModal.difficulty] ?? DIFF_META.shallow;
+                  const lang = LANG_CONFIG[subModal.language];
+                  return (
+                    <>
+                      <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
+                        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
+                          {lang?.name ?? subModal.language}
+                        </span>
+                      </span>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: diff.color, flexShrink: 0 }}>
+                        {diff.label}
+                      </span>
+                      <span style={{
+                        padding: "0.18rem 0.5rem", borderRadius: "3px",
+                        fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700,
+                        background: subModal.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
+                        color:      subModal.all_passed ? "var(--color-green)"    : "var(--color-red-bright)",
+                        border:     `1px solid ${subModal.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
+                        flexShrink: 0,
+                      }}>
+                        {subModal.all_passed ? "PASS" : "FAIL"}
+                      </span>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+
             {subModalLoading && !subModal?.solution_code ? (
-              <div style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.30)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
+              <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
                 Retrieving submission…
               </div>
             ) : subModal && (
               <div style={{ overflowY: "auto", flex: 1 }}>
                 {/* Test results bar */}
                 {subModal.test_results && (
-                  <div style={{ padding: "0.8rem 1.4rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>
+                  <div style={{ padding: "0.8rem 1.4rem", borderBottom: "1px solid var(--color-border-2)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                       Tests
                     </span>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: subModal.all_passed ? "#4ade80" : "#f87171" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: subModal.all_passed ? "var(--color-green)" : "var(--color-red-bright)" }}>
                       {subModal.test_results.passed}/{subModal.test_results.total} passed
                     </span>
                     <div style={{ display: "flex", gap: "0.28rem", flexWrap: "wrap", flex: 1 }}>
@@ -1164,18 +1031,18 @@ export default function ProfilePage() {
                           key={idx}
                           title={`Test ${idx + 1}: ${r.passed ? "passed" : "failed"}`}
                           style={{
-                            width: "1.05rem", height: "1.05rem", borderRadius: "3px",
-                            background: r.passed ? "rgba(74,222,128,0.18)" : "rgba(248,113,113,0.15)",
-                            border: `1px solid ${r.passed ? "rgba(74,222,128,0.45)" : "rgba(248,113,113,0.40)"}`,
+                            width: "1.05rem", height: "1.05rem", borderRadius: "2px",
+                            background: r.passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
+                            border: `1px solid ${r.passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                             display: "inline-flex", alignItems: "center", justifyContent: "center",
-                            fontSize: "0.48rem", color: r.passed ? "#4ade80" : "#f87171",
+                            fontSize: "0.48rem", color: r.passed ? "var(--color-green)" : "var(--color-red-bright)",
                           }}
                         >
                           {r.passed ? "✓" : "✗"}
                         </span>
                       ))}
                     </div>
-                    <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+                    <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
                       {new Date(subModal.submitted_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                     </span>
                   </div>
@@ -1183,15 +1050,15 @@ export default function ProfilePage() {
 
                 {/* Code */}
                 <div style={{ padding: "0.85rem 1.4rem 1.2rem" }}>
-                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: "0.55rem" }}>
-                    Submitted Code
+                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-tertiary)", marginBottom: "0.55rem" }}>
+                    // submitted_code
                   </p>
                   <pre style={{
                     margin: 0, padding: "1rem 1.1rem",
-                    background: "rgba(0,0,0,0.48)", borderRadius: "8px",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    fontFamily: "'Courier New', Courier, monospace", fontSize: "0.77rem",
-                    color: "rgba(255,255,255,0.80)", lineHeight: 1.7,
+                    background: "rgba(0,0,0,0.4)", borderRadius: "4px",
+                    border: "1px solid var(--color-border-2)",
+                    fontFamily: "var(--font-heading)", fontSize: "0.77rem",
+                    color: "var(--color-text-secondary)", lineHeight: 1.7,
                     overflowX: "auto", whiteSpace: "pre", tabSize: 4,
                   }}>
                     {subModal.solution_code}

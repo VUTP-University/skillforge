@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -10,101 +10,17 @@ import leaderboardMd from "../content/faq/leaderboard.md?raw";
 import profileMd     from "../content/faq/profile.md?raw";
 
 const VOLUMES = [
-  { id: "welcome",     glyph: "✦", title: "Welcome",          subtitle: "What is SkillForge?",  content: welcomeMd     },
-  { id: "quests",      glyph: "⚔", title: "The Quest System", subtitle: "Conquer challenges",   content: questsMd      },
-  { id: "xp",          glyph: "✧", title: "XP & Ranks",       subtitle: "Power & progression",  content: xpMd          },
-  { id: "underworld",  glyph: "☽", title: "The Underworld",   subtitle: "Dare the dark realm",  content: underworldMd  },
-  { id: "leaderboard", glyph: "♔", title: "Hall of Legends",  subtitle: "The great rankings",   content: leaderboardMd },
-  { id: "profile",     glyph: "◈", title: "Your Profile",     subtitle: "Identity & avatar",    content: profileMd     },
+  { id: "welcome",     glyph: "~",  title: "Welcome",          file: "welcome.md",     content: welcomeMd     },
+  { id: "quests",      glyph: ">_", title: "The Quest System", file: "quests.md",      content: questsMd      },
+  { id: "xp",          glyph: "^",  title: "XP & Ranks",       file: "xp-ranks.md",    content: xpMd          },
+  { id: "underworld",  glyph: "!",  title: "The Underworld",   file: "underworld.md",  content: underworldMd  },
+  { id: "leaderboard", glyph: "#",  title: "Leaderboard",      file: "leaderboard.md", content: leaderboardMd },
+  { id: "profile",     glyph: "@",  title: "Your Profile",     file: "profile.md",     content: profileMd     },
 ];
 
 const mdComponents = {
-  hr: () => <div className="faq-prose-divider" aria-hidden="true">⋆ ── ✦ ── ⋆</div>,
+  hr: () => <div className="faq-prose-divider" aria-hidden="true">// ───────────</div>,
 };
-
-/* Floating dust motes — generated once, stable across re-renders */
-function DustParticles() {
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 22 }, (_, i) => ({
-        id: i,
-        left:     `${4 + Math.random() * 92}%`,
-        top:      `${8 + Math.random() * 84}%`,
-        size:     0.7 + Math.random() * 1.8,
-        delay:    `${Math.random() * 16}s`,
-        duration: `${10 + Math.random() * 12}s`,
-      })),
-    [],
-  );
-
-  return (
-    <div className="faq-dust" aria-hidden="true">
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="faq-dust-mote"
-          style={{
-            left:              p.left,
-            top:               p.top,
-            width:             `${p.size}px`,
-            height:            `${p.size}px`,
-            animationDelay:    p.delay,
-            animationDuration: p.duration,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* Gothic wrought-iron candelabra */
-function Candelabra() {
-  return (
-    <div className="candelabra" aria-hidden="true">
-
-      {/* ── Flame ── */}
-      <div className="candelabra-flame-area">
-        <div className="candelabra-flame-glow" />
-        <div className="candelabra-flame-outer" />
-        <div className="candelabra-flame-mid" />
-        <div className="candelabra-flame-core" />
-      </div>
-
-      {/* Wick */}
-      <div className="candelabra-wick" />
-
-      {/* Wax body with drips */}
-      <div className="candelabra-wax">
-        <div className="candelabra-drip candelabra-drip--1" />
-        <div className="candelabra-drip candelabra-drip--2" />
-        <div className="candelabra-drip candelabra-drip--3" />
-      </div>
-
-      {/* Bobeche — wax-catcher saucer */}
-      <div className="candelabra-bobeche" />
-
-      {/* Upper shaft */}
-      <div className="candelabra-shaft candelabra-shaft--upper" />
-
-      {/* Decorative knot ring */}
-      <div className="candelabra-ring" />
-
-      {/* Lower shaft */}
-      <div className="candelabra-shaft candelabra-shaft--lower" />
-
-      {/* Gothic cross-guard */}
-      <div className="candelabra-guard" />
-
-      {/* Stem below guard */}
-      <div className="candelabra-shaft candelabra-shaft--stem" />
-
-      {/* Base */}
-      <div className="candelabra-base-cap" />
-      <div className="candelabra-base-foot" />
-
-    </div>
-  );
-}
 
 export default function FAQPage() {
   const [activeId,  setActiveId]  = useState("welcome");
@@ -126,34 +42,38 @@ export default function FAQPage() {
   return (
     <div className="faq-page">
 
-      {/* ── Library Header ── */}
-      <header className="faq-header">
-        <DustParticles />
-        <div className="faq-header-glow faq-header-glow--left"  aria-hidden="true" />
-        <div className="faq-header-glow faq-header-glow--right" aria-hidden="true" />
-
-        <Candelabra />
-
-        <div className="faq-header-center">
-          <div className="faq-header-ornament">✦ ──── ✦</div>
-          <h1 className="faq-header-title">Grand Codex</h1>
-          <p className="faq-header-sub">
-            Ancient volumes of knowledge — all you need to know about the realm of SkillForge
-          </p>
-          <div className="faq-header-ornament">✦ ──── ✦</div>
+      {/* ── Header ── */}
+      <div className="term-window page-enter">
+        <div className="term-bar">
+          <span className="term-dot term-dot--red" />
+          <span className="term-dot term-dot--yellow" />
+          <span className="term-dot term-dot--green" />
+          <span className="term-title">man skillforge</span>
         </div>
-
-        <Candelabra />
-      </header>
+        <div className="term-body" style={{ textAlign: "center" }}>
+          <p className="hero-eyebrow" style={{ justifyContent: "center" }}>$ man skillforge</p>
+          <h1 className="glow-pulse" style={{
+            fontFamily: "var(--font-brand)", fontWeight: 800, fontSize: "clamp(2.4rem, 5vw, 3.4rem)", lineHeight: 1,
+            color: "var(--color-green)", marginBottom: "0.6rem",
+          }}>
+            SKILLFORGE(1)
+          </h1>
+          <p style={{ fontSize: "0.92rem", color: "var(--color-text-secondary)", maxWidth: "480px", margin: "0 auto" }}>
+            Reference documentation for the SkillForge platform — pick a section from the index to read it.
+          </p>
+        </div>
+      </div>
 
       {/* ── Body ── */}
       <div className="faq-body">
 
-        {/* Bookshelf sidebar */}
-        <aside className="faq-sidebar">
-          <div className="faq-sidebar-heading">
-            <span className="faq-sidebar-heading-icon" aria-hidden="true">📖</span>
-            Volumes
+        {/* Volume index */}
+        <aside className="faq-sidebar term-window">
+          <div className="term-bar">
+            <span className="term-dot term-dot--red" />
+            <span className="term-dot term-dot--yellow" />
+            <span className="term-dot term-dot--green" />
+            <span className="term-title">ls ./docs</span>
           </div>
           <nav className="faq-volumes-list">
             {VOLUMES.map((vol) => {
@@ -168,26 +88,26 @@ export default function FAQPage() {
                   <span className="faq-volume-glyph">{vol.glyph}</span>
                   <span className="faq-volume-text">
                     <span className="faq-volume-title">{vol.title}</span>
-                    <span className="faq-volume-sub">{vol.subtitle}</span>
+                    <span className="faq-volume-sub">{vol.file}</span>
                   </span>
-                  {isActive && <span className="faq-volume-pip" aria-hidden="true" />}
                 </button>
               );
             })}
           </nav>
-          <div className="faq-sidebar-shelf" aria-hidden="true" />
         </aside>
 
-        {/* Manuscript article */}
+        {/* Document panel */}
         <article
           key={displayId}
-          className={`faq-article${fading ? " faq-article--fading" : ""}`}
+          className={`faq-article term-window${fading ? " faq-article--fading" : ""}`}
         >
-          {/* All-four-corner manuscript ornaments (::before/::after cover TL + BR) */}
-          <span className="faq-corner faq-corner--tr" aria-hidden="true" />
-          <span className="faq-corner faq-corner--bl" aria-hidden="true" />
-
-          <div className="faq-prose">
+          <div className="term-bar">
+            <span className="term-dot term-dot--red" />
+            <span className="term-dot term-dot--yellow" />
+            <span className="term-dot term-dot--green" />
+            <span className="term-title">cat ./docs/{currentVolume.file}</span>
+          </div>
+          <div className="term-body faq-prose">
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
               {currentVolume.content}
             </ReactMarkdown>

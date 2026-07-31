@@ -239,13 +239,13 @@ function ResultScreen({ result, boss }) {
   const glowColor = isFailed
     ? "rgba(220,38,38,0.20)"
     : pct >= 80
-    ? "rgba(34,211,238,0.18)"
+    ? "var(--color-green-dim)"
     : "rgba(251,191,36,0.18)";
 
   const scoreColor = isFailed
     ? "#ef4444"
     : pct >= 80
-    ? "#22d3ee"
+    ? "var(--color-green)"
     : "#fbbf24";
 
   return (
@@ -263,9 +263,9 @@ function ResultScreen({ result, boss }) {
       {/* Boss portrait */}
       <div
         style={{
-          width: "120px",
-          height: "120px",
-          borderRadius: "50%",
+          width: "160px",
+          height: "160px",
+          borderRadius: "12px",
           overflow: "hidden",
           border: `3px solid ${diff.color}`,
           boxShadow: `0 0 32px ${glowColor}`,
@@ -296,7 +296,7 @@ function ResultScreen({ result, boss }) {
       <div
         style={{
           padding: "0.22rem 0.75rem",
-          borderRadius: "99px",
+          borderRadius: "3px",
           background: "rgba(0,0,0,0.40)",
           border: `1px solid ${diff.color}55`,
           color: diff.color,
@@ -332,7 +332,7 @@ function ResultScreen({ result, boss }) {
           }}
         >
           {animated}
-          <span style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.35)", marginLeft: "0.25rem" }}>
+          <span style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.55)", marginLeft: "0.25rem" }}>
             / {maxXp} XP
           </span>
         </div>
@@ -340,10 +340,10 @@ function ResultScreen({ result, boss }) {
         <div
           style={{
             padding: "0.28rem 0.85rem",
-            borderRadius: "99px",
-            background: `rgba(34,211,238,0.10)`,
-            border: "1px solid rgba(34,211,238,0.25)",
-            color: "#22d3ee",
+            borderRadius: "3px",
+            background: `var(--color-green-dim)`,
+            border: "1px solid var(--color-green-border)",
+            color: "var(--color-green)",
             fontFamily: "var(--font-heading)",
             fontSize: "0.62rem",
             letterSpacing: "0.12em",
@@ -689,9 +689,9 @@ export default function UnderworldChallengePage() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
             <div
               style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
+                width: "88px",
+                height: "88px",
+                borderRadius: "10px",
                 overflow: "hidden",
                 border: `2px solid ${diff.color}`,
                 flexShrink: 0,
@@ -721,7 +721,7 @@ export default function UnderworldChallengePage() {
                 style={{
                   display: "inline-block",
                   padding: "0.18rem 0.55rem",
-                  borderRadius: "99px",
+                  borderRadius: "3px",
                   background: "rgba(0,0,0,0.40)",
                   border: `1px solid ${diff.color}55`,
                   color: diff.color,
@@ -768,7 +768,7 @@ export default function UnderworldChallengePage() {
                 fontSize: "0.60rem",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,0.30)",
+                color: "rgba(255,255,255,0.52)",
                 marginBottom: "0.75rem",
               }}
             >
@@ -807,7 +807,7 @@ export default function UnderworldChallengePage() {
                   fontSize: "0.58rem",
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.30)",
+                  color: "rgba(255,255,255,0.52)",
                   marginBottom: "0.3rem",
                 }}
               >
@@ -830,7 +830,7 @@ export default function UnderworldChallengePage() {
             <div
               style={{
                 padding: "0.3rem 0.75rem",
-                borderRadius: "99px",
+                borderRadius: "3px",
                 background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.10)",
                 color: "rgba(255,255,255,0.50)",
@@ -920,7 +920,7 @@ export default function UnderworldChallengePage() {
                 borderRadius: "0.5rem",
                 border: "1px solid rgba(255,255,255,0.10)",
                 background: "transparent",
-                color: "rgba(255,255,255,0.30)",
+                color: "rgba(255,255,255,0.52)",
                 fontFamily: "var(--font-heading)",
                 fontSize: "0.62rem",
                 letterSpacing: "0.10em",
@@ -936,7 +936,7 @@ export default function UnderworldChallengePage() {
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "rgba(255,255,255,0.30)";
+                e.currentTarget.style.color = "rgba(255,255,255,0.52)";
                 e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)";
               }}
             >

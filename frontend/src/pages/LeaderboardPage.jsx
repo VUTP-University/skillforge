@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getUsers } from "../services/api";
+import { getRankStyle } from "../constants/ranks";
+import Avatar from "../components/Avatar";
 
 /* ── Icons ───────────────────────────────────────────────────────────────── */
 
@@ -47,111 +49,62 @@ function BoltIcon() {
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
-const RANK_STYLE = {
-  "Novice":       { color: "rgba(255,255,255,0.45)", bg: "rgba(255,255,255,0.05)",  border: "rgba(255,255,255,0.12)" },
-  "Initiate":     { color: "#86efac",                bg: "rgba(134,239,172,0.08)", border: "rgba(134,239,172,0.22)" },
-  "Apprentice":   { color: "#4ade80",                bg: "rgba(74,222,128,0.09)",  border: "rgba(74,222,128,0.26)"  },
-  "Scribe":       { color: "#34d399",                bg: "rgba(52,211,153,0.09)",  border: "rgba(52,211,153,0.26)"  },
-  "Acolyte":      { color: "#2dd4bf",                bg: "rgba(45,212,191,0.09)",  border: "rgba(45,212,191,0.26)"  },
-  "Scholar":      { color: "#22d3ee",                bg: "rgba(34,211,238,0.09)",  border: "rgba(34,211,238,0.26)"  },
-  "Artisan":      { color: "#38bdf8",                bg: "rgba(56,189,248,0.09)",  border: "rgba(56,189,248,0.26)"  },
-  "Adept":        { color: "#60a5fa",                bg: "rgba(96,165,250,0.09)",  border: "rgba(96,165,250,0.26)"  },
-  "Journeyman":   { color: "#818cf8",                bg: "rgba(129,140,248,0.09)", border: "rgba(129,140,248,0.26)" },
-  "Crusader":     { color: "#a78bfa",                bg: "rgba(167,139,250,0.09)", border: "rgba(167,139,250,0.26)" },
-  "Knight":       { color: "#c084fc",                bg: "rgba(192,132,252,0.09)", border: "rgba(192,132,252,0.26)" },
-  "Champion":     { color: "#e879f9",                bg: "rgba(232,121,249,0.09)", border: "rgba(232,121,249,0.26)" },
-  "Sentinel":     { color: "#f472b6",                bg: "rgba(244,114,182,0.09)", border: "rgba(244,114,182,0.26)" },
-  "Warden":       { color: "#fb7185",                bg: "rgba(251,113,133,0.09)", border: "rgba(251,113,133,0.26)" },
-  "Paladin":      { color: "#f97316",                bg: "rgba(249,115,22,0.09)",  border: "rgba(249,115,22,0.26)"  },
-  "Sage":         { color: "#fb923c",                bg: "rgba(251,146,60,0.09)",  border: "rgba(251,146,60,0.26)"  },
-  "Elder":        { color: "#fbbf24",                bg: "rgba(251,191,36,0.09)",  border: "rgba(251,191,36,0.30)"  },
-  "Archmage":     { color: "#facc15",                bg: "rgba(250,204,21,0.09)",  border: "rgba(250,204,21,0.32)"  },
-  "Master":       { color: "#fcd34d",                bg: "rgba(252,211,77,0.10)",  border: "rgba(252,211,77,0.38)"  },
-  "Grand Master": { color: "#fef08a",                bg: "rgba(254,240,138,0.10)", border: "rgba(254,240,138,0.45)" },
-};
-
 // Podium slot metadata — rendered left-to-right as 2nd | 1st | 3rd
 const SLOTS = [
   {
     dataIndex:    1,               // index in sorted array
     place:        2,
-    title:        "Champion",
+    title:        "Runner Up",
     Icon:         SwordsIcon,
-    color:        "#94a3b8",
-    border:       "rgba(148,163,184,0.30)",
-    cardBg:       "rgba(148,163,184,0.06)",
-    glow:         "rgba(148,163,184,0.10)",
+    color:        "var(--color-blue-bright)",
+    border:       "var(--color-blue-border)",
+    cardBg:       "var(--color-blue-dim)",
+    glow:         "var(--color-blue-glow)",
     pedestalH:    76,
-    pedestalBg:   "rgba(148,163,184,0.10)",
-    pedestalBord: "rgba(148,163,184,0.20)",
+    pedestalBg:   "var(--color-blue-dim)",
+    pedestalBord: "var(--color-blue-border)",
     avatarSize:   62,
   },
   {
     dataIndex:    0,               // 1st place — center
     place:        1,
-    title:        "Grand Champion",
+    title:        "#1 Overall",
     Icon:         CrownIcon,
-    color:        "#fbbf24",
-    border:       "rgba(251,191,36,0.40)",
-    cardBg:       "rgba(251,191,36,0.06)",
-    glow:         "0 0 32px rgba(251,191,36,0.18)",
+    color:        "var(--color-amber)",
+    border:       "var(--color-amber-border)",
+    cardBg:       "var(--color-amber-dim)",
+    glow:         "0 0 32px var(--color-amber-glow)",
     pedestalH:    108,
-    pedestalBg:   "rgba(251,191,36,0.12)",
-    pedestalBord: "rgba(251,191,36,0.28)",
+    pedestalBg:   "var(--color-amber-dim)",
+    pedestalBord: "var(--color-amber-border)",
     avatarSize:   76,
   },
   {
     dataIndex:    2,
     place:        3,
-    title:        "Knight",
+    title:        "3rd Place",
     Icon:         ShieldIcon,
-    color:        "#c07840",
-    border:       "rgba(192,120,64,0.28)",
-    cardBg:       "rgba(192,120,64,0.05)",
-    glow:         "rgba(192,120,64,0.08)",
+    color:        "#c9974f",
+    border:       "rgba(201,151,79,0.30)",
+    cardBg:       "rgba(201,151,79,0.06)",
+    glow:         "rgba(201,151,79,0.10)",
     pedestalH:    52,
-    pedestalBg:   "rgba(192,120,64,0.08)",
-    pedestalBord: "rgba(192,120,64,0.18)",
+    pedestalBg:   "rgba(201,151,79,0.08)",
+    pedestalBord: "rgba(201,151,79,0.20)",
     avatarSize:   54,
   },
 ];
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
-function Avatar({ url, username, size }) {
-  const [err, setErr] = useState(false);
-  if (url && !err) {
-    return (
-      <img
-        src={url}
-        alt={username}
-        onError={() => setErr(true)}
-        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-      />
-    );
-  }
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: "50%",
-      background: "rgba(3,233,244,0.12)", border: "1.5px solid rgba(3,233,244,0.22)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "var(--font-heading)", fontWeight: 700,
-      fontSize: Math.round(size * 0.38),
-      color: "var(--color-cyan)", flexShrink: 0,
-    }}>
-      {username?.[0]?.toUpperCase() ?? "?"}
-    </div>
-  );
-}
-
 function RankBadge({ rank }) {
-  const rs = RANK_STYLE[rank] ?? RANK_STYLE["Novice"];
+  const rs = getRankStyle(rank);
   return (
     <span style={{
-      padding: "0.15rem 0.5rem", borderRadius: "99px",
+      padding: "0.15rem 0.5rem", borderRadius: "3px",
       border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
       fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700,
-      letterSpacing: "0.10em", textTransform: "uppercase", flexShrink: 0,
+      flexShrink: 0,
     }}>
       {rank}
     </span>
@@ -188,7 +141,7 @@ export default function LeaderboardPage() {
     return (
       <div className="flex items-center justify-center gap-3 py-32">
         <div className="sf-spinner" style={{ width: "22px", height: "22px" }} />
-        <span className="text-sub text-sm">Summoning the legends…</span>
+        <span className="text-sub text-sm">Loading rankings…</span>
       </div>
     );
   }
@@ -197,10 +150,10 @@ export default function LeaderboardPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center gap-4 py-32 text-center">
-        <svg style={{ width: 36, height: 36, color: "rgba(255,255,255,0.18)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
+        <svg style={{ width: 36, height: 36, color: "var(--color-text-faint)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "var(--color-text-secondary)" }}>
           {error}
         </p>
       </div>
@@ -211,11 +164,11 @@ export default function LeaderboardPage() {
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-32 text-center">
-        <svg style={{ width: 36, height: 36, color: "rgba(255,255,255,0.18)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
+        <svg style={{ width: 36, height: 36, color: "var(--color-text-faint)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
         </svg>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>
-          No adventurers on record yet.
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "var(--color-text-secondary)" }}>
+          No players on record yet.
         </p>
       </div>
     );
@@ -227,19 +180,19 @@ export default function LeaderboardPage() {
       {/* ── Header ── */}
       <div className="text-center page-enter" style={{ paddingBottom: "0.5rem" }}>
         <p className="hero-eyebrow" style={{ justifyContent: "center" }}>
-          The Eternal Chronicle
+          sort ./users --by=xp
         </p>
         <h1
           style={{
-            fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 4vw, 2.6rem)", fontWeight: 700,
-            color: "#fff", letterSpacing: "0.04em", lineHeight: 1.15,
+            fontFamily: "var(--font-heading)", fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", fontWeight: 700,
+            color: "var(--color-text)", lineHeight: 1.15,
             marginBottom: "0.5rem",
           }}
         >
-          Hall of Legends
+          Leaderboard
         </h1>
-        <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.35)", fontFamily: "var(--font-body)", fontStyle: "italic" }}>
-          The mightiest adventurers in the realm
+        <p style={{ fontSize: "0.85rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-body)" }}>
+          Top players ranked by total XP
         </p>
         {myRank > 0 && (
           <div
@@ -247,15 +200,15 @@ export default function LeaderboardPage() {
               display: "inline-flex", alignItems: "center", gap: "0.5rem",
               marginTop: "0.75rem",
               padding: "0.35rem 1rem",
-              borderRadius: "99px",
-              background: "rgba(3,233,244,0.08)",
-              border: "1px solid rgba(3,233,244,0.22)",
+              borderRadius: "4px",
+              background: "var(--color-green-dim)",
+              border: "1px solid var(--color-green-border)",
             }}
           >
-            <svg style={{ width: 12, height: 12, color: "var(--color-cyan)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <svg style={{ width: 12, height: 12, color: "var(--color-green)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--color-cyan)" }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-green)" }}>
               Your Rank: #{myRank}
             </span>
           </div>
@@ -269,7 +222,7 @@ export default function LeaderboardPage() {
           <div style={{
             position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
             width: "280px", height: "200px",
-            background: "radial-gradient(ellipse, rgba(251,191,36,0.07) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, var(--color-amber-glow) 0%, transparent 70%)",
             filter: "blur(24px)",
             pointerEvents: "none",
           }} />
@@ -292,12 +245,12 @@ export default function LeaderboardPage() {
                       background: slot.cardBg,
                       border: `1px solid ${slot.border}`,
                       borderBottom: "none",
-                      borderRadius: "14px 14px 0 0",
+                      borderRadius: "8px 8px 0 0",
                       padding: "1.1rem 0.75rem 1rem",
                       display: "flex", flexDirection: "column", alignItems: "center", gap: "0.55rem",
                       boxShadow: slot.place === 1 ? slot.glow : "none",
                       transition: "filter 0.15s",
-                      outline: isMe ? `2px solid rgba(3,233,244,0.40)` : "none",
+                      outline: isMe ? `2px solid var(--color-green-border)` : "none",
                       outlineOffset: "-2px",
                     }}
                     onMouseEnter={e => (e.currentTarget.style.filter = "brightness(1.12)")}
@@ -305,8 +258,8 @@ export default function LeaderboardPage() {
                   >
                     {/* Medal icon */}
                     <div style={{
-                      width: "2rem", height: "2rem", borderRadius: "50%",
-                      background: `rgba(${slot.place === 1 ? "251,191,36" : slot.place === 2 ? "148,163,184" : "192,120,64"},0.12)`,
+                      width: "2rem", height: "2rem", borderRadius: "4px",
+                      background: slot.cardBg,
                       border: `1px solid ${slot.border}`,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       flexShrink: 0,
@@ -314,25 +267,25 @@ export default function LeaderboardPage() {
                       <slot.Icon size={slot.place === 1 ? 16 : 14} color={slot.color} />
                     </div>
 
-                    {/* Avatar with colored ring */}
+                    {/* Avatar */}
                     <div style={{
-                      borderRadius: "50%",
+                      borderRadius: "5px",
                       padding: "3px",
                       background: `linear-gradient(135deg, ${slot.color}, transparent)`,
                       flexShrink: 0,
                     }}>
-                      <Avatar url={player.avatar_url} username={player.username} size={slot.avatarSize} />
+                      <Avatar src={player.avatar_url} username={player.username} size={slot.avatarSize} ring="none" />
                     </div>
 
                     {/* Name */}
                     <p style={{
                       fontFamily: "var(--font-heading)", fontSize: slot.place === 1 ? "0.9rem" : "0.78rem",
-                      fontWeight: 700, color: "#fff", textAlign: "center",
+                      fontWeight: 700, color: "var(--color-text)", textAlign: "center",
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       maxWidth: "100%",
                     }}>
                       {player.username}
-                      {isMe && <span style={{ color: "var(--color-cyan)", fontSize: "0.6rem", marginLeft: "0.3rem" }}>you</span>}
+                      {isMe && <span style={{ color: "var(--color-green)", fontSize: "0.6rem", marginLeft: "0.3rem" }}>you</span>}
                     </p>
 
                     {/* Rank badge */}
@@ -357,21 +310,20 @@ export default function LeaderboardPage() {
                   background: slot.pedestalBg,
                   border: `1px solid ${slot.pedestalBord}`,
                   borderTop: "none",
-                  borderRadius: "0 0 10px 10px",
+                  borderRadius: "0 0 6px 6px",
                   display: "flex", flexDirection: "column",
                   alignItems: "center", justifyContent: "center", gap: "0.2rem",
                 }}>
                   <span style={{
-                    fontFamily: "var(--font-display)", fontSize: slot.place === 1 ? "1.6rem" : "1.25rem",
-                    fontWeight: 700, color: slot.color, lineHeight: 1,
+                    fontFamily: "var(--font-brand)", fontSize: slot.place === 1 ? "2rem" : "1.6rem",
+                    fontWeight: 800, color: slot.color, lineHeight: 1,
                     opacity: 0.9,
                   }}>
                     {slot.place === 1 ? "I" : slot.place === 2 ? "II" : "III"}
                   </span>
                   <span style={{
                     fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700,
-                    letterSpacing: "0.14em", textTransform: "uppercase",
-                    color: slot.color, opacity: 0.65,
+                    color: slot.color, opacity: 0.75,
                   }}>
                     {slot.title}
                   </span>
@@ -385,16 +337,15 @@ export default function LeaderboardPage() {
       {/* ── Ranked list (4th+) ── */}
       {rest.length > 0 && (
         <div>
-          {/* Ornate divider */}
           <div className="section-divider">
-            <h2>The Order</h2>
+            <h2>Full Ranking</h2>
           </div>
 
           <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
             {rest.map((player, i) => {
               const position = i + 4;
               const isMe     = player.id === me?.id;
-              const rs       = RANK_STYLE[player.rank] ?? RANK_STYLE["Novice"];
+              const rs       = getRankStyle(player.rank);
               return (
                 <div
                   key={player.id}
@@ -402,8 +353,8 @@ export default function LeaderboardPage() {
                     display: "flex", alignItems: "center", gap: "0.75rem",
                     padding: "0.75rem 1.1rem",
                     borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.05)",
-                    background: isMe ? "rgba(3,233,244,0.04)" : "transparent",
-                    borderLeft: isMe ? "3px solid rgba(3,233,244,0.40)" : "3px solid transparent",
+                    background: isMe ? "var(--color-green-dim)" : "transparent",
+                    borderLeft: isMe ? "3px solid var(--color-green-border)" : "3px solid transparent",
                     transition: "background 0.12s",
                   }}
                   onMouseEnter={e => { if (!isMe) e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
@@ -412,7 +363,7 @@ export default function LeaderboardPage() {
                   {/* Position */}
                   <span style={{
                     fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
-                    color: "rgba(255,255,255,0.22)", width: "1.8rem", textAlign: "right", flexShrink: 0,
+                    color: "var(--color-text-faint)", width: "1.8rem", textAlign: "right", flexShrink: 0,
                   }}>
                     {position}
                   </span>
@@ -422,17 +373,17 @@ export default function LeaderboardPage() {
                     to={`/users/${player.id}`}
                     style={{ display: "flex", alignItems: "center", gap: "0.65rem", flex: 1, minWidth: 0, textDecoration: "none" }}
                   >
-                    <Avatar url={player.avatar_url} username={player.username} size={32} />
+                    <Avatar src={player.avatar_url} username={player.username} size={32} />
                     <div style={{ minWidth: 0 }}>
                       <p
                         style={{
                           fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700,
-                          color: isMe ? "var(--color-cyan)" : "rgba(255,255,255,0.85)",
+                          color: isMe ? "var(--color-green)" : "var(--color-text-secondary)",
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                           transition: "color 0.12s",
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.color = "var(--color-cyan)")}
-                        onMouseLeave={e => (e.currentTarget.style.color = isMe ? "var(--color-cyan)" : "rgba(255,255,255,0.85)")}
+                        onMouseEnter={e => (e.currentTarget.style.color = "var(--color-green)")}
+                        onMouseLeave={e => (e.currentTarget.style.color = isMe ? "var(--color-green)" : "var(--color-text-secondary)")}
                       >
                         {player.username}
                         {isMe && <span style={{ fontSize: "0.58rem", marginLeft: "0.35rem", opacity: 0.65 }}>you</span>}
@@ -444,10 +395,9 @@ export default function LeaderboardPage() {
                   <span
                     className="hidden sm:inline-flex"
                     style={{
-                      padding: "0.15rem 0.5rem", borderRadius: "99px",
+                      padding: "0.15rem 0.5rem", borderRadius: "3px",
                       border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
-                      fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700,
-                      letterSpacing: "0.08em", textTransform: "uppercase", flexShrink: 0,
+                      fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, flexShrink: 0,
                     }}
                   >
                     {player.rank}
@@ -456,7 +406,7 @@ export default function LeaderboardPage() {
                   {/* Level */}
                   <span style={{
                     fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
-                    color: "rgba(255,255,255,0.30)", flexShrink: 0, minWidth: "3.5rem", textAlign: "right",
+                    color: "var(--color-text-tertiary)", flexShrink: 0, minWidth: "3.5rem", textAlign: "right",
                   }}>
                     Lv. {player.level}
                   </span>
@@ -464,7 +414,7 @@ export default function LeaderboardPage() {
                   {/* XP */}
                   <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0, minWidth: "5rem", justifyContent: "flex-end" }}>
                     <BoltIcon />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-cyan)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)" }}>
                       {player.total_xp.toLocaleString()}
                     </span>
                   </div>

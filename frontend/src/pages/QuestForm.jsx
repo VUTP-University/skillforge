@@ -54,7 +54,7 @@ function FieldLabel({ children, required }) {
   return (
     <label className="sf-label">
       {children}
-      {required && <span className="text-cyan ml-1">*</span>}
+      {required && <span className="text-green ml-1">*</span>}
     </label>
   );
 }
@@ -219,12 +219,12 @@ export default function QuestForm() {
                     padding: "0.65rem 0.5rem",
                     borderRadius: "0.5rem",
                     border: form.difficulty === d.value
-                      ? "1px solid rgba(3,233,244,0.50)"
+                      ? "1px solid var(--color-green-border)"
                       : "1px solid rgba(255,255,255,0.08)",
                     background: form.difficulty === d.value
-                      ? "rgba(3,233,244,0.08)"
+                      ? "var(--color-green-dim)"
                       : "rgba(255,255,255,0.03)",
-                    color: form.difficulty === d.value ? "var(--color-cyan)" : "rgba(255,255,255,0.50)",
+                    color: form.difficulty === d.value ? "var(--color-green)" : "rgba(255,255,255,0.50)",
                     fontFamily: "var(--font-heading)",
                     fontSize: "0.62rem",
                     fontWeight: 700,
@@ -245,9 +245,9 @@ export default function QuestForm() {
           <div className="flex items-center justify-center">
             <div
               className="glass-card p-4 text-center w-full"
-              style={{ border: "1px solid rgba(3,233,244,0.15)" }}
+              style={{ border: "1px solid var(--color-green-border)" }}
             >
-              <p className="text-cyan text-2xl font-bold">{selectedDiff?.xp ?? 0}</p>
+              <p className="text-green text-2xl font-bold">{selectedDiff?.xp ?? 0}</p>
               <p className="text-sub text-xs mt-0.5" style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                 XP Reward
               </p>
@@ -340,7 +340,7 @@ export default function QuestForm() {
                 className="glass-card p-4"
                 style={{
                   border: isRequired
-                    ? "1px solid rgba(3,233,244,0.18)"
+                    ? "1px solid var(--color-green-border)"
                     : "1px solid rgba(255,255,255,0.06)",
                 }}
               >
@@ -348,9 +348,9 @@ export default function QuestForm() {
                   <span
                     className="badge"
                     style={{
-                      background: isRequired ? "rgba(3,233,244,0.10)" : "rgba(255,255,255,0.05)",
-                      borderColor: isRequired ? "rgba(3,233,244,0.25)" : "rgba(255,255,255,0.10)",
-                      color: isRequired ? "var(--color-cyan)" : "rgba(255,255,255,0.35)",
+                      background: isRequired ? "var(--color-green-dim)" : "rgba(255,255,255,0.05)",
+                      borderColor: isRequired ? "var(--color-green-border)" : "rgba(255,255,255,0.10)",
+                      color: isRequired ? "var(--color-green)" : "rgba(255,255,255,0.35)",
                     }}
                   >
                     {isRequired ? "Required" : "Optional"}
@@ -360,7 +360,7 @@ export default function QuestForm() {
                     style={{
                       fontFamily: "var(--font-heading)",
                       letterSpacing: "0.08em",
-                      color: "rgba(255,255,255,0.30)",
+                      color: "var(--color-text-tertiary)",
                       textTransform: "uppercase",
                     }}
                   >

@@ -12,9 +12,9 @@ const LANG_CONFIG = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "#4ade80", border: "rgba(74,222,128,0.35)",  bg: "rgba(74,222,128,0.09)",  bar: "#4ade80" },
-  cryptic: { label: "Cryptic", color: "#fbbf24", border: "rgba(251,191,36,0.35)",  bg: "rgba(251,191,36,0.09)",  bar: "#fbbf24" },
-  abyssal: { label: "Abyssal", color: "#f87171", border: "rgba(248,113,113,0.35)", bg: "rgba(248,113,113,0.09)", bar: "#f87171" },
+  shallow: { label: "Shallow", color: "var(--color-green)",       border: "var(--color-green-border)", bg: "var(--color-green-dim)",  bar: "var(--color-green)" },
+  cryptic: { label: "Cryptic", color: "var(--color-amber)",       border: "var(--color-amber-border)", bg: "var(--color-amber-dim)",  bar: "var(--color-amber)" },
+  abyssal: { label: "Abyssal", color: "var(--color-red-bright)",  border: "var(--color-red-border)",   bg: "var(--color-red-dim)",    bar: "var(--color-red-bright)" },
 };
 
 const DIFF_ORDER = { shallow: 0, cryptic: 1, abyssal: 2 };
@@ -32,20 +32,18 @@ function DiffBadge({ difficulty }) {
         alignItems: "center",
         gap: "0.3rem",
         padding: "0.18rem 0.55rem",
-        borderRadius: "99px",
+        borderRadius: "3px",
         border: `1px solid ${m.border}`,
         background: m.bg,
         color: m.color,
         fontFamily: "var(--font-heading)",
         fontSize: "0.60rem",
         fontWeight: 700,
-        letterSpacing: "0.09em",
-        textTransform: "uppercase",
         flexShrink: 0,
         whiteSpace: "nowrap",
       }}
     >
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: m.bar, flexShrink: 0 }} />
+      <span style={{ width: 5, height: 5, borderRadius: "1px", background: m.bar, flexShrink: 0 }} />
       {m.label}
     </span>
   );
@@ -62,23 +60,21 @@ function FilterPill({ value, active, count, onClick }) {
         alignItems: "center",
         gap: "0.35rem",
         padding: "0.32rem 0.8rem",
-        borderRadius: "99px",
+        borderRadius: "3px",
         border: active
           ? value === "all"
-            ? "1px solid rgba(3,233,244,0.50)"
-            : `1px solid ${(m?.border ?? "rgba(255,255,255,0.20)").replace("0.35", "0.60")}`
-          : "1px solid rgba(255,255,255,0.10)",
+            ? "1px solid var(--color-green-border)"
+            : `1px solid ${m?.border ?? "var(--color-border-2)"}`
+          : "1px solid var(--color-border-2)",
         background: active
-          ? value === "all" ? "rgba(3,233,244,0.10)" : (m?.bg ?? "rgba(255,255,255,0.05)")
+          ? value === "all" ? "var(--color-green-dim)" : (m?.bg ?? "rgba(255,255,255,0.05)")
           : "transparent",
         color: active
-          ? value === "all" ? "var(--color-cyan)" : (m?.color ?? "rgba(255,255,255,0.60)")
-          : "rgba(255,255,255,0.40)",
+          ? value === "all" ? "var(--color-green)" : (m?.color ?? "var(--color-text-secondary)")
+          : "var(--color-text-tertiary)",
         fontFamily: "var(--font-heading)",
         fontSize: "0.58rem",
         fontWeight: 700,
-        letterSpacing: "0.10em",
-        textTransform: "uppercase",
         cursor: "pointer",
         transition: "all 0.15s",
         whiteSpace: "nowrap",
@@ -131,7 +127,7 @@ function QuestRow({ quest, language, index }) {
             fontFamily: "var(--font-heading)",
             fontSize: "0.8rem",
             fontWeight: 700,
-            color: "rgba(255,255,255,0.90)",
+            color: "var(--color-text)",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -143,7 +139,7 @@ function QuestRow({ quest, language, index }) {
         <p
           style={{
             fontSize: "0.7rem",
-            color: "rgba(255,255,255,0.35)",
+            color: "var(--color-text-tertiary)",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -164,10 +160,10 @@ function QuestRow({ quest, language, index }) {
       >
         {/* XP */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-          <svg style={{ width: 12, height: 12, color: "var(--color-cyan)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <svg style={{ width: 12, height: 12, color: "var(--color-green)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
           </svg>
-          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-cyan)", fontFamily: "var(--font-heading)" }}>
+          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
             {quest.xp_reward}
           </span>
         </div>
@@ -176,9 +172,8 @@ function QuestRow({ quest, language, index }) {
         <span
           style={{
             fontSize: "0.68rem",
-            color: "rgba(255,255,255,0.30)",
+            color: "var(--color-text-tertiary)",
             fontFamily: "var(--font-heading)",
-            letterSpacing: "0.04em",
             whiteSpace: "nowrap",
           }}
         >
@@ -190,7 +185,7 @@ function QuestRow({ quest, language, index }) {
           <span
             style={{
               fontSize: "0.65rem",
-              color: "rgba(255,255,255,0.25)",
+              color: "var(--color-text-faint)",
               whiteSpace: "nowrap",
               display: "none",
               fontStyle: "italic",
@@ -209,11 +204,10 @@ function QuestRow({ quest, language, index }) {
               width: "auto",
               padding: "0.28rem 0.75rem",
               fontSize: "0.58rem",
-              color: "var(--color-cyan)",
-              borderColor: "rgba(3,233,244,0.22)",
-              letterSpacing: "0.06em",
+              color: "var(--color-green)",
+              borderColor: "var(--color-green-border)",
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(3,233,244,0.08)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-green-dim)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
           >
             Start →
@@ -249,16 +243,16 @@ function Pagination({ page, totalPages, onChange }) {
         minWidth: "30px",
         height: "30px",
         padding: "0 0.4rem",
-        borderRadius: "6px",
+        borderRadius: "4px",
         border: active
-          ? "1px solid rgba(3,233,244,0.40)"
-          : "1px solid rgba(255,255,255,0.08)",
-        background: active ? "rgba(3,233,244,0.12)" : "transparent",
+          ? "1px solid var(--color-green-border)"
+          : "1px solid var(--color-border-2)",
+        background: active ? "var(--color-green-dim)" : "transparent",
         color: active
-          ? "var(--color-cyan)"
+          ? "var(--color-green)"
           : disabled
-          ? "rgba(255,255,255,0.18)"
-          : "rgba(255,255,255,0.50)",
+          ? "var(--color-text-faint)"
+          : "var(--color-text-secondary)",
         fontFamily: "var(--font-heading)",
         fontSize: "0.62rem",
         fontWeight: 700,
@@ -353,26 +347,25 @@ export default function LanguageQuestsPage() {
         <Link
           to="/"
           className="text-sub text-xs flex items-center gap-1.5 mb-5 w-fit"
-          style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", transition: "color 0.15s" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.70)")}
+          style={{ fontFamily: "var(--font-heading)", textDecoration: "none", transition: "color 0.15s" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text)")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "")}
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          Dashboard
+          cd ~/dashboard
         </Link>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="hero-eyebrow">Quest Path</p>
+            <p className="hero-eyebrow">ls ./quests --lang={language}</p>
             <h1
               style={{
                 fontFamily: "var(--font-heading)",
                 fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)",
                 fontWeight: 700,
-                color: "#fff",
-                letterSpacing: "0.03em",
+                color: "var(--color-text)",
                 lineHeight: 1.2,
                 marginBottom: "0.4rem",
               }}
@@ -391,16 +384,16 @@ export default function LanguageQuestsPage() {
                 if (!n) return null;
                 return (
                   <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: m.bar }} />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: m.color }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "1px", background: m.bar }} />
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: m.color }}>
                       {m.label}
                     </span>
                     <span style={{ fontSize: "0.65rem", fontWeight: 700, color: m.color, opacity: 0.80 }}>{n}</span>
                   </div>
                 );
               })}
-              <div style={{ width: "1px", height: "14px", background: "rgba(255,255,255,0.12)" }} />
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>
+              <div style={{ width: "1px", height: "14px", background: "var(--color-border-2)" }} />
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                 {quests.length} total
               </span>
             </div>
@@ -414,30 +407,18 @@ export default function LanguageQuestsPage() {
           {/* Search */}
           <div style={{ position: "relative" }}>
             <svg
-              style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", width: 14, height: 14, color: "rgba(255,255,255,0.30)", pointerEvents: "none" }}
+              style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", width: 14, height: 14, color: "var(--color-text-tertiary)", pointerEvents: "none" }}
               fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z" />
             </svg>
             <input
               type="text"
-              placeholder="Search quests…"
+              placeholder="grep quests…"
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                padding: "0.55rem 0.85rem 0.55rem 2.4rem",
-                borderRadius: "10px",
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.85)",
-                fontSize: "0.82rem",
-                outline: "none",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "rgba(3,233,244,0.35)")}
-              onBlur={(e)  => (e.target.style.borderColor = "rgba(255,255,255,0.10)")}
+              className="sf-input"
+              style={{ padding: "0.55rem 0.85rem 0.55rem 2.4rem" }}
             />
             {search && (
               <button
@@ -445,7 +426,7 @@ export default function LanguageQuestsPage() {
                 style={{
                   position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
                   background: "none", border: "none", cursor: "pointer",
-                  color: "rgba(255,255,255,0.30)", fontSize: "1rem", lineHeight: 1, padding: "0.1rem",
+                  color: "var(--color-text-tertiary)", fontSize: "1rem", lineHeight: 1, padding: "0.1rem",
                 }}
               >
                 ×
@@ -466,7 +447,7 @@ export default function LanguageQuestsPage() {
                 />
               ))}
               {(search || filter !== "all") && (
-                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.28)", marginLeft: "0.25rem" }}>
+                <span style={{ fontSize: "0.65rem", color: "var(--color-text-tertiary)", marginLeft: "0.25rem" }}>
                   {filtered.length} result{filtered.length !== 1 ? "s" : ""}
                 </span>
               )}
@@ -496,7 +477,7 @@ export default function LanguageQuestsPage() {
               <p className="text-sub text-sm">No quests match your search.</p>
               <button
                 onClick={() => { handleSearch(""); handleFilter("all"); }}
-                style={{ marginTop: "0.5rem", fontSize: "0.65rem", color: "var(--color-cyan)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)", letterSpacing: "0.06em", textTransform: "uppercase" }}
+                style={{ marginTop: "0.5rem", fontSize: "0.65rem", color: "var(--color-green)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)" }}
               >
                 Clear filters
               </button>
@@ -516,13 +497,13 @@ export default function LanguageQuestsPage() {
                 marginBottom: "0.25rem",
               }}
             >
-              <span style={{ flexShrink: 0, width: "80px", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)" }}>
+              <span style={{ flexShrink: 0, width: "80px", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                 Difficulty
               </span>
-              <span style={{ flex: 1, fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)" }}>
+              <span style={{ flex: 1, fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                 Quest
               </span>
-              <span style={{ flexShrink: 0, width: "auto", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", paddingRight: "calc(70px + 1rem)" }}>
+              <span style={{ flexShrink: 0, width: "auto", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)", paddingRight: "calc(70px + 1rem)" }}>
                 Reward
               </span>
             </div>
@@ -537,7 +518,7 @@ export default function LanguageQuestsPage() {
           {/* Pagination + count */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
             <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
-            <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.22)", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>
+            <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
               {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} quests
             </span>
           </div>

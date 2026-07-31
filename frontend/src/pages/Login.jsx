@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import logoImg    from "../assets/img/skill_forge_logo.png";
-import heroAvatar from "../assets/img/hero_avatar.png";
+import logoImg from "../assets/img/skill_forge_logo.png";
 
 /* ── Icons ─────────────────────────────────────── */
 
@@ -37,7 +36,9 @@ function BrandLogo() {
   return (
     <div className="flex items-center gap-3">
       <img src={logoImg} alt="SkillForge" className="w-9 h-9 object-contain" />
-      <span className="font-brand text-xl text-white tracking-wide">Skill Forge</span>
+      <span className="font-brand glow-pulse" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
+        SkillForge_
+      </span>
     </div>
   );
 }
@@ -47,7 +48,7 @@ function BrandLogo() {
 const FEATURES = [
   {
     icon: (
-      <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
       </svg>
     ),
@@ -55,7 +56,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
       </svg>
     ),
@@ -63,7 +64,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
       </svg>
     ),
@@ -101,28 +102,26 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      {/* Ambient orbs */}
+      {/* Ambient glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="orb w-96 h-96 -top-48 -left-48" style={{ background: "rgba(3,233,244,0.07)" }} />
-        <div className="orb w-80 h-80 top-1/2 -right-48"  style={{ background: "rgba(59,130,246,0.07)" }} />
-        <div className="orb w-72 h-72 -bottom-48 left-1/3" style={{ background: "rgba(3,233,244,0.04)" }} />
+        <div className="orb w-96 h-96 -top-48 -left-48" style={{ background: "rgba(77,255,143,0.07)" }} />
+        <div className="orb w-80 h-80 top-1/2 -right-48"  style={{ background: "rgba(94,200,255,0.06)" }} />
+        <div className="orb w-72 h-72 -bottom-48 left-1/3" style={{ background: "rgba(77,255,143,0.04)" }} />
       </div>
 
       {/* Left branding panel */}
-      <div className="auth-left dot-grid">
+      <div className="auth-left">
         <BrandLogo />
 
         <div className="space-y-10">
-          {/* Headline in Cinzel — the medieval feel */}
           <div>
             <h1 className="text-5xl font-bold text-white leading-tight mb-5">
-              Master skills.
+              Compile skills.
               <br />
-              <span className="text-cyan">Build the future.</span>
+              <span className="text-green">Deploy your future.</span>
             </h1>
-            {/* Body copy in Crimson Text */}
             <p className="text-sub text-lg leading-relaxed max-w-sm font-body">
-              Solve coding quests, get real-time feedback, and track your progress. Join a community of learners and level up with SkillForge.
+              Solve coding quests, get real-time feedback, and track your progress. Join a community of builders and level up with SkillForge.
             </p>
           </div>
 
@@ -130,8 +129,8 @@ export default function Login() {
             {FEATURES.map((f, i) => (
               <div key={i} className="flex items-center gap-3.5">
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(3,233,244,0.10)", border: "1px solid rgba(3,233,244,0.15)" }}
+                  className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
+                  style={{ background: "var(--color-green-dim)", border: "1px solid var(--color-green-border)" }}
                 >
                   {f.icon}
                 </div>
@@ -141,106 +140,100 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="text-dim font-body text-sm">© 2026 Skill Forge. All rights reserved.</p>
+        <p className="text-dim font-body text-sm">© 2026 SkillForge. All rights reserved.</p>
       </div>
 
       {/* Right form panel */}
       <div className="auth-right">
-        {/* Decorative hero avatar */}
-        <img
-          src={heroAvatar}
-          alt=""
-          aria-hidden="true"
-          className="absolute bottom-[15%] right-[5%] w-72 opacity-35 pointer-events-none select-none object-contain hidden lg:block"
-        />
-
         <div className="w-full max-w-[400px] relative z-10">
           {/* Mobile logo */}
           <div className="flex lg:hidden mb-9">
             <BrandLogo />
           </div>
 
-          {/* Form card with corner ornaments */}
+          {/* Form card — terminal window */}
           <div className="auth-card">
-            <span className="corner-tr" />
-            <span className="corner-bl" />
-
-            <div className="mb-7">
-              <h2 className="text-3xl font-bold text-white mb-1.5">Welcome back</h2>
-              <p className="text-sub font-body text-lg">Sign in to continue your learning journey.</p>
+            <div className="term-bar">
+              <span className="term-dot term-dot--red" />
+              <span className="term-dot term-dot--yellow" />
+              <span className="term-dot term-dot--green" />
+              <span className="term-title">login.sh</span>
             </div>
 
-            <div className="divider-ornate mb-6">✦</div>
-
-            <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-              <div>
-                <label className="sf-label" htmlFor="identifier">Username or Email</label>
-                <input
-                  id="identifier"
-                  type="text"
-                  className="sf-input"
-                  placeholder="your_username or you@example.com"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  autoComplete="username"
-                  required
-                />
+            <div className="auth-card-body">
+              <div className="mb-7">
+                <h2 className="text-3xl font-bold text-white mb-1.5">Sign in</h2>
+                <p className="text-sub font-body text-lg">Welcome back — pick up where you left off.</p>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5" style={{ marginBottom: "0.4rem" }}>
-                  <label className="sf-label" style={{ marginBottom: 0 }} htmlFor="password">
-                    Password
-                  </label>
-                  <a
-                    href="#"
-                    className="font-heading text-cyan"
-                    style={{ fontSize: "0.6rem", letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.55 }}
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <div className="sf-input-wrap">
+              <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+                <div>
+                  <label className="sf-label" htmlFor="identifier">Username or Email</label>
                   <input
-                    id="password"
-                    type={showPw ? "text" : "password"}
+                    id="identifier"
+                    type="text"
                     className="sf-input"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
+                    placeholder="your_username or you@example.com"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    autoComplete="username"
                     required
                   />
-                  <button type="button" className="sf-input-icon-btn" onClick={() => setShowPw((v) => !v)} tabIndex={-1}>
-                    {showPw ? <EyeOffIcon /> : <EyeIcon />}
-                  </button>
                 </div>
-              </div>
 
-              {error && (
-                <div className="sf-error">
-                  <AlertIcon />
-                  {error}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5" style={{ marginBottom: "0.4rem" }}>
+                    <label className="sf-label" style={{ marginBottom: 0 }} htmlFor="password">
+                      Password
+                    </label>
+                    <a
+                      href="#"
+                      className="font-heading"
+                      style={{ color: "var(--color-blue)", fontSize: "0.62rem", letterSpacing: "0.05em", opacity: 0.75 }}
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <div className="sf-input-wrap">
+                    <input
+                      id="password"
+                      type={showPw ? "text" : "password"}
+                      className="sf-input"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      required
+                    />
+                    <button type="button" className="sf-input-icon-btn" onClick={() => setShowPw((v) => !v)} tabIndex={-1}>
+                      {showPw ? <EyeOffIcon /> : <EyeIcon />}
+                    </button>
+                  </div>
                 </div>
-              )}
 
-              <button type="submit" className="sf-btn" disabled={loading} style={{ marginTop: "0.5rem" }}>
-                {loading ? <><span className="sf-spinner" />Entering realm…</> : "Enter the Realm"}
-              </button>
+                {error && (
+                  <div className="sf-error">
+                    <AlertIcon />
+                    {error}
+                  </div>
+                )}
 
-              <div className="divider-ornate">✦</div>
+                <button type="submit" className="sf-btn" disabled={loading} style={{ marginTop: "0.5rem" }}>
+                  {loading ? <><span className="sf-spinner" />Authenticating…</> : "Sign In"}
+                </button>
 
-              <p className="text-center font-body text-dim" style={{ fontSize: "1rem" }}>
-                Not yet a member?{" "}
-                <Link
-                  to="/register"
-                  className="font-heading"
-                  style={{ color: "var(--color-indigo)", fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase" }}
-                >
-                  Join the Order
-                </Link>
-              </p>
-            </form>
+                <p className="text-center font-body text-dim" style={{ fontSize: "0.92rem" }}>
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="font-heading"
+                    style={{ color: "var(--color-blue)", fontSize: "0.7rem", letterSpacing: "0.04em" }}
+                  >
+                    Create one
+                  </Link>
+                </p>
+              </form>
+            </div>
           </div>
         </div>
       </div>

@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getQuests } from "../services/questService";
 import { getMyProfile } from "../services/profileService";
-
-import pythonImg     from "../assets/img/achievements-icons/Python/python-6.png";
-import jsImg         from "../assets/img/achievements-icons/JavaScript/javascript-1.png";
-import javaImg       from "../assets/img/achievements-icons/Java/java-5.png";
-import csImg         from "../assets/img/achievements-icons/CS/cs-1.png";
-import statsImg      from "../assets/img/stats_avatar.png";
-import underworldImg from "../assets/img/underworld_realm/Underworld.png";
-import triviaImg     from "../assets/img/Oracle.jpg";
+import { getRankStyle } from "../constants/ranks";
+import ProgressBar from "../components/ProgressBar";
+import Badge from "../components/Badge";
+import SectionDivider from "../components/SectionDivider";
 
 function useCountUp(target, duration = 900) {
   const [value, setValue] = useState(0);
@@ -31,31 +27,18 @@ function useCountUp(target, duration = 900) {
   return value;
 }
 
-const TOTAL_QUESTS = 30;
-
 const LANGUAGES = [
-  { slug: "python",     name: "Python",     image: pythonImg, description: "Data, automation & beyond",  accentColor: "#3b82f6" },
-  { slug: "javascript", name: "JavaScript", image: jsImg,     description: "Build the modern web",        accentColor: "#fbbf24" },
-  { slug: "java",       name: "Java",       image: javaImg,   description: "Enterprise, Android & more",  accentColor: "#f97316" },
-  { slug: "csharp",     name: "C#",         image: csImg,     description: "Games, apps & cloud",         accentColor: "#a78bfa" },
+  { slug: "python",     name: "Python",     glyph: "py", interpreter: "python3", description: "Data, automation & beyond",  accentColor: "var(--gem-python)" },
+  { slug: "javascript", name: "JavaScript", glyph: "js", interpreter: "node",    description: "Build the modern web",        accentColor: "var(--gem-javascript)" },
+  { slug: "java",       name: "Java",       glyph: "jv", interpreter: "java",    description: "Enterprise, Android & more",  accentColor: "var(--gem-java)" },
+  { slug: "csharp",     name: "C#",         glyph: "c#", interpreter: "dotnet",  description: "Games, apps & cloud",         accentColor: "var(--gem-csharp)" },
 ];
 
 const SECTIONS = [
-  { name: "Leaderboard", path: "/leaderboard", image: statsImg, description: "Compete with the best coders" },
-  { name: "Underworld",  path: "/underworld", image: underworldImg,  description: "Face the darkest challenges"  },
-  { name: "Trivia",      path: "/trivia", image: triviaImg, description: "Weekly knowledge trials"         },
+  { name: "Leaderboard", path: "/leaderboard", glyph: "#", proc: "leaderboard.sh", description: "Compete with the best coders" },
+  { name: "Underworld",  path: "/underworld",  glyph: "!", proc: "underworld.sh",  description: "Face the darkest challenges"  },
+  { name: "Trivia",      path: "/trivia",      glyph: "?", proc: "trivia.sh",      description: "Weekly knowledge trials"      },
 ];
-
-const CARD_HOVER_ON  = { borderColor: "rgba(3,233,244,0.22)", boxShadow: "0 8px 32px rgba(3,233,244,0.07)", transform: "translateY(-2px)" };
-const CARD_HOVER_OFF = { borderColor: "rgba(255,255,255,0.07)", boxShadow: "none",                          transform: "translateY(0)" };
-
-function SectionDivider({ title }) {
-  return (
-    <div className="section-divider">
-      <h2>{title}</h2>
-    </div>
-  );
-}
 
 function ArrowIcon({ className = "" }) {
   return (
@@ -71,15 +54,25 @@ function ArrowIcon({ className = "" }) {
   );
 }
 
+function TermDots() {
+  return (
+    <>
+      <span className="term-dot term-dot--red" />
+      <span className="term-dot term-dot--yellow" />
+      <span className="term-dot term-dot--green" />
+    </>
+  );
+}
+
 export default function Home() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const displayName = user?.username || "Adventurer";
+  const rankStyle = getRankStyle(user?.rank);
 
   const [questCounts,    setQuestCounts]    = useState({});
   const [totalLive,      setTotalLive]      = useState(null);
   const [completedCount, setCompletedCount] = useState(0);
-  const [xpBarWidth,     setXpBarWidth]     = useState(0);
-  const [cmpBarWidth,    setCmpBarWidth]    = useState(0);
 
   useEffect(() => {
     getQuests().then((quests) => {
@@ -108,277 +101,136 @@ export default function Home() {
   const animatedXP        = useCountUp(totalXP);
   const animatedCompleted = useCountUp(completedCount);
 
-  // Trigger bar CSS transitions after mount/data-ready
-  useEffect(() => {
-    const t = setTimeout(() => setXpBarWidth(xpPct), 120);
-    return () => clearTimeout(t);
-  }, [xpPct]);
-
-  useEffect(() => {
-    if (totalLive === null) return;
-    const t = setTimeout(() => setCmpBarWidth(completedPct), 120);
-    return () => clearTimeout(t);
-  }, [completedPct, totalLive]);
+  async function handleLogout() {
+    await logout();
+    navigate("/login");
+  }
 
   return (
     <div className="space-y-14">
 
-      {/* ── Hero ── */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 page-enter">
-        <div>
-          <p className="hero-eyebrow">Adventurer's Hall</p>
+      {/* ── Hero — welcome, stat panels, and quick actions in one terminal window ── */}
+      <div className="term-window page-enter">
+        <div className="term-bar">
+          <TermDots />
+          <span className="term-title">~/skillforge/dashboard.sh</span>
+        </div>
+        <div className="term-body">
+          <p className="hero-eyebrow">guest@skillforge:~$ whoami --welcome</p>
           <h1
+            className="glow-pulse"
             style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
-              fontWeight: 700,
-              color: "#fff",
-              marginBottom: "0.75rem",
-              lineHeight: 1.2,
-              letterSpacing: "0.02em",
+              fontFamily: "var(--font-brand)",
+              fontSize: "clamp(1.9rem, 4.2vw, 2.7rem)",
+              fontWeight: 800,
+              color: "var(--color-green)",
+              marginBottom: "0.6rem",
+              lineHeight: 1.15,
             }}
           >
-            Welcome back,{" "}
-            <span style={{ color: "var(--color-cyan)", textShadow: "0 0 28px rgba(3,233,244,0.30)" }}>
-              {displayName}
-            </span>
+            Welcome back, {displayName}<span aria-hidden="true">_</span>
           </h1>
-          <p className="text-sub leading-relaxed max-w-[480px]" style={{ fontSize: "1.05rem" }}>
-            Your quest continues. Choose your path wisely — each challenge forges your legend and brings glory to the realm.
+          <p className="leading-relaxed max-w-[560px]" style={{ fontSize: "0.95rem", color: "var(--color-text-secondary)", marginBottom: "1.75rem" }}>
+            Your quest continues. Run <code style={{ color: "var(--color-blue)" }}>quest --list</code> to see what's next.
           </p>
-        </div>
 
-        {/* Quick stats */}
-        <div className="flex gap-3 flex-shrink-0">
-          {[
-            { label: "Quests",    value: totalLive !== null ? String(totalLive) : String(TOTAL_QUESTS) },
-            { label: "Languages", value: "4"  },
-            { label: "Your Rank", value: "—"  },
-          ].map((s) => (
-            <div key={s.label} className="stat-card">
-              <p
-                className="text-cyan font-bold leading-none mb-2"
-                style={{ fontFamily: "var(--font-heading)", fontSize: "1.75rem" }}
-              >
-                {s.value}
+          {/* Stat panels */}
+          <div className="grid sm:grid-cols-3 gap-4 mb-7">
+
+            {/* XP */}
+            <div className="glass-card p-5">
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
+                // experience
               </p>
-              <p
-                style={{
-                  color: "rgba(255,255,255,0.32)",
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "0.58rem",
-                  letterSpacing: "0.10em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {s.label}
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: "var(--color-green)", lineHeight: 1, marginBottom: "0.6rem" }}>
+                {animatedXP.toLocaleString()} XP
+              </p>
+              <ProgressBar value={xpPct} ascii chars={9} />
+              <p style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
+                {xpPct}% to LV{nextLevel}
               </p>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* ── Progress ── */}
-      <div>
-        <SectionDivider title="Your Progress" />
-        <div className="grid md:grid-cols-2 gap-4">
-
-          {/* XP card */}
-          <div className="glass-card p-6" style={{ borderTop: "1px solid rgba(3,233,244,0.12)" }}>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p
-                  style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem" }}
-                >
-                  Experience Points
-                </p>
-                <div className="flex items-baseline gap-1.5">
-                  <span
-                    className="text-cyan font-bold"
-                    style={{ fontFamily: "var(--font-heading)", fontSize: "2.1rem", lineHeight: 1 }}
-                  >
-                    {animatedXP.toLocaleString()}
-                  </span>
-                  <span className="text-sub" style={{ fontSize: "0.78rem" }}>XP total</span>
-                </div>
-              </div>
-              <div
-                style={{
-                  padding: "0.32rem 0.85rem",
-                  borderRadius: "99px",
-                  background: "rgba(3,233,244,0.08)",
-                  border: "1px solid rgba(3,233,244,0.22)",
-                  flexShrink: 0,
-                }}
-              >
-                <span
-                  className="text-cyan"
-                  style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.10em" }}
-                >
-                  LEVEL {currentLevel}
-                </span>
-              </div>
-            </div>
-
-            <div className="progress-track">
-              <div className="progress-fill" style={{ width: `${xpBarWidth}%` }} />
-            </div>
-
-            <div className="flex justify-between mt-3">
-              <span
-                className="text-cyan"
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", letterSpacing: "0.04em" }}
-              >
-                {xpIntoLevel.toLocaleString()} / {xpLevelRange.toLocaleString()} XP
-              </span>
-              <span className="text-sub" style={{ fontSize: "0.72rem" }}>
-                {currentLevel < 100
-                  ? `${xpToNext.toLocaleString()} XP to level ${nextLevel}`
-                  : "Max level reached"}
-              </span>
-            </div>
-          </div>
-
-          {/* Challenges card */}
-          <div className="glass-card p-6" style={{ borderTop: "1px solid rgba(3,233,244,0.12)" }}>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p
-                  style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem" }}
-                >
-                  Quest Chronicle
-                </p>
-                <div className="flex items-baseline gap-1.5">
-                  <span
-                    className="text-cyan font-bold"
-                    style={{ fontFamily: "var(--font-heading)", fontSize: "2.1rem", lineHeight: 1 }}
-                  >
-                    {animatedCompleted}
-                  </span>
-                  <span className="text-sub" style={{ fontSize: "0.78rem" }}>
-                    of {totalLive !== null ? totalLive : "—"} quests
-                  </span>
-                </div>
-              </div>
-              <div
-                style={{
-                  width: "2.25rem", height: "2.25rem",
-                  borderRadius: "0.75rem",
-                  background: "rgba(3,233,244,0.08)",
-                  border: "1px solid rgba(3,233,244,0.20)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-
-            <div className="progress-track">
-              <div className="progress-fill" style={{ width: `${cmpBarWidth}%` }} />
-            </div>
-
-            <div className="flex justify-between mt-3">
-              <span
-                className="text-cyan"
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", letterSpacing: "0.04em" }}
-              >
+            {/* Quest chronicle */}
+            <div className="glass-card p-5">
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
+                // quest_chronicle
+              </p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: "var(--color-green)", lineHeight: 1, marginBottom: "0.6rem" }}>
+                {animatedCompleted} / {totalLive !== null ? totalLive : "—"}
+              </p>
+              <ProgressBar value={completedPct} ascii chars={9} />
+              <p style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
                 {completedPct}% complete
-              </span>
-              <span className="text-sub" style={{ fontSize: "0.72rem" }}>{user?.rank ?? "Novice"}</span>
+              </p>
+            </div>
+
+            {/* Rank */}
+            <div className="glass-card p-5">
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
+                // rank
+              </p>
+              <p
+                className="glow-pulse-blue"
+                style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: rankStyle.color, lineHeight: 1, marginBottom: "0.6rem" }}
+              >
+                {user?.rank ?? "Novice"}
+              </p>
+              <Link
+                to="/leaderboard"
+                style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", textDecoration: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-blue)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-tertiary)")}
+              >
+                View leaderboard →
+              </Link>
             </div>
           </div>
 
+          {/* Quick actions */}
+          <div className="flex flex-wrap gap-3">
+            <a href="#quests" className="sf-btn" style={{ width: "auto", minWidth: "160px" }}>
+              Run Quest
+            </a>
+            <Link to="/profile" className="sf-btn-secondary" style={{ width: "auto", minWidth: "160px" }}>
+              View Profile
+            </Link>
+            <button onClick={handleLogout} className="sf-btn-ghost" style={{ width: "auto" }}>
+              Log Out
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── Language Quest Cards ── */}
-      <div>
+      {/* ── Language Quest Cards — per-card terminal chrome, no imagery ── */}
+      <div id="quests">
         <SectionDivider title="Choose Your Quest" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {LANGUAGES.map((lang) => (
             <Link key={lang.slug} to={`/quests/${lang.slug}`} style={{ textDecoration: "none" }}>
-              <div
-                className="group relative rounded-2xl overflow-hidden cursor-pointer"
-                style={{
-                  height: "200px",
-                  background: "rgba(0,0,0,0.45)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: `inset 0 2px 0 ${lang.accentColor}44`,
-                  transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(3,233,244,0.20)";
-                  e.currentTarget.style.boxShadow = `inset 0 2px 0 ${lang.accentColor}bb, 0 8px 32px rgba(3,233,244,0.07)`;
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-                  e.currentTarget.style.boxShadow = `inset 0 2px 0 ${lang.accentColor}44`;
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                {/* Accent glow at top */}
-                <div style={{
-                  position: "absolute", top: 0, left: 0, right: 0, height: "56px",
-                  background: `linear-gradient(to bottom, ${lang.accentColor}18, transparent)`,
-                  pointerEvents: "none",
-                }} />
-
-                {/* Background image */}
-                <img
-                  src={lang.image}
-                  alt={lang.name}
-                  style={{
-                    position: "absolute", inset: 0,
-                    width: "100%", height: "100%",
-                    objectFit: "cover",
-                    opacity: 0.40,
-                    transition: "opacity 0.4s",
-                    userSelect: "none",
-                    pointerEvents: "none",
-                  }}
-                  className="group-hover:opacity-[0.32]"
-                />
-                {/* Bottom gradient */}
-                <div
-                  style={{
-                    position: "absolute", inset: 0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.15) 58%, transparent 100%)",
-                    pointerEvents: "none",
-                  }}
-                />
-
-                {/* Quest count badge */}
-                <div className="absolute top-3.5 right-3.5 badge badge-cyan">
-                  {questCounts[lang.slug] ?? "—"} quests
+              <div className="group quest-card" style={{ "--card-accent": lang.accentColor }}>
+                <div className="quest-card-bar">
+                  <TermDots />
+                  <span className="term-title">{lang.interpreter}</span>
                 </div>
+                <div className="quest-card-body">
+                  <div className="flex items-start justify-between">
+                    <div className="quest-card-glyph">{lang.glyph}</div>
+                    <Badge variant="blue">{questCounts[lang.slug] ?? "—"} quests</Badge>
+                  </div>
 
-                {/* Content */}
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.25rem" }}>
                   <h3
-                    className="text-white font-bold text-base mb-1"
-                    style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.03em" }}
+                    className="font-bold text-base mb-1"
+                    style={{ fontFamily: "var(--font-heading)", color: "var(--color-text)" }}
                   >
                     {lang.name}
                   </h3>
-                  <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-body)" }}>
+                  <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)", fontFamily: "var(--font-body)" }}>
                     {lang.description}
                   </p>
-                  <div
-                    className="flex items-center gap-1.5 mt-3 text-sub group-hover:text-cyan"
-                    style={{
-                      fontFamily: "var(--font-heading)",
-                      fontSize: "0.58rem",
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      transition: "color 0.2s",
-                    }}
-                  >
-                    <span>Begin Quest</span>
-                    <ArrowIcon className="group-hover:translate-x-0.5 transition-transform duration-200" />
+                  <div className="quest-card-cta">
+                    <span>./begin_quest</span>
+                    <ArrowIcon />
                   </div>
                 </div>
               </div>
@@ -393,71 +245,41 @@ export default function Home() {
         <div className="grid sm:grid-cols-3 gap-4">
           {SECTIONS.map((section) => (
             <Link key={section.name} to={section.path} style={{ textDecoration: "none" }}>
-              <div
-                className="group relative rounded-2xl overflow-hidden cursor-pointer"
-                style={{
-                  height: "180px",
-                  background: "rgba(0,0,0,0.35)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  transition: "border-color 0.25s, box-shadow 0.25s, transform 0.25s",
-                }}
-                onMouseEnter={(e) => Object.assign(e.currentTarget.style, CARD_HOVER_ON)}
-                onMouseLeave={(e) => Object.assign(e.currentTarget.style, CARD_HOVER_OFF)}
-              >
-                {/* Background image */}
-                <div
-                  className="group-hover:scale-105 group-hover:opacity-[0.50]"
-                  style={{
-                    position: "absolute", inset: 0,
-                    backgroundImage: `url('${section.image}')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    opacity: 0.32,
-                    transition: "opacity 0.5s, transform 0.5s",
-                  }}
-                />
-                {/* Overlay */}
-                <div
-                  style={{
-                    position: "absolute", inset: 0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)",
-                    pointerEvents: "none",
-                  }}
-                />
+              <div className="group explore-card">
+                <div className="explore-card-bar">
+                  <TermDots />
+                  <span className="term-title">{section.proc}</span>
+                </div>
+                <div className="explore-card-body">
+                  <div className="flex items-start justify-between">
+                    <span
+                      style={{
+                        fontFamily: "var(--font-brand)",
+                        fontWeight: 800,
+                        fontSize: "2rem",
+                        lineHeight: 1,
+                        color: "var(--color-green)",
+                        opacity: 0.9,
+                        textShadow: "0 0 14px var(--color-green-glow-strong)",
+                      }}
+                    >
+                      {section.glyph}
+                    </span>
+                    <div className="explore-card-arrow">
+                      <ArrowIcon />
+                    </div>
+                  </div>
 
-                {/* Content */}
-                <div
-                  style={{
-                    position: "absolute", bottom: 0, left: 0, right: 0,
-                    padding: "1.25rem",
-                    display: "flex", alignItems: "flex-end", justifyContent: "space-between",
-                  }}
-                >
                   <div>
                     <h3
-                      className="text-white font-semibold text-base"
-                      style={{ fontFamily: "var(--font-heading)" }}
+                      className="font-semibold text-base"
+                      style={{ fontFamily: "var(--font-heading)", color: "var(--color-text)" }}
                     >
                       {section.name}
                     </h3>
-                    <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.40)" }}>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
                       {section.description}
                     </p>
-                  </div>
-                  <div
-                    className="group-hover:text-white/70"
-                    style={{
-                      width: "2rem", height: "2rem",
-                      borderRadius: "50%",
-                      background: "rgba(255,255,255,0.08)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "rgba(255,255,255,0.45)",
-                      flexShrink: 0,
-                      transition: "background 0.2s, color 0.2s",
-                    }}
-                  >
-                    <ArrowIcon />
                   </div>
                 </div>
               </div>

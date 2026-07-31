@@ -10,12 +10,12 @@ const LANG_LABELS = {
   python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#",
 };
 const LANG_COLORS = {
-  python: "#4ade80", javascript: "#fbbf24", java: "#f87171", csharp: "#818cf8",
+  python: "var(--color-green)", javascript: "var(--color-amber)", java: "var(--color-red-bright)", csharp: "var(--gem-csharp)",
 };
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "#4ade80" },
-  cryptic: { label: "Cryptic", color: "#fbbf24" },
-  abyssal: { label: "Abyssal", color: "#f87171" },
+  shallow: { label: "Shallow", color: "var(--color-green)" },
+  cryptic: { label: "Cryptic", color: "var(--color-amber)" },
+  abyssal: { label: "Abyssal", color: "var(--color-red-bright)" },
 };
 
 const LANG_OPTIONS = [
@@ -51,8 +51,8 @@ function Pagination({ page, totalPages, onChange }) {
         style={{ ...base, borderColor: "rgba(255,255,255,0.10)", background: "transparent", color: page === 1 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.50)", cursor: page === 1 ? "not-allowed" : "pointer" }}>←</button>
       {pages.map((p, i) =>
         p === "…"
-          ? <span key={`e${i}`} style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.7rem", padding: "0 0.25rem" }}>…</span>
-          : <button key={p} onClick={() => onChange(p)} style={{ ...base, borderColor: p === page ? "rgba(3,233,244,0.40)" : "rgba(255,255,255,0.08)", background: p === page ? "rgba(3,233,244,0.10)" : "transparent", color: p === page ? "var(--color-cyan)" : "rgba(255,255,255,0.45)" }}>{p}</button>
+          ? <span key={`e${i}`} style={{ color: "var(--color-text-faint)", fontSize: "0.7rem", padding: "0 0.25rem" }}>…</span>
+          : <button key={p} onClick={() => onChange(p)} style={{ ...base, borderColor: p === page ? "var(--color-green-border)" : "rgba(255,255,255,0.08)", background: p === page ? "var(--color-green-dim)" : "transparent", color: p === page ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>{p}</button>
       )}
       <button disabled={page === totalPages} onClick={() => onChange(page + 1)}
         style={{ ...base, borderColor: "rgba(255,255,255,0.10)", background: "transparent", color: page === totalPages ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.50)", cursor: page === totalPages ? "not-allowed" : "pointer" }}>→</button>
@@ -102,11 +102,11 @@ function SolutionModal({ submissionId, onClose }) {
               <Link
                 to={`/users/${detail.user_id}`}
                 onClick={onClose}
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-cyan)", textDecoration: "none", flexShrink: 0 }}
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", textDecoration: "none", flexShrink: 0 }}
               >
                 {detail.username}
               </Link>
-              <span style={{ color: "rgba(255,255,255,0.20)", fontSize: "0.8rem", flexShrink: 0 }}>→</span>
+              <span style={{ color: "var(--color-text-faint)", fontSize: "0.8rem", flexShrink: 0 }}>→</span>
               {/* Quest link */}
               <Link
                 to={`/quests/${detail.language}/${detail.quest_id}`}
@@ -118,7 +118,7 @@ function SolutionModal({ submissionId, onClose }) {
               {/* Language */}
               <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: LANG_COLORS[lang] ?? "#fff" }} />
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>
                   {LANG_LABELS[lang] ?? lang}
                 </span>
               </span>
@@ -130,21 +130,21 @@ function SolutionModal({ submissionId, onClose }) {
               <span style={{
                 padding: "0.18rem 0.5rem", borderRadius: "4px", flexShrink: 0,
                 fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-                background: detail.all_passed ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.10)",
-                color:      detail.all_passed ? "#4ade80"               : "#f87171",
-                border:     `1px solid ${detail.all_passed ? "rgba(74,222,128,0.25)" : "rgba(248,113,113,0.20)"}`,
+                background: detail.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
+                color:      detail.all_passed ? "var(--color-green)"               : "var(--color-red-bright)",
+                border:     `1px solid ${detail.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
               }}>
                 {detail.all_passed ? "Passed" : "Failed"}
               </span>
             </>
           ) : (
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", flex: 1 }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.82rem", fontWeight: 700, color: "var(--color-text-secondary)", flex: 1 }}>
               Loading…
             </span>
           )}
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.32)", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1, padding: "0.2rem 0.4rem", borderRadius: "4px", flexShrink: 0 }}
+            style={{ background: "none", border: "none", color: "var(--color-text-tertiary)", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1, padding: "0.2rem 0.4rem", borderRadius: "4px", flexShrink: 0 }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.72)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.32)")}
           >
@@ -154,20 +154,20 @@ function SolutionModal({ submissionId, onClose }) {
 
         {/* Body */}
         {loading ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.30)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
+          <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
             Loading submission…
           </div>
         ) : error ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "#f87171", fontSize: "0.8rem" }}>{error}</div>
+          <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-red-bright)", fontSize: "0.8rem" }}>{error}</div>
         ) : (
           <div style={{ overflowY: "auto", flex: 1 }}>
             {/* Test results bar */}
             {detail.test_results && (
               <div style={{ padding: "0.8rem 1.4rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
                   Tests
                 </span>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: detail.all_passed ? "#4ade80" : "#f87171" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: detail.all_passed ? "var(--color-green)" : "var(--color-red-bright)" }}>
                   {detail.test_results.passed}/{detail.test_results.total} passed
                 </span>
                 <div style={{ display: "flex", gap: "0.28rem", flexWrap: "wrap", flex: 1 }}>
@@ -177,17 +177,17 @@ function SolutionModal({ submissionId, onClose }) {
                       title={`Test ${idx + 1}: ${r.passed ? "passed" : "failed"}`}
                       style={{
                         width: "1.05rem", height: "1.05rem", borderRadius: "3px",
-                        background: r.passed ? "rgba(74,222,128,0.18)" : "rgba(248,113,113,0.15)",
-                        border: `1px solid ${r.passed ? "rgba(74,222,128,0.45)" : "rgba(248,113,113,0.40)"}`,
+                        background: r.passed ? "var(--color-green-border)" : "var(--color-red-dim)",
+                        border: `1px solid ${r.passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                         display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        fontSize: "0.48rem", color: r.passed ? "#4ade80" : "#f87171",
+                        fontSize: "0.48rem", color: r.passed ? "var(--color-green)" : "var(--color-red-bright)",
                       }}
                     >
                       {r.passed ? "✓" : "✗"}
                     </span>
                   ))}
                 </div>
-                <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.22)", flexShrink: 0 }}>
+                <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
                   {new Date(detail.submitted_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                 </span>
               </div>
@@ -195,7 +195,7 @@ function SolutionModal({ submissionId, onClose }) {
 
             {/* Code */}
             <div style={{ padding: "0.85rem 1.4rem 1.2rem" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: "0.55rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)", marginBottom: "0.55rem" }}>
                 Submitted Code
               </p>
               <pre style={{
@@ -275,7 +275,7 @@ export default function AdminSubmissionsTable() {
         {/* Search */}
         <div style={{ position: "relative", flex: "1 1 220px", maxWidth: "320px" }}>
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
-            style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.25)", pointerEvents: "none" }}>
+            style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-faint)", pointerEvents: "none" }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
           <input
@@ -308,13 +308,13 @@ export default function AdminSubmissionsTable() {
                 padding: "0.38rem 0.75rem", borderRadius: "6px",
                 border: "1px solid",
                 borderColor: statusFilter === val
-                  ? (val === "true" ? "rgba(74,222,128,0.4)" : val === "false" ? "rgba(248,113,113,0.4)" : "rgba(3,233,244,0.35)")
+                  ? (val === "true" ? "rgba(74,222,128,0.4)" : val === "false" ? "rgba(248,113,113,0.4)" : "var(--color-green-border)")
                   : "rgba(255,255,255,0.10)",
                 background: statusFilter === val
-                  ? (val === "true" ? "rgba(74,222,128,0.10)" : val === "false" ? "rgba(248,113,113,0.10)" : "rgba(3,233,244,0.08)")
+                  ? (val === "true" ? "var(--color-green-dim)" : val === "false" ? "var(--color-red-dim)" : "var(--color-green-dim)")
                   : "transparent",
                 color: statusFilter === val
-                  ? (val === "true" ? "#4ade80" : val === "false" ? "#f87171" : "var(--color-cyan)")
+                  ? (val === "true" ? "var(--color-green)" : val === "false" ? "var(--color-red-bright)" : "var(--color-green)")
                   : "rgba(255,255,255,0.40)",
                 cursor: "pointer", transition: "all 0.15s",
               }}
@@ -336,7 +336,7 @@ export default function AdminSubmissionsTable() {
           background: "rgba(255,255,255,0.02)",
         }}>
           {["User", "Quest", "Language", "Score", "Status", "Date", ""].map((h, i) => (
-            <span key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.20)" }}>
+            <span key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
               {h}
             </span>
           ))}
@@ -357,7 +357,7 @@ export default function AdminSubmissionsTable() {
           const diff       = DIFF_META[s.difficulty] ?? DIFF_META.shallow;
           const passed     = s.passed ?? 0;
           const total      = s.total  ?? 0;
-          const scoreColor = s.all_passed ? "#4ade80" : (passed > 0 ? "#fb923c" : "#f87171");
+          const scoreColor = s.all_passed ? "var(--color-green)" : (passed > 0 ? "#fb923c" : "var(--color-red-bright)");
 
           return (
             <div
@@ -368,7 +368,7 @@ export default function AdminSubmissionsTable() {
                 gap: "0.5rem", alignItems: "center",
                 padding: "0.55rem 1rem 0.55rem 0.85rem",
                 borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.04)",
-                borderLeft: `3px solid ${s.all_passed ? "rgba(74,222,128,0.45)" : "rgba(248,113,113,0.30)"}`,
+                borderLeft: `3px solid ${s.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                 transition: "background 0.10s",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.018)"; }}
@@ -377,7 +377,7 @@ export default function AdminSubmissionsTable() {
               {/* User link */}
               <Link
                 to={`/users/${s.user_id}`}
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-cyan)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -397,7 +397,7 @@ export default function AdminSubmissionsTable() {
               {/* Language */}
               <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: LANG_COLORS[lang] ?? "#fff", flexShrink: 0 }} />
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.07em", color: "rgba(255,255,255,0.30)", textTransform: "uppercase" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.07em", color: "var(--color-text-tertiary)", textTransform: "uppercase" }}>
                   {LANG_LABELS[lang] ?? lang}
                 </span>
               </span>
@@ -412,15 +412,15 @@ export default function AdminSubmissionsTable() {
                 display: "inline-flex", alignItems: "center",
                 padding: "0.15rem 0.45rem", borderRadius: "4px",
                 fontFamily: "var(--font-heading)", fontSize: "0.46rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-                background: s.all_passed ? "rgba(74,222,128,0.10)" : "rgba(248,113,113,0.09)",
-                color:      s.all_passed ? "#4ade80"               : "#f87171",
-                border:     `1px solid ${s.all_passed ? "rgba(74,222,128,0.22)" : "rgba(248,113,113,0.18)"}`,
+                background: s.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
+                color:      s.all_passed ? "var(--color-green)"               : "var(--color-red-bright)",
+                border:     `1px solid ${s.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
               }}>
                 {s.all_passed ? "Passed" : "Failed"}
               </span>
 
               {/* Date */}
-              <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.22)" }}>
+              <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)" }}>
                 {new Date(s.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </span>
 
@@ -431,12 +431,12 @@ export default function AdminSubmissionsTable() {
                   fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700,
                   letterSpacing: "0.07em", textTransform: "uppercase",
                   padding: "0.28rem 0.6rem", borderRadius: "5px",
-                  border: "1px solid rgba(3,233,244,0.25)",
-                  background: "rgba(3,233,244,0.06)", color: "var(--color-cyan)",
+                  border: "1px solid var(--color-green-border)",
+                  background: "var(--color-green-dim)", color: "var(--color-green)",
                   cursor: "pointer", transition: "all 0.15s",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(3,233,244,0.12)"; e.currentTarget.style.borderColor = "rgba(3,233,244,0.45)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(3,233,244,0.06)"; e.currentTarget.style.borderColor = "rgba(3,233,244,0.25)"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-green-dim)"; e.currentTarget.style.borderColor = "var(--color-green)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "var(--color-green-dim)"; e.currentTarget.style.borderColor = "var(--color-green-border)"; }}
               >
                 View
               </button>
