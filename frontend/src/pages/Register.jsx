@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import TerminalTypewriter from "../components/TerminalTypewriter";
+import TerminalLogo from "../components/TerminalLogo";
 import SoundToggle from "../components/SoundToggle";
 import { playBootSound, playChime, playClick, playError, stopBootSound, unlockAudio } from "../utils/terminalAudio";
-import logoImg from "../assets/img/skill_forge_logo.png";
+import { APP_VERSION, RELEASE_DATE_LABEL } from "../constants/version";
 
 const REGISTER_SCRIPT = [
   { text: "$ ./init_profile.sh --new", className: "ti-prompt", speed: 34, pause: 380 },
@@ -65,10 +66,14 @@ function AlertIcon() {
 function BrandLogo() {
   return (
     <div className="flex items-center gap-3">
-      <img src={logoImg} alt="SkillForge" className="w-9 h-9 object-contain" />
-      <span className="font-brand brand-glitch-in" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
-        SkillForge_
-      </span>
+      <TerminalLogo size={36} />
+      <div className="flex flex-col" style={{ lineHeight: 1 }}>
+        <span className="font-brand brand-glitch-in" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
+          SkillForge
+          <span className="brand-cursor-bar">|</span>
+        </span>
+        <span className="brand-version">v{APP_VERSION} · {RELEASE_DATE_LABEL}</span>
+      </div>
     </div>
   );
 }

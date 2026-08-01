@@ -331,6 +331,53 @@
   .term-body { padding: 1.5rem; }
 
 
+  /* ─── Terminal logo mark — mini window with chase-pulsing dots ──── */
+
+  .terminal-logo .logo-dot {
+    animation: logo-dot-flicker 2.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+  .terminal-logo .logo-dot--red    { animation-delay: 0s; }
+  .terminal-logo .logo-dot--yellow { animation-delay: 0.3s; }
+  .terminal-logo .logo-dot--green  { animation-delay: 0.6s; }
+
+  @keyframes logo-dot-flicker {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1;    }
+  }
+
+  .terminal-logo .logo-cursor {
+    animation: ascii-cursor-blink 1s steps(1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .terminal-logo .logo-dot, .terminal-logo .logo-cursor { animation: none; }
+  }
+
+  /* Blinking "|" cursor after the SkillForge wordmark */
+  .brand-cursor-bar {
+    display: inline-block;
+    margin-left: 2px;
+    animation: ascii-cursor-blink 1s steps(1) infinite;
+  }
+
+  /* Version / release-date line under the wordmark */
+  .brand-version {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-text-tertiary);
+    margin-top: 0.2rem;
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-cursor-bar { animation: none; }
+  }
+
+
   /* ─── Input ────────────────────────────────────── */
 
   .sf-input {

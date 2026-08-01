@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PlayerHUD from "./PlayerHUD";
-import logoImg from "../assets/img/skill_forge_logo.png";
+import TerminalLogo from "./TerminalLogo";
+import { APP_VERSION, RELEASE_DATE_LABEL } from "../constants/version";
 
 function ChevronDown({ className = "" }) {
   return (
@@ -97,19 +98,23 @@ export default function Navbar() {
         <div className="navbar-inner">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0" style={{ textDecoration: "none" }}>
-            <img src={logoImg} alt="SkillForge" className="w-7 h-7 object-contain" />
-            <span
-              className="hidden sm:block glow-pulse"
-              style={{
-                fontFamily: "var(--font-brand)",
-                fontWeight: 800,
-                fontSize: "1.5rem",
-                lineHeight: 1,
-                color: "var(--color-green)",
-                letterSpacing: "0.02em",
-              }}
-            >
-              SkillForge_
+            <TerminalLogo size={28} />
+            <span className="hidden sm:flex flex-col" style={{ lineHeight: 1 }}>
+              <span
+                className="glow-pulse"
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontWeight: 800,
+                  fontSize: "1.5rem",
+                  lineHeight: 1,
+                  color: "var(--color-green)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                SkillForge
+                <span className="brand-cursor-bar">|</span>
+              </span>
+              <span className="brand-version">v{APP_VERSION} · {RELEASE_DATE_LABEL}</span>
             </span>
           </Link>
 
