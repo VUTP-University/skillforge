@@ -629,6 +629,183 @@
   .auth-card-body { padding: 2.5rem; }
 
 
+  /* ─── Auth boot sequence — typed terminal intro (left panel) ───── */
+
+  .auth-terminal { position: relative; }
+  .auth-terminal .term-body { padding: 2rem 2.25rem 2.25rem; }
+
+  /* Fixed-size viewport — content scrolls within it like a real terminal's
+     scrollback instead of the window growing to fit everything typed. */
+  .auth-terminal-log {
+    height: 26rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .ti-prompt {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-green);
+    letter-spacing: 0.01em;
+    margin: 0 0 0.5rem;
+  }
+
+  .ti-output {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    color: var(--color-text-tertiary);
+    letter-spacing: 0.01em;
+    margin: 0 0 1.35rem;
+  }
+
+  .ti-headline {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 3.1vw, 2.75rem);
+    line-height: 1.18;
+    color: #fff;
+    margin: 0;
+  }
+
+  .ti-headline--accent {
+    color: var(--color-green);
+    margin: 0 0 1.15rem;
+  }
+
+  .ti-paragraph {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-sub);
+    max-width: 30rem;
+    margin: 0 0 1.5rem;
+  }
+
+  /* "$ cat features.log" output lines */
+  .ti-feature {
+    font-family: var(--font-heading);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.01em;
+    margin: 0 0 0.45rem;
+  }
+  .ti-feature:last-child { margin-bottom: 0; }
+
+  /* Blinking block cursor that trails the actively-typing line, then
+     parks at the end of the last one once the sequence finishes. */
+  .ti-cursor {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    margin-left: 2px;
+    background: var(--color-green);
+    vertical-align: text-bottom;
+    box-shadow: 0 0 6px var(--color-green-glow-strong);
+    animation: ascii-cursor-blink 0.9s steps(1) infinite;
+  }
+
+  /* CRT "power on" — a quick vertical snap-open + brightness flash,
+     applied once on mount to the terminal windows on the auth pages. */
+  @keyframes crt-power-on {
+    0%   { transform: scaleY(0.02) scaleX(1.02); opacity: 0; filter: brightness(3); }
+    35%  { transform: scaleY(1)    scaleX(1);    opacity: 1; filter: brightness(1.7); }
+    55%  { filter: brightness(0.85); }
+    100% { transform: scaleY(1)    scaleX(1);    opacity: 1; filter: brightness(1); }
+  }
+  .crt-power-on { animation: crt-power-on 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: center; }
+
+  /* Ambient scanline sweep — a faint bar drifting down the window,
+     scoped to .term-scan rather than every .term-window in the app. */
+  .term-scan { position: relative; }
+  .term-scan::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -5%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(93, 255, 163, 0.55), transparent);
+    animation: term-scan-sweep 6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes term-scan-sweep {
+    0%   { top: -5%;   opacity: 0;   }
+    8%   { opacity: 0.9; }
+    92%  { opacity: 0.9; }
+    100% { top: 105%;  opacity: 0;   }
+  }
+
+  /* Brand wordmark glitch-in — a one-shot RGB-split flicker on mount,
+     settling into the usual infinite phosphor pulse. */
+  @keyframes brand-glitch-in {
+    0%   { opacity: 0; transform: translateX(-6px); text-shadow: -2px 0 var(--color-red-bright), 2px 0 var(--color-blue); }
+    20%  { opacity: 1; transform: translateX(2px);  text-shadow: 2px 0 var(--color-red-bright), -2px 0 var(--color-blue); }
+    40%  { transform: translateX(-1px); text-shadow: -1px 0 var(--color-red-bright), 1px 0 var(--color-blue); }
+    60%  { transform: translateX(0);    text-shadow: 1px 0 var(--color-red-bright), -1px 0 var(--color-blue); }
+    100% { opacity: 1; transform: translateX(0); text-shadow: 0 0 10px var(--color-green-glow-strong), 0 0 26px rgba(93, 255, 163, 0.30); }
+  }
+  .brand-glitch-in {
+    animation:
+      brand-glitch-in 0.5s steps(2) both,
+      phosphor-pulse 2.6s ease-in-out infinite 0.5s;
+  }
+
+  /* Animated ellipsis for button loading labels */
+  .loading-dots span {
+    opacity: 0.2;
+    animation: loading-dot-pulse 1.2s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes loading-dot-pulse {
+    0%, 60%, 100% { opacity: 0.2; }
+    30%           { opacity: 1;   }
+  }
+
+  /* Sound-effects mute toggle */
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 4px;
+    background: var(--color-green);
+    border: 1px solid var(--color-green);
+    color: #04160c;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px var(--color-green-glow-strong), 0 0 22px rgba(93, 255, 143, 0.25);
+  }
+  .sound-toggle:hover {
+    background: var(--color-green-bright);
+    border-color: var(--color-green-bright);
+    box-shadow: 0 0 14px var(--color-green-glow-strong), 0 0 30px rgba(93, 255, 143, 0.40);
+  }
+
+  .sound-toggle.is-muted {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--color-border-2);
+    color: var(--color-text-tertiary);
+    box-shadow: none;
+  }
+  .sound-toggle.is-muted:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: var(--color-text-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ti-cursor, .crt-power-on, .term-scan::after, .brand-glitch-in, .loading-dots span {
+      animation: none;
+    }
+    .crt-power-on { opacity: 1; transform: none; filter: none; }
+  }
+
+
   /* ─── Ornate divider — kept for any legacy usage ── */
 
   .divider-ornate {

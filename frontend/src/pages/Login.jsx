@@ -1,7 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import TerminalTypewriter from "../components/TerminalTypewriter";
+import SoundToggle from "../components/SoundToggle";
+import { playBootSound, playChime, playClick, playError, stopBootSound, unlockAudio } from "../utils/terminalAudio";
 import logoImg from "../assets/img/skill_forge_logo.png";
+
+const LOGIN_SCRIPT = [
+  { text: "$ ssh operator@skillforge.dev", className: "ti-prompt", speed: 34, pause: 380 },
+  { text: "Connecting to skillforge.dev:22 ...", className: "ti-output", speed: 20, pause: 320 },
+  { text: "Verifying host fingerprint... OK", className: "ti-output", speed: 20, pause: 320 },
+  { text: "Authenticating credentials... access granted", className: "ti-output", speed: 20, pause: 420 },
+  { text: "Loading session profile... done", className: "ti-output", speed: 20, pause: 700 },
+  { text: "Compile skills.", className: "ti-headline", speed: 55, pause: 260 },
+  { text: "Deploy your future.", className: "ti-headline ti-headline--accent", speed: 55, pause: 650 },
+  {
+    text: "Solve coding jobs, get real-time feedback, and track your progress. Join a community of builders and level up with SkillForge.",
+    className: "ti-paragraph",
+    speed: 14,
+    pause: 750,
+  },
+  { text: "$ cat ./features.log", className: "ti-prompt", speed: 30, pause: 400 },
+  { text: "[+] Challenging jobs across Python, JavaScript, Java and more", className: "ti-feature", speed: 16, pause: 260 },
+  { text: "[+] Real-time code review with AI-powered feedback", className: "ti-feature", speed: 16, pause: 260 },
+  { text: "[+] Progress tracking, achievements and global leaderboards", className: "ti-feature", speed: 16, pause: 260 },
+];
+
+function LoadingDots() {
+  return (
+    <span className="loading-dots" aria-hidden="true">
+      <span>.</span><span>.</span><span>.</span>
+    </span>
+  );
+}
 
 /* ── Icons ─────────────────────────────────────── */
 
@@ -36,41 +67,12 @@ function BrandLogo() {
   return (
     <div className="flex items-center gap-3">
       <img src={logoImg} alt="SkillForge" className="w-9 h-9 object-contain" />
-      <span className="font-brand glow-pulse" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
+      <span className="font-brand brand-glitch-in" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
         SkillForge_
       </span>
     </div>
   );
 }
-
-/* ── Feature bullets ────────────────────────────── */
-
-const FEATURES = [
-  {
-    icon: (
-      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-      </svg>
-    ),
-    text: "Challenging jobs across Python, JavaScript, Java and more",
-  },
-  {
-    icon: (
-      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
-      </svg>
-    ),
-    text: "Real-time code review with AI-powered feedback",
-  },
-  {
-    icon: (
-      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-      </svg>
-    ),
-    text: "Progress tracking, achievements and global leaderboards",
-  },
-];
 
 /* ── Page ───────────────────────────────────────── */
 
@@ -86,14 +88,32 @@ export default function Login() {
   const location  = useLocation();
   const from      = location.state?.from?.pathname || "/";
 
+  // Browsers block audio until a user gesture — unlock as soon as one lands.
+  useEffect(() => {
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+    return () => {
+      document.removeEventListener("pointerdown", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+    };
+  }, []);
+
+  useEffect(() => {
+    playBootSound();
+    return () => stopBootSound();
+  }, []);
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
+    playClick();
     try {
       await login(identifier.trim(), password);
+      playChime();
       navigate(from, { replace: true });
     } catch (err) {
+      playError();
       setError(err.response?.data?.error || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
@@ -111,33 +131,19 @@ export default function Login() {
 
       {/* Left branding panel */}
       <div className="auth-left">
-        <BrandLogo />
+        <div className="flex items-center justify-between">
+          <BrandLogo />
+          <SoundToggle />
+        </div>
 
-        <div className="space-y-10">
-          <div>
-            <h1 className="text-5xl font-bold text-white leading-tight mb-5">
-              Compile skills.
-              <br />
-              <span className="text-green">Deploy your future.</span>
-            </h1>
-            <p className="text-sub text-lg leading-relaxed max-w-sm font-body">
-              Solve coding jobs, get real-time feedback, and track your progress. Join a community of builders and level up with SkillForge.
-            </p>
+        <div className="term-window auth-terminal term-scan crt-power-on">
+          <div className="term-bar">
+            <span className="term-dot term-dot--red" />
+            <span className="term-dot term-dot--yellow" />
+            <span className="term-dot term-dot--green" />
+            <span className="term-title">operator@skillforge: ~</span>
           </div>
-
-          <div className="space-y-4">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="flex items-center gap-3.5">
-                <div
-                  className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
-                  style={{ background: "var(--color-green-dim)", border: "1px solid var(--color-green-border)" }}
-                >
-                  {f.icon}
-                </div>
-                <span className="text-sub font-body" style={{ fontSize: "1rem" }}>{f.text}</span>
-              </div>
-            ))}
-          </div>
+          <TerminalTypewriter script={LOGIN_SCRIPT} onComplete={playChime} className="term-body auth-terminal-log" />
         </div>
 
         <p className="text-dim font-body text-sm">© 2026 SkillForge. All rights reserved.</p>
@@ -152,7 +158,7 @@ export default function Login() {
           </div>
 
           {/* Form card — terminal window */}
-          <div className="auth-card">
+          <div className="auth-card crt-power-on" style={{ animationDelay: "0.15s" }}>
             <div className="term-bar">
               <span className="term-dot term-dot--red" />
               <span className="term-dot term-dot--yellow" />
@@ -205,7 +211,7 @@ export default function Login() {
                       autoComplete="current-password"
                       required
                     />
-                    <button type="button" className="sf-input-icon-btn" onClick={() => setShowPw((v) => !v)} tabIndex={-1}>
+                    <button type="button" className="sf-input-icon-btn" onClick={() => { playClick(); setShowPw((v) => !v); }} tabIndex={-1}>
                       {showPw ? <EyeOffIcon /> : <EyeIcon />}
                     </button>
                   </div>
@@ -219,7 +225,7 @@ export default function Login() {
                 )}
 
                 <button type="submit" className="sf-btn" disabled={loading} style={{ marginTop: "0.5rem" }}>
-                  {loading ? <><span className="sf-spinner" />Authenticating…</> : "Sign In"}
+                  {loading ? <><span className="sf-spinner" />Authenticating<LoadingDots /></> : "Sign In"}
                 </button>
 
                 <p className="text-center font-body text-dim" style={{ fontSize: "0.92rem" }}>

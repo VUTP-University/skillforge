@@ -1,7 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import TerminalTypewriter from "../components/TerminalTypewriter";
+import SoundToggle from "../components/SoundToggle";
+import { playBootSound, playChime, playClick, playError, stopBootSound, unlockAudio } from "../utils/terminalAudio";
 import logoImg from "../assets/img/skill_forge_logo.png";
+
+const REGISTER_SCRIPT = [
+  { text: "$ ./init_profile.sh --new", className: "ti-prompt", speed: 34, pause: 380 },
+  { text: "Allocating user record... done", className: "ti-output", speed: 20, pause: 320 },
+  { text: "Generating session token... done", className: "ti-output", speed: 20, pause: 320 },
+  { text: "Provisioning workspace... done", className: "ti-output", speed: 20, pause: 700 },
+  { text: "Initialize your profile.", className: "ti-headline", speed: 55, pause: 260 },
+  { text: "Ship your first job.", className: "ti-headline ti-headline--accent", speed: 55, pause: 650 },
+  {
+    text: "Create your free account and unlock coding jobs, XP tracking, and a leaderboard that grows with you.",
+    className: "ti-paragraph",
+    speed: 14,
+    pause: 750,
+  },
+  { text: "$ cat ./features.log", className: "ti-prompt", speed: 30, pause: 400 },
+  { text: "[+] Free to join — no strings attached.", className: "ti-feature", speed: 16, pause: 260 },
+  { text: "[+] Track your progress across every language.", className: "ti-feature", speed: 16, pause: 260 },
+  { text: "[+] Earn XP, climb the leaderboard, survive the Stack Trace.", className: "ti-feature", speed: 16, pause: 260 },
+];
+
+function LoadingDots() {
+  return (
+    <span className="loading-dots" aria-hidden="true">
+      <span>.</span><span>.</span><span>.</span>
+    </span>
+  );
+}
 
 /* ── Icons ─────────────────────────────────────── */
 
@@ -36,41 +66,12 @@ function BrandLogo() {
   return (
     <div className="flex items-center gap-3">
       <img src={logoImg} alt="SkillForge" className="w-9 h-9 object-contain" />
-      <span className="font-brand glow-pulse" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
+      <span className="font-brand brand-glitch-in" style={{ fontSize: "1.9rem", lineHeight: 1, color: "var(--color-green)" }}>
         SkillForge_
       </span>
     </div>
   );
 }
-
-/* ── Feature list ───────────────────────────────── */
-
-const FEATURES = [
-  {
-    icon: (
-      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-      </svg>
-    ),
-    text: "Free to join — no strings attached.",
-  },
-  {
-    icon: (
-      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-      </svg>
-    ),
-    text: "Track your progress across every language.",
-  },
-  {
-    icon: (
-      <svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-      </svg>
-    ),
-    text: "Earn XP, climb the leaderboard, survive the Stack Trace.",
-  },
-];
 
 /* ── Password strength meter ─────────────────────── */
 
@@ -112,12 +113,27 @@ export default function Register() {
     password: "",
     confirm: "",
   });
-  const [showPw, setShowPw]   = useState(false);
-  const [error, setError]     = useState("");
-  const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw]     = useState(false);
+  const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
 
   const { register } = useAuth();
   const navigate     = useNavigate();
+
+  // Browsers block audio until a user gesture — unlock as soon as one lands.
+  useEffect(() => {
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+    return () => {
+      document.removeEventListener("pointerdown", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+    };
+  }, []);
+
+  useEffect(() => {
+    playBootSound();
+    return () => stopBootSound();
+  }, []);
 
   function update(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -127,18 +143,23 @@ export default function Register() {
     e.preventDefault();
     setError("");
     if (form.password !== form.confirm) {
+      playError();
       setError("Passwords do not match.");
       return;
     }
     if (form.password.length < 8) {
+      playError();
       setError("Password must be at least 8 characters.");
       return;
     }
     setLoading(true);
+    playClick();
     try {
       await register(form.username.trim(), form.email.trim().toLowerCase(), form.password);
+      playChime();
       navigate("/", { replace: true });
     } catch (err) {
+      playError();
       setError(err.response?.data?.error || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
@@ -158,33 +179,19 @@ export default function Register() {
 
       {/* Left branding panel */}
       <div className="auth-left">
-        <BrandLogo />
+        <div className="flex items-center justify-between">
+          <BrandLogo />
+          <SoundToggle />
+        </div>
 
-        <div className="space-y-10">
-          <div>
-            <h1 className="text-5xl font-bold text-white leading-tight mb-5">
-              Initialize your profile.
-              <br />
-              <span className="text-green">Ship your first job.</span>
-            </h1>
-            <p className="text-sub text-lg leading-relaxed max-w-sm font-body">
-              Create your free account and unlock coding jobs, XP tracking, and a leaderboard that grows with you.
-            </p>
+        <div className="term-window auth-terminal term-scan crt-power-on">
+          <div className="term-bar">
+            <span className="term-dot term-dot--red" />
+            <span className="term-dot term-dot--yellow" />
+            <span className="term-dot term-dot--green" />
+            <span className="term-title">operator@skillforge: ~</span>
           </div>
-
-          <div className="space-y-4">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="flex items-center gap-3.5">
-                <div
-                  className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
-                  style={{ background: "var(--color-green-dim)", border: "1px solid var(--color-green-border)" }}
-                >
-                  {f.icon}
-                </div>
-                <span className="text-sub font-body" style={{ fontSize: "1rem" }}>{f.text}</span>
-              </div>
-            ))}
-          </div>
+          <TerminalTypewriter script={REGISTER_SCRIPT} onComplete={playChime} className="term-body auth-terminal-log" />
         </div>
 
         <p className="text-dim font-body text-sm">© 2026 SkillForge. All rights reserved.</p>
@@ -199,7 +206,7 @@ export default function Register() {
           </div>
 
           {/* Form card — terminal window */}
-          <div className="auth-card">
+          <div className="auth-card crt-power-on" style={{ animationDelay: "0.15s" }}>
             <div className="term-bar">
               <span className="term-dot term-dot--red" />
               <span className="term-dot term-dot--yellow" />
@@ -263,7 +270,7 @@ export default function Register() {
                     <button
                       type="button"
                       className="sf-input-icon-btn"
-                      onClick={() => setShowPw((v) => !v)}
+                      onClick={() => { playClick(); setShowPw((v) => !v); }}
                       tabIndex={-1}
                     >
                       {showPw ? <EyeOffIcon /> : <EyeIcon />}
@@ -320,7 +327,7 @@ export default function Register() {
                 {/* Submit */}
                 <button type="submit" className="sf-btn" disabled={loading} style={{ marginTop: "0.5rem" }}>
                   {loading ? (
-                    <><span className="sf-spinner" />Creating account…</>
+                    <><span className="sf-spinner" />Creating account<LoadingDots /></>
                   ) : (
                     "Create Account"
                   )}
