@@ -7,38 +7,6 @@ import Avatar from "../components/Avatar";
 
 /* ── Icons ───────────────────────────────────────────────────────────────── */
 
-function CrownIcon({ size = 22, color = "currentColor" }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
-      <path d="M2 19h20v2H2v-2zM2 8l4 6 6-9 6 9 4-6v9H2V8z" />
-    </svg>
-  );
-}
-
-function SwordsIcon({ size = 20, color = "currentColor" }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
-      <line x1="13" y1="19" x2="19" y2="13" />
-      <line x1="16" y1="16" x2="20" y2="20" />
-      <line x1="19" y1="21" x2="21" y2="19" />
-      <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" />
-      <line x1="5" y1="14" x2="9" y2="18" />
-      <line x1="7" y1="21" x2="3" y2="17" />
-      <line x1="21" y1="11" x2="11" y2="21" />
-    </svg>
-  );
-}
-
-function ShieldIcon({ size = 20, color = "currentColor" }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  );
-}
-
 function BoltIcon() {
   return (
     <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -49,50 +17,13 @@ function BoltIcon() {
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
-// Podium slot metadata — rendered left-to-right as 2nd | 1st | 3rd
+// Podium slot metadata — rendered left-to-right as 2nd | 1st | 3rd.
+// Sizes taper down from 1st so the row naturally staggers in height
+// (row uses align-items: flex-end) without a separate pedestal block.
 const SLOTS = [
-  {
-    dataIndex:    1,               // index in sorted array
-    place:        2,
-    title:        "Runner Up",
-    Icon:         SwordsIcon,
-    color:        "var(--color-blue-bright)",
-    border:       "var(--color-blue-border)",
-    cardBg:       "var(--color-blue-dim)",
-    glow:         "var(--color-blue-glow)",
-    pedestalH:    76,
-    pedestalBg:   "var(--color-blue-dim)",
-    pedestalBord: "var(--color-blue-border)",
-    avatarSize:   62,
-  },
-  {
-    dataIndex:    0,               // 1st place — center
-    place:        1,
-    title:        "#1 Overall",
-    Icon:         CrownIcon,
-    color:        "var(--color-amber)",
-    border:       "var(--color-amber-border)",
-    cardBg:       "var(--color-amber-dim)",
-    glow:         "0 0 32px var(--color-amber-glow)",
-    pedestalH:    108,
-    pedestalBg:   "var(--color-amber-dim)",
-    pedestalBord: "var(--color-amber-border)",
-    avatarSize:   76,
-  },
-  {
-    dataIndex:    2,
-    place:        3,
-    title:        "3rd Place",
-    Icon:         ShieldIcon,
-    color:        "#c9974f",
-    border:       "rgba(201,151,79,0.30)",
-    cardBg:       "rgba(201,151,79,0.06)",
-    glow:         "rgba(201,151,79,0.10)",
-    pedestalH:    52,
-    pedestalBg:   "rgba(201,151,79,0.08)",
-    pedestalBord: "rgba(201,151,79,0.20)",
-    avatarSize:   54,
-  },
+  { dataIndex: 1, place: 2, color: "var(--color-blue)",  avatarSize: 58, glyphSize: "2.2rem" },
+  { dataIndex: 0, place: 1, color: "var(--color-green)", avatarSize: 76, glyphSize: "3rem"   },
+  { dataIndex: 2, place: 3, color: "var(--color-amber)", avatarSize: 50, glyphSize: "1.9rem" },
 ];
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
@@ -220,9 +151,9 @@ export default function LeaderboardPage() {
         <div className="flex items-end justify-center gap-3 sm:gap-5 px-2" style={{ position: "relative" }}>
           {/* Ambient glow behind podium */}
           <div style={{
-            position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
+            position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)",
             width: "280px", height: "200px",
-            background: "radial-gradient(ellipse, var(--color-amber-glow) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, var(--color-green-glow) 0%, transparent 70%)",
             filter: "blur(24px)",
             pointerEvents: "none",
           }} />
@@ -231,104 +162,57 @@ export default function LeaderboardPage() {
             if (!player) return null;
             const isMe = player.id === me?.id;
             return (
-              <div
+              <Link
                 key={slot.place}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "0 1 220px", minWidth: 0 }}
+                to={`/users/${player.id}`}
+                className={`podium-card${isMe ? " podium-card--me" : ""}`}
+                style={{ "--card-accent": slot.color, textDecoration: "none", flex: "0 1 220px", minWidth: 0 }}
               >
-                {/* Champion card */}
-                <Link
-                  to={`/users/${player.id}`}
-                  style={{ textDecoration: "none", width: "100%" }}
-                >
-                  <div
-                    style={{
-                      background: slot.cardBg,
-                      border: `1px solid ${slot.border}`,
-                      borderBottom: "none",
-                      borderRadius: "8px 8px 0 0",
-                      padding: "1.1rem 0.75rem 1rem",
-                      display: "flex", flexDirection: "column", alignItems: "center", gap: "0.55rem",
-                      boxShadow: slot.place === 1 ? slot.glow : "none",
-                      transition: "filter 0.15s",
-                      outline: isMe ? `2px solid var(--color-green-border)` : "none",
-                      outlineOffset: "-2px",
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.filter = "brightness(1.12)")}
-                    onMouseLeave={e => (e.currentTarget.style.filter = "none")}
-                  >
-                    {/* Medal icon */}
-                    <div style={{
-                      width: "2rem", height: "2rem", borderRadius: "4px",
-                      background: slot.cardBg,
-                      border: `1px solid ${slot.border}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0,
-                    }}>
-                      <slot.Icon size={slot.place === 1 ? 16 : 14} color={slot.color} />
-                    </div>
-
-                    {/* Avatar */}
-                    <div style={{
-                      borderRadius: "5px",
-                      padding: "3px",
-                      background: `linear-gradient(135deg, ${slot.color}, transparent)`,
-                      flexShrink: 0,
-                    }}>
-                      <Avatar src={player.avatar_url} username={player.username} size={slot.avatarSize} ring="none" />
-                    </div>
-
-                    {/* Name */}
-                    <p style={{
-                      fontFamily: "var(--font-heading)", fontSize: slot.place === 1 ? "0.9rem" : "0.78rem",
-                      fontWeight: 700, color: "var(--color-text)", textAlign: "center",
-                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      maxWidth: "100%",
-                    }}>
-                      {player.username}
-                      {isMe && <span style={{ color: "var(--color-green)", fontSize: "0.6rem", marginLeft: "0.3rem" }}>you</span>}
-                    </p>
-
-                    {/* Rank badge */}
-                    <RankBadge rank={player.rank} />
-
-                    {/* XP */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                      <svg style={{ width: 11, height: 11, color: slot.color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                      </svg>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: slot.color }}>
-                        {player.total_xp.toLocaleString()} XP
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Pedestal */}
-                <div style={{
-                  width: "100%",
-                  height: slot.pedestalH,
-                  background: slot.pedestalBg,
-                  border: `1px solid ${slot.pedestalBord}`,
-                  borderTop: "none",
-                  borderRadius: "0 0 6px 6px",
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", gap: "0.2rem",
-                }}>
-                  <span style={{
-                    fontFamily: "var(--font-brand)", fontSize: slot.place === 1 ? "2rem" : "1.6rem",
-                    fontWeight: 800, color: slot.color, lineHeight: 1,
-                    opacity: 0.9,
-                  }}>
-                    {slot.place === 1 ? "I" : slot.place === 2 ? "II" : "III"}
-                  </span>
-                  <span style={{
-                    fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700,
-                    color: slot.color, opacity: 0.75,
-                  }}>
-                    {slot.title}
-                  </span>
+                <div className="podium-card-bar">
+                  <span className="term-dot term-dot--red" />
+                  <span className="term-dot term-dot--yellow" />
+                  <span className="term-dot term-dot--green" />
+                  <span className="term-title">rank_0{slot.place}</span>
                 </div>
-              </div>
+
+                <div className="podium-card-body">
+                  <div className="podium-rank-glyph" style={{ fontSize: slot.glyphSize }}>0{slot.place}</div>
+
+                  {/* Avatar */}
+                  <div style={{
+                    borderRadius: "5px",
+                    padding: "3px",
+                    background: `linear-gradient(135deg, ${slot.color}, transparent)`,
+                    flexShrink: 0,
+                  }}>
+                    <Avatar src={player.avatar_url} username={player.username} size={slot.avatarSize} ring="none" />
+                  </div>
+
+                  {/* Name */}
+                  <p style={{
+                    fontFamily: "var(--font-heading)", fontSize: slot.place === 1 ? "0.9rem" : "0.78rem",
+                    fontWeight: 700, color: "var(--color-text)", textAlign: "center",
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    maxWidth: "100%",
+                  }}>
+                    {player.username}
+                    {isMe && <span style={{ color: "var(--color-green)", fontSize: "0.6rem", marginLeft: "0.3rem" }}>you</span>}
+                  </p>
+
+                  {/* Rank badge */}
+                  <RankBadge rank={player.rank} />
+
+                  {/* XP */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    <svg style={{ width: 11, height: 11, color: slot.color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: slot.color }}>
+                      {player.total_xp.toLocaleString()} XP
+                    </span>
+                  </div>
+                </div>
+              </Link>
             );
           })}
         </div>

@@ -1462,6 +1462,60 @@
   .job-card:hover .job-card-cta svg { transform: translateX(2px); }
   .job-card-cta svg { transition: transform 0.2s; }
 
+  /* ─── Podium cards — Leaderboard top 3 ──
+     Same mini-terminal-window recipe as the job/explore cards, tinted
+     per rank via --card-accent (green/blue/amber, not gold/silver/bronze —
+     the "medal" palette read as a trophy case, not a terminal). */
+
+  .podium-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid color-mix(in srgb, var(--card-accent) 40%, var(--color-border-2));
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .podium-card:hover {
+    border-color: var(--card-accent);
+    box-shadow: 0 10px 32px color-mix(in srgb, var(--card-accent) 25%, transparent);
+    transform: translateY(-3px);
+  }
+
+  .podium-card--me { outline: 2px solid var(--color-green-border); outline-offset: -2px; }
+
+  .podium-card-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.15));
+    border-bottom: 1px solid color-mix(in srgb, var(--card-accent) 30%, var(--color-border-2));
+  }
+  .podium-card-bar .term-title { color: var(--card-accent); opacity: 0.9; }
+
+  .podium-card-body {
+    position: relative;
+    padding: 1.15rem 0.9rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .podium-rank-glyph {
+    position: absolute;
+    top: 0.15rem;
+    right: 0.55rem;
+    font-family: var(--font-brand);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--card-accent);
+    opacity: 0.16;
+    user-select: none;
+    pointer-events: none;
+  }
+
   /* ─── Explore cards — Home dashboard "Explore" grid ── */
 
   .explore-card {
