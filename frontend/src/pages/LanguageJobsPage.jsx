@@ -37,7 +37,7 @@ function DiffBadge({ difficulty }) {
         background: m.bg,
         color: m.color,
         fontFamily: "var(--font-heading)",
-        fontSize: "0.60rem",
+        fontSize: "0.705rem",
         fontWeight: 700,
         flexShrink: 0,
         whiteSpace: "nowrap",
@@ -73,7 +73,7 @@ function FilterPill({ value, active, count, onClick }) {
           ? value === "all" ? "var(--color-green)" : (m?.color ?? "var(--color-text-secondary)")
           : "var(--color-text-tertiary)",
         fontFamily: "var(--font-heading)",
-        fontSize: "0.58rem",
+        fontSize: "0.692rem",
         fontWeight: 700,
         cursor: "pointer",
         transition: "all 0.15s",
@@ -84,7 +84,7 @@ function FilterPill({ value, active, count, onClick }) {
       {count !== undefined && (
         <span
           style={{
-            fontSize: "0.55rem",
+            fontSize: "0.672rem",
             fontWeight: 700,
             opacity: active ? 0.85 : 0.45,
           }}
@@ -125,7 +125,7 @@ function JobRow({ job, language, index }) {
         <p
           style={{
             fontFamily: "var(--font-heading)",
-            fontSize: "0.8rem",
+            fontSize: "0.835rem",
             fontWeight: 700,
             color: "var(--color-text)",
             whiteSpace: "nowrap",
@@ -138,7 +138,7 @@ function JobRow({ job, language, index }) {
         </p>
         <p
           style={{
-            fontSize: "0.7rem",
+            fontSize: "0.77rem",
             color: "var(--color-text-tertiary)",
             whiteSpace: "nowrap",
             overflow: "hidden",
@@ -163,7 +163,7 @@ function JobRow({ job, language, index }) {
           <svg style={{ width: 12, height: 12, color: "var(--color-green)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
           </svg>
-          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
+          <span style={{ fontSize: "0.783rem", fontWeight: 700, color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
             {job.xp_reward}
           </span>
         </div>
@@ -171,7 +171,7 @@ function JobRow({ job, language, index }) {
         {/* Test cases */}
         <span
           style={{
-            fontSize: "0.68rem",
+            fontSize: "0.757rem",
             color: "var(--color-text-tertiary)",
             fontFamily: "var(--font-heading)",
             whiteSpace: "nowrap",
@@ -184,7 +184,7 @@ function JobRow({ job, language, index }) {
         {job.author && (
           <span
             style={{
-              fontSize: "0.65rem",
+              fontSize: "0.738rem",
               color: "var(--color-text-faint)",
               whiteSpace: "nowrap",
               display: "none",
@@ -203,7 +203,7 @@ function JobRow({ job, language, index }) {
             style={{
               width: "auto",
               padding: "0.28rem 0.75rem",
-              fontSize: "0.58rem",
+              fontSize: "0.692rem",
               color: "var(--color-green)",
               borderColor: "var(--color-green-border)",
             }}
@@ -254,7 +254,7 @@ function Pagination({ page, totalPages, onChange }) {
           ? "var(--color-text-faint)"
           : "var(--color-text-secondary)",
         fontFamily: "var(--font-heading)",
-        fontSize: "0.62rem",
+        fontSize: "0.718rem",
         fontWeight: 700,
         cursor: disabled ? "default" : "pointer",
         transition: "all 0.12s",
@@ -385,15 +385,15 @@ export default function LanguageJobsPage() {
                 return (
                   <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
                     <span style={{ width: 7, height: 7, borderRadius: "1px", background: m.bar }} />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: m.color }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: m.color }}>
                       {m.label}
                     </span>
-                    <span style={{ fontSize: "0.65rem", fontWeight: 700, color: m.color, opacity: 0.80 }}>{n}</span>
+                    <span style={{ fontSize: "0.738rem", fontWeight: 700, color: m.color, opacity: 0.80 }}>{n}</span>
                   </div>
                 );
               })}
               <div style={{ width: "1px", height: "14px", background: "var(--color-border-2)" }} />
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                 {jobs.length} total
               </span>
             </div>
@@ -447,7 +447,7 @@ export default function LanguageJobsPage() {
                 />
               ))}
               {(search || filter !== "all") && (
-                <span style={{ fontSize: "0.65rem", color: "var(--color-text-tertiary)", marginLeft: "0.25rem" }}>
+                <span style={{ fontSize: "0.738rem", color: "var(--color-text-tertiary)", marginLeft: "0.25rem" }}>
                   {filtered.length} result{filtered.length !== 1 ? "s" : ""}
                 </span>
               )}
@@ -477,7 +477,7 @@ export default function LanguageJobsPage() {
               <p className="text-sub text-sm">No jobs match your search.</p>
               <button
                 onClick={() => { handleSearch(""); handleFilter("all"); }}
-                style={{ marginTop: "0.5rem", fontSize: "0.65rem", color: "var(--color-green)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)" }}
+                style={{ marginTop: "0.5rem", fontSize: "0.738rem", color: "var(--color-green)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)" }}
               >
                 Clear filters
               </button>
@@ -497,13 +497,13 @@ export default function LanguageJobsPage() {
                 marginBottom: "0.25rem",
               }}
             >
-              <span style={{ flexShrink: 0, width: "80px", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
+              <span style={{ flexShrink: 0, width: "80px", fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                 Difficulty
               </span>
-              <span style={{ flex: 1, fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
+              <span style={{ flex: 1, fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                 Job
               </span>
-              <span style={{ flexShrink: 0, width: "auto", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)", paddingRight: "calc(70px + 1rem)" }}>
+              <span style={{ flexShrink: 0, width: "auto", fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, color: "var(--color-text-faint)", paddingRight: "calc(70px + 1rem)" }}>
                 Reward
               </span>
             </div>
@@ -518,7 +518,7 @@ export default function LanguageJobsPage() {
           {/* Pagination + count */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
             <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
-            <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
+            <span style={{ fontSize: "0.718rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
               {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} jobs
             </span>
           </div>

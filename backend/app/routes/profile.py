@@ -5,7 +5,8 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Process, ProcessChallenge, ChallengeStatus, Job, JobCompletion, JobSubmission, TestRun, TestRunStatus, User, xp_progress
+from app.models import Achievement, AchievementCategory, Process, ProcessChallenge, ChallengeStatus, Job, JobCompletion, JobSubmission, TestRun, TestRunStatus, User, UserAchievement, xp_progress
+from app.achievements import check_achievements
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -85,6 +86,24 @@ def _build_completions(user_id):
     } for c, j in rows]
 
 
+def _build_achievements(user_id):
+    rows = (
+        db.session.query(UserAchievement, Achievement)
+        .join(Achievement, UserAchievement.achievement_id == Achievement.id)
+        .filter(UserAchievement.user_id == user_id)
+        .order_by(UserAchievement.earned_at.desc())
+        .all()
+    )
+    return [{
+        "slug":        a.slug,
+        "name":        a.name,
+        "description": a.description,
+        "category":    a.category.value,
+        "glyph":       a.glyph,
+        "earned_at":   ua.earned_at.isoformat(),
+    } for ua, a in rows]
+
+
 # ── Serve avatar files ────────────────────────────────────────────────────────
 
 @profile_bp.route("/media/avatars/<filename>")
@@ -102,6 +121,7 @@ def get_my_profile():
     data["completions"]        = _build_completions(user.id)
     data["process_challenges"] = _build_process_challenges(user.id)
     data["test_runs"]          = _build_test_runs(user.id)
+    data["achievements"]       = _build_achievements(user.id)
     return jsonify(data)
 
 
@@ -123,6 +143,7 @@ def get_profile(user_id):
         "completions":        _build_completions(user_id),
         "process_challenges": _build_process_challenges(user_id),
         "test_runs":          _build_test_runs(user_id),
+        "achievements":       _build_achievements(user_id),
     })
 
 
@@ -250,6 +271,7 @@ def upload_avatar():
 
     f.save(os.path.join(avatars_dir, filename))
     user.avatar = filename
+    check_achievements(user, categories=[AchievementCategory.general])
     db.session.commit()
     return jsonify(user.to_dict())
 

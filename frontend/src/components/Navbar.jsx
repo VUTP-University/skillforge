@@ -159,7 +159,7 @@ export default function Navbar() {
                       <Link
                         to="/profile"
                         className="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-150"
-                        style={{ color: "rgba(255,255,255,0.60)" }}
+                        style={{ color: "rgba(255,255,255,0.682)" }}
                         onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
                         onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.60)"; e.currentTarget.style.background = "transparent"; }}
                       >
@@ -170,7 +170,7 @@ export default function Navbar() {
                         <Link
                           to="/moderator"
                           className="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-150"
-                          style={{ color: "rgba(255,255,255,0.60)" }}
+                          style={{ color: "rgba(255,255,255,0.682)" }}
                           onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
                           onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.60)"; e.currentTarget.style.background = "transparent"; }}
                         >
@@ -182,7 +182,7 @@ export default function Navbar() {
                         <Link
                           to="/admin"
                           className="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-150"
-                          style={{ color: "rgba(255,255,255,0.60)" }}
+                          style={{ color: "rgba(255,255,255,0.682)" }}
                           onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
                           onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.60)"; e.currentTarget.style.background = "transparent"; }}
                         >
@@ -195,7 +195,7 @@ export default function Navbar() {
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors duration-150"
-                        style={{ color: "rgba(248,113,113,0.70)", background: "transparent", border: "none" }}
+                        style={{ color: "rgba(248,113,113,0.728)", background: "transparent", border: "none" }}
                         onMouseEnter={e => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.06)"; }}
                         onMouseLeave={e => { e.currentTarget.style.color = "rgba(248,113,113,0.70)"; e.currentTarget.style.background = "transparent"; }}
                       >

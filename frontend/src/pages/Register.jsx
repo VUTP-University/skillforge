@@ -343,7 +343,7 @@ export default function Register() {
                   <Link
                     to="/login"
                     className="font-heading"
-                    style={{ color: "var(--color-blue)", fontSize: "0.7rem", letterSpacing: "0.04em" }}
+                    style={{ color: "var(--color-blue)", fontSize: "0.77rem", letterSpacing: "0.04em" }}
                   >
                     Sign in
                   </Link>

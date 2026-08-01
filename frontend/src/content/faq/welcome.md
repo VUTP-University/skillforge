@@ -11,6 +11,7 @@ SkillForge is a platform for leveling up as a programmer, one solved problem at 
 - **The Job Board** — Programming problems across four languages, each one a self-contained challenge with its own checks to pass
 - **The Stack Trace** — A harder arena of hostile processes, reserved for coders who've already proven the basics
 - **The Test Suite** — A weekly timed run across all four languages, testing breadth instead of depth
+- **Achievements** — Unlocked automatically as you complete jobs, processes, and runs
 - **The Leaderboard** — Every user on SkillForge, ranked by total XP
 
 ## How to Begin

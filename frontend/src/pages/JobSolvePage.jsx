@@ -79,7 +79,7 @@ function DiffBadge({ difficulty }) {
         display: "inline-flex", alignItems: "center", gap: "0.28rem",
         padding: "0.2rem 0.6rem", borderRadius: "3px",
         border: `1px solid ${m.border}`, background: m.bg, color: m.color,
-        fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
+        fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700,
         letterSpacing: "0.10em", textTransform: "uppercase", flexShrink: 0,
       }}
     >
@@ -92,7 +92,7 @@ function DiffBadge({ difficulty }) {
 function MonoBlock({ label, value }) {
   return (
     <div>
-      <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.3rem" }}>
+      <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.3rem" }}>
         {label}
       </p>
       <pre
@@ -101,7 +101,7 @@ function MonoBlock({ label, value }) {
           borderRadius: "8px",
           background: "rgba(0,0,0,0.30)",
           border: "1px solid rgba(255,255,255,0.07)",
-          fontFamily: "monospace", fontSize: "0.78rem",
+          fontFamily: "monospace", fontSize: "0.822rem",
           color: "rgba(255,255,255,0.75)",
           whiteSpace: "pre-wrap", wordBreak: "break-all",
         }}
@@ -134,10 +134,10 @@ function ExampleTestRow({ result }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         )}
-        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", color: m.color }}>
+        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, letterSpacing: "0.06em", color: m.color }}>
           Test 1 — Example
         </span>
-        <span style={{ fontSize: "0.65rem", color: "var(--color-text-tertiary)", marginLeft: "auto" }}>
+        <span style={{ fontSize: "0.738rem", color: "var(--color-text-tertiary)", marginLeft: "auto" }}>
           {open ? "▲" : "▼"}
         </span>
       </button>
@@ -183,10 +183,10 @@ function HiddenTestRow({ result, n }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       )}
-      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", color: m.color }}>
+      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, letterSpacing: "0.06em", color: m.color }}>
         Test {n}
       </span>
-      <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)", marginLeft: "auto", fontStyle: "italic" }}>
+      <span style={{ fontSize: "0.718rem", color: "var(--color-text-faint)", marginLeft: "auto", fontStyle: "italic" }}>
         hidden
       </span>
     </div>
@@ -250,7 +250,7 @@ function JobComments({ jobId, currentUser }) {
       <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginBottom: "1.25rem" }}>
         <span
           style={{
-            fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+            fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
             letterSpacing: "0.12em", textTransform: "uppercase",
             color: "var(--color-text-tertiary)",
           }}
@@ -262,7 +262,7 @@ function JobComments({ jobId, currentUser }) {
             style={{
               padding: "0.1rem 0.5rem", borderRadius: "3px",
               background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)",
-              fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+              fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700,
               color: "var(--color-text-secondary)",
             }}
           >
@@ -275,10 +275,10 @@ function JobComments({ jobId, currentUser }) {
       {loading ? (
         <div className="flex items-center gap-2 py-4">
           <div className="sf-spinner" style={{ width: "14px", height: "14px" }} />
-          <span className="text-sub" style={{ fontSize: "0.78rem" }}>Loading comments…</span>
+          <span className="text-sub" style={{ fontSize: "0.822rem" }}>Loading comments…</span>
         </div>
       ) : comments.length === 0 ? (
-        <p style={{ fontSize: "0.80rem", color: "var(--color-text-faint)", fontStyle: "italic", marginBottom: "1.25rem" }}>
+        <p style={{ fontSize: "0.835rem", color: "var(--color-text-faint)", fontStyle: "italic", marginBottom: "1.25rem" }}>
           No comments yet. Be the first to share your thoughts.
         </p>
       ) : (
@@ -295,7 +295,7 @@ function JobComments({ jobId, currentUser }) {
                   <Link
                     to={`/users/${c.user_id}`}
                     style={{
-                      fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
+                      fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700,
                       color: "rgba(255,255,255,0.80)", textDecoration: "none", transition: "color 0.12s",
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-green)")}
@@ -303,7 +303,7 @@ function JobComments({ jobId, currentUser }) {
                   >
                     {c.username}
                   </Link>
-                  <span style={{ fontSize: "0.65rem", color: "var(--color-text-faint)" }}>
+                  <span style={{ fontSize: "0.738rem", color: "var(--color-text-faint)" }}>
                     {formatRelative(c.created_at)}
                   </span>
                   {canDelete(c) && (
@@ -311,7 +311,7 @@ function JobComments({ jobId, currentUser }) {
                       onClick={() => handleDelete(c.id)}
                       style={{
                         marginLeft: "auto", background: "none", border: "none", cursor: "pointer",
-                        fontSize: "0.62rem", color: "var(--color-red-bright)",
+                        fontSize: "0.718rem", color: "var(--color-red-bright)",
                         fontFamily: "var(--font-heading)", letterSpacing: "0.06em", textTransform: "uppercase",
                         transition: "color 0.12s",
                       }}
@@ -322,7 +322,7 @@ function JobComments({ jobId, currentUser }) {
                     </button>
                   )}
                 </div>
-                <p style={{ margin: 0, fontSize: "0.84rem", color: "rgba(255,255,255,0.72)", lineHeight: 1.65, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                <p style={{ margin: 0, fontSize: "0.861rem", color: "rgba(255,255,255,0.736)", lineHeight: 1.65, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                   {c.content}
                 </p>
               </div>
@@ -344,7 +344,7 @@ function JobComments({ jobId, currentUser }) {
               width: "100%", resize: "vertical",
               padding: "0.75rem 0.9rem", borderRadius: "10px",
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)",
-              color: "rgba(255,255,255,0.85)", fontSize: "0.84rem", lineHeight: 1.6,
+              color: "rgba(255,255,255,0.85)", fontSize: "0.861rem", lineHeight: 1.6,
               fontFamily: "var(--font-body)",
               outline: "none", transition: "border-color 0.15s",
               boxSizing: "border-box",
@@ -353,10 +353,10 @@ function JobComments({ jobId, currentUser }) {
             onBlur={(e)   => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)")}
           />
           {postErr && (
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--color-red-bright)" }}>{postErr}</p>
+            <p style={{ margin: 0, fontSize: "0.802rem", color: "var(--color-red-bright)" }}>{postErr}</p>
           )}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
-            <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
+            <span style={{ fontSize: "0.718rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
               {draft.length} / 2000
             </span>
             <button
@@ -368,7 +368,7 @@ function JobComments({ jobId, currentUser }) {
                 border: "1px solid var(--color-green-border)",
                 background: posting ? "var(--color-green-dim)" : "var(--color-green-dim)",
                 color: posting ? "var(--color-green)" : "var(--color-green)",
-                fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
                 letterSpacing: "0.10em", textTransform: "uppercase",
                 cursor: posting || !draft.trim() ? "not-allowed" : "pointer",
                 transition: "all 0.15s",
@@ -388,7 +388,7 @@ function JobComments({ jobId, currentUser }) {
           </div>
         </div>
       ) : (
-        <p style={{ fontSize: "0.80rem", color: "var(--color-text-tertiary)" }}>
+        <p style={{ fontSize: "0.835rem", color: "var(--color-text-tertiary)" }}>
           <Link
             to="/login"
             style={{ color: "var(--color-green)", textDecoration: "none" }}
@@ -450,8 +450,8 @@ function ReportModal({ jobId, onClose }) {
             </svg>
           </div>
           <div>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", margin: 0 }}>Report Job</h3>
-            <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", margin: 0 }}>Help us improve by flagging issues</p>
+            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "0.835rem", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", margin: 0 }}>Report Job</h3>
+            <p style={{ fontSize: "0.783rem", color: "var(--color-text-secondary)", margin: 0 }}>Help us improve by flagging issues</p>
           </div>
           <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", fontSize: "1.25rem", lineHeight: 1, padding: "0.1rem" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
@@ -464,13 +464,13 @@ function ReportModal({ jobId, onClose }) {
             <svg style={{ width: 36, height: 36, color: "var(--color-green)", margin: "0 auto 0.75rem" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, color: "var(--color-green)", marginBottom: "0.35rem" }}>Report submitted</p>
-            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.40)", marginBottom: "1.25rem" }}>Our moderators will review this job shortly.</p>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.835rem", fontWeight: 700, color: "var(--color-green)", marginBottom: "0.35rem" }}>Report submitted</p>
+            <p style={{ fontSize: "0.822rem", color: "rgba(255,255,255,0.593)", marginBottom: "1.25rem" }}>Our moderators will review this job shortly.</p>
             <button className="sf-btn-ghost" onClick={onClose} style={{ width: "auto", padding: "0.5rem 1.5rem" }}>Close</button>
           </div>
         ) : (
           <>
-            <label style={{ display: "block", fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.40)", marginBottom: "0.5rem" }}>
+            <label style={{ display: "block", fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "rgba(255,255,255,0.593)", marginBottom: "0.5rem" }}>
               Reason
             </label>
             <textarea
@@ -482,7 +482,7 @@ function ReportModal({ jobId, onClose }) {
                 width: "100%", resize: "vertical", marginBottom: "0.5rem",
                 padding: "0.75rem 0.9rem", borderRadius: "10px",
                 background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)",
-                color: "rgba(255,255,255,0.85)", fontSize: "0.84rem", lineHeight: 1.6,
+                color: "rgba(255,255,255,0.85)", fontSize: "0.861rem", lineHeight: 1.6,
                 fontFamily: "var(--font-body)", outline: "none", transition: "border-color 0.15s",
                 boxSizing: "border-box",
               }}
@@ -490,10 +490,10 @@ function ReportModal({ jobId, onClose }) {
               onBlur={(e)   => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)")}
             />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-              <span style={{ fontSize: "0.62rem", color: reason.length > MAX * 0.9 ? "var(--color-amber)" : "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
+              <span style={{ fontSize: "0.718rem", color: reason.length > MAX * 0.9 ? "var(--color-amber)" : "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
                 {reason.length} / {MAX}
               </span>
-              {error && <span style={{ fontSize: "0.72rem", color: "var(--color-red-bright)" }}>{error}</span>}
+              {error && <span style={{ fontSize: "0.783rem", color: "var(--color-red-bright)" }}>{error}</span>}
             </div>
             <div style={{ display: "flex", gap: "0.75rem" }}>
               <button className="sf-btn-ghost" style={{ flex: 1 }} onClick={onClose} disabled={submitting}>Cancel</button>
@@ -506,7 +506,7 @@ function ReportModal({ jobId, onClose }) {
                   border: "1px solid var(--color-red-border)",
                   background: submitting || !reason.trim() ? "var(--color-red-dim)" : "var(--color-red-dim)",
                   color: submitting || !reason.trim() ? "var(--color-red-border)" : "var(--color-red-bright)",
-                  fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700,
                   letterSpacing: "0.08em", textTransform: "uppercase",
                   cursor: submitting || !reason.trim() ? "not-allowed" : "pointer",
                   transition: "all 0.15s",
@@ -618,12 +618,12 @@ export default function JobSolvePage() {
           <svg style={{ width: 16, height: 16, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
           </svg>
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em" }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, letterSpacing: "0.06em" }}>
             +{xpBanner.xp} XP earned — job complete!
           </span>
           <button
             onClick={() => setXpBanner(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "rgba(74,222,128,0.60)", cursor: "pointer", fontSize: "1rem", lineHeight: 1 }}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "rgba(74,222,128,0.682)", cursor: "pointer", fontSize: "1rem", lineHeight: 1 }}
           >
             ×
           </button>
@@ -652,14 +652,14 @@ export default function JobSolvePage() {
             <svg style={{ width: 13, height: 13, color: "var(--color-green)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-green)" }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, color: "var(--color-green)" }}>
               {job.xp_reward} XP
             </span>
           </div>
           {job.author && job.author_id && (
             <Link
               to={`/users/${job.author_id}`}
-              style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", fontStyle: "italic", textDecoration: "none", transition: "color 0.12s" }}
+              style={{ fontSize: "0.757rem", color: "var(--color-text-tertiary)", fontStyle: "italic", textDecoration: "none", transition: "color 0.12s" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.30)")}
             >
@@ -685,14 +685,14 @@ export default function JobSolvePage() {
             <div>
               <p
                 style={{
-                  fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700,
                   letterSpacing: "0.12em", textTransform: "uppercase",
                   color: "var(--color-text-tertiary)", marginBottom: "0.65rem",
                 }}
               >
                 Problem
               </p>
-              <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+              <p style={{ fontSize: "0.887rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
                 {job.description}
               </p>
             </div>
@@ -705,7 +705,7 @@ export default function JobSolvePage() {
               <div>
                 <p
                   style={{
-                    fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
+                    fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700,
                     letterSpacing: "0.12em", textTransform: "uppercase",
                     color: "var(--color-text-tertiary)", marginBottom: "0.75rem",
                   }}
@@ -723,7 +723,7 @@ export default function JobSolvePage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingTop: "0.25rem" }}>
               <span
                 style={{
-                  fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700,
                   letterSpacing: "0.10em", textTransform: "uppercase",
                   color: "var(--color-text-faint)",
                 }}
@@ -734,8 +734,8 @@ export default function JobSolvePage() {
                 style={{
                   padding: "0.15rem 0.55rem", borderRadius: "3px",
                   background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)",
-                  fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
-                  color: "rgba(255,255,255,0.55)",
+                  fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700,
+                  color: "rgba(255,255,255,0.66)",
                 }}
               >
                 {langLabel}
@@ -751,7 +751,7 @@ export default function JobSolvePage() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span
               style={{
-                fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700,
                 letterSpacing: "0.10em", textTransform: "uppercase",
                 color: "var(--color-text-tertiary)", marginRight: "auto",
               }}
@@ -774,7 +774,7 @@ export default function JobSolvePage() {
               theme={vscodeDark}
               extensions={langExt()}
               minHeight="320px"
-              style={{ fontSize: "0.83rem" }}
+              style={{ fontSize: "0.855rem" }}
               basicSetup={{
                 lineNumbers: true,
                 foldGutter: false,
@@ -800,8 +800,8 @@ export default function JobSolvePage() {
                 padding: "0.7rem 1rem", borderRadius: "10px",
                 border: "1px solid rgba(255,255,255,0.12)",
                 background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.50)",
-                fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                color: "rgba(255,255,255,0.637)",
+                fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
                 letterSpacing: "0.09em", textTransform: "uppercase",
                 cursor: "pointer", transition: "all 0.15s",
               }}
@@ -824,7 +824,7 @@ export default function JobSolvePage() {
                   border: "1px solid var(--color-red-border)",
                   background: "var(--color-red-dim)",
                   color: "var(--color-red-bright)",
-                  fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
                   letterSpacing: "0.09em", textTransform: "uppercase",
                   cursor: "pointer", transition: "all 0.15s",
                 }}
@@ -849,7 +849,7 @@ export default function JobSolvePage() {
                 border: "1px solid var(--color-green-border)",
                 background: submitting ? "var(--color-green-dim)" : "var(--color-green-dim)",
                 color: submitting ? "var(--color-green)" : "var(--color-green)",
-                fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700,
                 letterSpacing: "0.12em", textTransform: "uppercase",
                 cursor: submitting || !code.trim() ? "not-allowed" : "pointer",
                 transition: "all 0.15s",
@@ -879,7 +879,7 @@ export default function JobSolvePage() {
               style={{
                 padding: "0.75rem 1rem", borderRadius: "10px",
                 background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)",
-                color: "var(--color-red-bright)", fontSize: "0.78rem",
+                color: "var(--color-red-bright)", fontSize: "0.822rem",
               }}
             >
               {submitErr}
@@ -893,10 +893,10 @@ export default function JobSolvePage() {
               {/* Summary banner */}
               <div className="glass-card" style={{ padding: "1rem 1.25rem" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.65rem" }}>
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
                     Results
                   </span>
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: barColor }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.802rem", fontWeight: 700, color: barColor }}>
                     {results.passed} / {results.total} passed
                   </span>
                 </div>
@@ -904,7 +904,7 @@ export default function JobSolvePage() {
                   <div style={{ height: "100%", borderRadius: "99px", width: `${barPct}%`, background: barColor, transition: "width 0.4s ease" }} />
                 </div>
                 {allPassed && (
-                  <p style={{ marginTop: "0.65rem", fontSize: "0.75rem", color: "var(--color-green)", fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}>
+                  <p style={{ marginTop: "0.65rem", fontSize: "0.802rem", color: "var(--color-green)", fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}>
                     All tests passed — job complete!
                   </p>
                 )}
@@ -917,11 +917,11 @@ export default function JobSolvePage() {
                     <svg style={{ width: 14, height: 14, color: "var(--color-red-bright)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                     </svg>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-red-bright)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-red-bright)" }}>
                       Compile Error
                     </span>
                   </div>
-                  <pre style={{ margin: 0, padding: "0.75rem 0.9rem", fontFamily: "monospace", fontSize: "0.78rem", color: "rgba(255,200,200,0.85)", whiteSpace: "pre-wrap", wordBreak: "break-all", lineHeight: 1.6 }}>
+                  <pre style={{ margin: 0, padding: "0.75rem 0.9rem", fontFamily: "monospace", fontSize: "0.822rem", color: "rgba(255,200,200,0.85)", whiteSpace: "pre-wrap", wordBreak: "break-all", lineHeight: 1.6 }}>
                     {results.compile_error}
                   </pre>
                 </div>

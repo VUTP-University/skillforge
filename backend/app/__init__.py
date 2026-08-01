@@ -41,4 +41,15 @@ def create_app(config_class=Config):
     app.register_blueprint(test_suite_bp,  url_prefix="/api/test-suite")
     app.register_blueprint(reports_bp,     url_prefix="/api/reports")
 
+    # Achievement catalog — seeded once at startup (evaluation depends on it
+    # already existing, unlike Process's lazy per-request seed). Guarded on
+    # the table actually existing yet, since `flask db migrate`/`upgrade`
+    # themselves boot the app via create_app() before that first migration
+    # has run.
+    with app.app_context():
+        from sqlalchemy import inspect
+        if inspect(db.engine).has_table("achievements"):
+            from .achievements import _seed_achievements
+            _seed_achievements()
+
     return app

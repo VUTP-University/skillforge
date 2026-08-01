@@ -226,7 +226,7 @@ export default function JobForm() {
                       : "rgba(255,255,255,0.03)",
                     color: form.difficulty === d.value ? "var(--color-green)" : "rgba(255,255,255,0.50)",
                     fontFamily: "var(--font-heading)",
-                    fontSize: "0.62rem",
+                    fontSize: "0.718rem",
                     fontWeight: 700,
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
@@ -235,7 +235,7 @@ export default function JobForm() {
                   }}
                 >
                   {d.label}
-                  <div style={{ fontSize: "0.65rem", fontFamily: "var(--font-body)", marginTop: "0.2rem", opacity: 0.7 }}>
+                  <div style={{ fontSize: "0.738rem", fontFamily: "var(--font-body)", marginTop: "0.2rem", opacity: 0.7 }}>
                     {d.xp} XP
                   </div>
                 </button>
@@ -302,7 +302,7 @@ export default function JobForm() {
                 theme={vscodeDark}
                 extensions={langExt}
                 minHeight="220px"
-                style={{ fontSize: "0.83rem" }}
+                style={{ fontSize: "0.855rem" }}
                 basicSetup={{
                   lineNumbers: true,
                   foldGutter: false,
@@ -380,7 +380,7 @@ export default function JobForm() {
                       style={{
                         resize: "vertical",
                         fontFamily: "'Fira Code', monospace",
-                        fontSize: "0.85rem",
+                        fontSize: "0.867rem",
                       }}
                     />
                   </div>
@@ -395,7 +395,7 @@ export default function JobForm() {
                       style={{
                         resize: "vertical",
                         fontFamily: "'Fira Code', monospace",
-                        fontSize: "0.85rem",
+                        fontSize: "0.867rem",
                       }}
                     />
                   </div>

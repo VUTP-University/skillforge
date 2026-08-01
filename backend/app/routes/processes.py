@@ -6,6 +6,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
 from app.models import (
+    AchievementCategory,
     Process,
     ProcessChallenge,
     ProcessSeverity,
@@ -13,6 +14,7 @@ from app.models import (
     ChallengeStatus,
     User,
 )
+from app.achievements import award_xp, check_achievements
 
 stack_trace_bp = Blueprint("stack_trace", __name__)
 
@@ -326,7 +328,7 @@ def submit_challenge(challenge_id):
     # Award XP to user
     user = User.query.get(user_id)
     if user:
-        user.total_xp = (user.total_xp or 0) + xp_earned
+        award_xp(user, xp_earned)
 
     # Update challenge record
     challenge.user_solution      = solution
@@ -337,12 +339,15 @@ def submit_challenge(challenge_id):
     challenge.status             = ChallengeStatus.completed
     challenge.submitted_at       = datetime.now(timezone.utc)
 
+    unlocked = check_achievements(user, categories=[AchievementCategory.process, AchievementCategory.general]) if user else []
+
     db.session.commit()
 
     return jsonify({
         "challenge": challenge.to_dict(),
         "process":   process.to_dict(),
         "xp_earned": xp_earned,
+        "achievements_unlocked": [a.slug for a in unlocked],
         "score_pct": score_pct,
     }), 200
 

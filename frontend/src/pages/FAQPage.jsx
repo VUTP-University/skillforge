@@ -2,20 +2,22 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import welcomeMd     from "../content/faq/welcome.md?raw";
-import jobsMd        from "../content/faq/jobs.md?raw";
-import xpMd          from "../content/faq/xp-ranks.md?raw";
-import stackTraceMd  from "../content/faq/stack-trace.md?raw";
-import leaderboardMd from "../content/faq/leaderboard.md?raw";
-import profileMd     from "../content/faq/profile.md?raw";
+import welcomeMd      from "../content/faq/welcome.md?raw";
+import jobsMd         from "../content/faq/jobs.md?raw";
+import xpMd           from "../content/faq/xp-ranks.md?raw";
+import stackTraceMd   from "../content/faq/stack-trace.md?raw";
+import leaderboardMd  from "../content/faq/leaderboard.md?raw";
+import profileMd      from "../content/faq/profile.md?raw";
+import achievementsMd from "../content/faq/achievements.md?raw";
 
 const VOLUMES = [
-  { id: "welcome",     glyph: "~",  title: "Welcome",          file: "welcome.md",     content: welcomeMd     },
-  { id: "jobs",        glyph: ">_", title: "The Job Board",    file: "jobs.md",        content: jobsMd        },
-  { id: "xp",          glyph: "^",  title: "XP & Ranks",       file: "xp-ranks.md",    content: xpMd          },
-  { id: "stack-trace", glyph: "!",  title: "The Stack Trace",  file: "stack-trace.md", content: stackTraceMd  },
-  { id: "leaderboard", glyph: "#",  title: "Leaderboard",      file: "leaderboard.md", content: leaderboardMd },
-  { id: "profile",     glyph: "@",  title: "Your Profile",     file: "profile.md",     content: profileMd     },
+  { id: "welcome",      glyph: "~",  title: "Welcome",          file: "welcome.md",       content: welcomeMd      },
+  { id: "jobs",         glyph: ">_", title: "The Job Board",    file: "jobs.md",          content: jobsMd         },
+  { id: "xp",           glyph: "^",  title: "XP & Ranks",       file: "xp-ranks.md",      content: xpMd           },
+  { id: "stack-trace",  glyph: "!",  title: "The Stack Trace",  file: "stack-trace.md",   content: stackTraceMd   },
+  { id: "achievements", glyph: "*",  title: "Achievements",     file: "achievements.md",  content: achievementsMd },
+  { id: "leaderboard",  glyph: "#",  title: "Leaderboard",      file: "leaderboard.md",   content: leaderboardMd  },
+  { id: "profile",      glyph: "@",  title: "Your Profile",     file: "profile.md",       content: profileMd      },
 ];
 
 const mdComponents = {

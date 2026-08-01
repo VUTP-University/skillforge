@@ -9,8 +9,9 @@ from flask_jwt_extended import (
 )
 
 from app import db
-from app.models import JobDifficulty, Language, Job, JobComment, JobCompletion, JobSubmission, TestCase, User, XP_BY_JOB_DIFFICULTY
+from app.models import AchievementCategory, JobDifficulty, Language, Job, JobComment, JobCompletion, JobSubmission, TestCase, User, XP_BY_JOB_DIFFICULTY
 from app.utils import PISTON_RUNTIMES, require_role, run_tests
+from app.achievements import award_xp, check_achievements
 
 jobs_bp = Blueprint("jobs", __name__)
 
@@ -128,6 +129,7 @@ def create_job():
             output=tc["output"].strip(),
         ))
 
+    check_achievements(author, categories=[AchievementCategory.general])
     db.session.commit()
     return jsonify(job.to_dict(include_solution=True)), 201
 
@@ -211,9 +213,11 @@ def submit_job(job_id):
             db.session.add(JobCompletion(
                 user_id=user_id, job_id=job_id, xp_earned=job.xp_reward
             ))
-            user.total_xp = (user.total_xp or 0) + job.xp_reward
-            result["xp_earned"]        = job.xp_reward
-            result["first_completion"] = True
+            award_xp(user, job.xp_reward)
+            unlocked = check_achievements(user, categories=[AchievementCategory.job, AchievementCategory.general])
+            result["xp_earned"]           = job.xp_reward
+            result["first_completion"]    = True
+            result["achievements_unlocked"] = [a.slug for a in unlocked]
         else:
             result["xp_earned"]        = 0
             result["first_completion"] = False
@@ -262,6 +266,10 @@ def add_comment(job_id):
     user_id = int(get_jwt_identity())
     comment = JobComment(job_id=job_id, user_id=user_id, content=content)
     db.session.add(comment)
+
+    user = db.get_or_404(User, user_id)
+    check_achievements(user, categories=[AchievementCategory.general])
+
     db.session.commit()
     return jsonify(comment.to_dict()), 201
 

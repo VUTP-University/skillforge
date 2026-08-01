@@ -7,7 +7,8 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import TestRun, TestRunStatus, User
+from app.models import AchievementCategory, TestRun, TestRunStatus, User
+from app.achievements import award_xp, check_achievements
 
 test_suite_bp = Blueprint("test_suite", __name__)
 
@@ -230,12 +231,15 @@ def submit_run(run_id):
 
     # Award XP to user
     user = db.get_or_404(User, user_id)
-    user.total_xp = (user.total_xp or 0) + total_xp
+    award_xp(user, total_xp)
 
     run.status        = TestRunStatus.expired if timed_out else TestRunStatus.completed
     run.score_xp      = total_xp
     run.correct_count = correct_count
     run.completed_at  = now
+
+    unlocked = check_achievements(user, categories=[AchievementCategory.test_suite, AchievementCategory.general])
+
     db.session.commit()
 
     return jsonify({
@@ -245,6 +249,7 @@ def submit_run(run_id):
         "correct_count": correct_count,
         "total":         len(run.questions),
         "timed_out":     timed_out,
+        "achievements_unlocked": [a.slug for a in unlocked],
     })
 
 

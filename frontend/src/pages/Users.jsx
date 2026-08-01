@@ -59,7 +59,7 @@ export default function Users() {
           <p className="text-sub" style={{ fontSize: "1rem" }}>All registered users on SkillForge</p>
         </div>
         {!loading && (
-          <Badge variant="green" className="text-sm" style={{ fontSize: "0.72rem", padding: "0.35rem 0.875rem" }}>
+          <Badge variant="green" className="text-sm" style={{ fontSize: "0.783rem", padding: "0.35rem 0.875rem" }}>
             {users.length} {users.length === 1 ? "user" : "users"}
           </Badge>
         )}
@@ -110,7 +110,7 @@ export default function Users() {
                       style={{
                         color: "var(--color-text-faint)",
                         fontFamily: "var(--font-heading)",
-                        fontSize: "0.58rem",
+                        fontSize: "0.692rem",
                         fontWeight: 700,
                       }}
                     >
@@ -153,7 +153,7 @@ export default function Users() {
                         onClick={() => handleDelete(u.id)}
                         disabled={deletingId === u.id}
                         className="sf-btn-danger"
-                        style={{ width: "auto", padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}
+                        style={{ width: "auto", padding: "0.3rem 0.75rem", fontSize: "0.835rem" }}
                       >
                         {deletingId === u.id ? "Removing…" : "Remove"}
                       </button>
@@ -182,7 +182,7 @@ export default function Users() {
                   onClick={() => handleDelete(u.id)}
                   disabled={deletingId === u.id}
                   className="sf-btn-danger flex-shrink-0"
-                  style={{ width: "auto", padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}
+                  style={{ width: "auto", padding: "0.3rem 0.75rem", fontSize: "0.835rem" }}
                 >
                   {deletingId === u.id ? "…" : "Remove"}
                 </button>

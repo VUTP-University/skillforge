@@ -200,7 +200,7 @@ export default function Login() {
                     <a
                       href="#"
                       className="font-heading"
-                      style={{ color: "var(--color-blue)", fontSize: "0.62rem", letterSpacing: "0.05em", opacity: 0.75 }}
+                      style={{ color: "var(--color-blue)", fontSize: "0.718rem", letterSpacing: "0.05em", opacity: 0.75 }}
                     >
                       Forgot password?
                     </a>
@@ -238,7 +238,7 @@ export default function Login() {
                   <Link
                     to="/register"
                     className="font-heading"
-                    style={{ color: "var(--color-blue)", fontSize: "0.7rem", letterSpacing: "0.04em" }}
+                    style={{ color: "var(--color-blue)", fontSize: "0.77rem", letterSpacing: "0.04em" }}
                   >
                     Create one
                   </Link>

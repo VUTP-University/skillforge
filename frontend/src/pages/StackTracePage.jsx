@@ -66,7 +66,7 @@ function ProcessCard({ process, onChallenge, isStarting }) {
           background: "rgba(0,0,0,0.85)",
           border: `1px solid ${diff.dimBorder}`,
           color: diff.color,
-          fontFamily: "var(--font-heading)", fontSize: "0.54rem",
+          fontFamily: "var(--font-heading)", fontSize: "0.666rem",
           letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700,
         }}>
           {diff.label}
@@ -95,8 +95,8 @@ function ProcessCard({ process, onChallenge, isStarting }) {
             <span style={{
               flexShrink: 0, padding: "0.18rem 0.55rem", borderRadius: "3px",
               background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.09)",
-              color: "rgba(255,215,215,0.65)",
-              fontFamily: "var(--font-heading)", fontSize: "0.53rem",
+              color: "rgba(255,215,215,0.705)",
+              fontFamily: "var(--font-heading)", fontSize: "0.659rem",
               letterSpacing: "0.10em", textTransform: "uppercase",
             }}>
               {LANG_LABELS[process.language] ?? process.language}
@@ -105,15 +105,15 @@ function ProcessCard({ process, onChallenge, isStarting }) {
 
           <p style={{
             fontFamily: "var(--font-heading)", fontStyle: "italic",
-            fontSize: "0.64rem", letterSpacing: "0.03em", lineHeight: 1.5,
-            color: "rgba(255,180,180,0.60)", margin: 0,
+            fontSize: "0.731rem", letterSpacing: "0.03em", lineHeight: 1.5,
+            color: "rgba(255,180,180,0.682)", margin: 0,
           }}>
             "{process.lore}"
           </p>
 
           <p style={{
-            fontFamily: "var(--font-body)", fontSize: "0.73rem", lineHeight: 1.5,
-            color: "rgba(255,210,210,0.65)", margin: 0,
+            fontFamily: "var(--font-body)", fontSize: "0.789rem", lineHeight: 1.5,
+            color: "rgba(255,210,210,0.705)", margin: 0,
           }}>
             {process.specialty}
           </p>
@@ -127,11 +127,11 @@ function ProcessCard({ process, onChallenge, isStarting }) {
           }}/>
 
           <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.30rem", color: "rgba(255,195,195,0.60)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.30rem", color: "rgba(255,195,195,0.682)" }}>
               <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <circle cx="12" cy="12" r="9"/><path strokeLinecap="round" d="M12 7v5l3 2"/>
               </svg>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.57rem", letterSpacing: "0.07em" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.685rem", letterSpacing: "0.07em" }}>
                 {process.time_minutes}m
               </span>
             </div>
@@ -139,7 +139,7 @@ function ProcessCard({ process, onChallenge, isStarting }) {
               <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
               </svg>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.57rem", letterSpacing: "0.07em", fontWeight: 700 }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.685rem", letterSpacing: "0.07em", fontWeight: 700 }}>
                 {process.max_xp} XP
               </span>
             </div>
@@ -153,9 +153,9 @@ function ProcessCard({ process, onChallenge, isStarting }) {
             }}>
               <IconCheck size={13} color="rgba(255,255,255,0.48)" />
               <span style={{
-                fontFamily: "var(--font-heading)", fontSize: "0.59rem",
+                fontFamily: "var(--font-heading)", fontSize: "0.699rem",
                 letterSpacing: "0.10em", textTransform: "uppercase",
-                color: "rgba(255,255,255,0.48)",
+                color: "rgba(255,255,255,0.629)",
               }}>
                 Resolved · Resets {formatReset(process.cooldown_resets_at)}
               </span>
@@ -169,7 +169,7 @@ function ProcessCard({ process, onChallenge, isStarting }) {
                 border: hovered ? `1px solid ${diff.hotBorder}` : `1px solid ${diff.dimBorder}`,
                 background: hovered ? diff.bg : "rgba(80,0,0,0.20)",
                 color: isStarting ? "rgba(252,165,165,0.55)" : (hovered ? diff.color : "rgba(252,165,165,0.80)"),
-                fontFamily: "var(--font-heading)", fontSize: "0.65rem",
+                fontFamily: "var(--font-heading)", fontSize: "0.738rem",
                 letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700,
                 cursor: isStarting ? "not-allowed" : "pointer",
                 transition: "all 0.22s",
@@ -251,9 +251,9 @@ export default function StackTracePage() {
         </h1>
 
         <p style={{
-          fontFamily: "var(--font-heading)", fontSize: "0.68rem",
+          fontFamily: "var(--font-heading)", fontSize: "0.757rem",
           letterSpacing: "0.22em", textTransform: "uppercase",
-          color: "rgba(252,165,165,0.58)", marginBottom: "1.8rem",
+          color: "rgba(252,165,165,0.673)", marginBottom: "1.8rem",
         }}>
           Debug the hostile processes lurking in the deepest frames
         </p>
@@ -272,8 +272,8 @@ export default function StackTracePage() {
             display: "inline-flex", alignItems: "center", gap: "0.65rem",
             padding: "0.58rem 1.3rem", borderRadius: "8px",
             background: "rgba(60,0,0,0.55)", border: "1px solid rgba(180,30,30,0.22)",
-            color: "rgba(252,165,165,0.58)",
-            fontFamily: "var(--font-heading)", fontSize: "0.63rem",
+            color: "rgba(252,165,165,0.673)",
+            fontFamily: "var(--font-heading)", fontSize: "0.725rem",
             letterSpacing: "0.10em", textTransform: "uppercase",
           }}>
             <svg style={{ width: 13, height: 13, color: "#ef4444", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -297,7 +297,7 @@ export default function StackTracePage() {
                 border:     active ? "1px solid rgba(220,38,38,0.60)" : "1px solid rgba(255,255,255,0.08)",
                 background: active ? "rgba(180,0,0,0.22)"             : "rgba(10,0,0,0.35)",
                 color:      active ? "#fca5a5"                         : "rgba(255,255,255,0.52)",
-                fontFamily: "var(--font-heading)", fontSize: "0.63rem",
+                fontFamily: "var(--font-heading)", fontSize: "0.725rem",
                 letterSpacing: "0.12em", textTransform: "uppercase",
                 transition: "all 0.18s",
                 boxShadow: active ? "0 0 16px rgba(220,38,38,0.22)" : "none",
@@ -324,7 +324,7 @@ export default function StackTracePage() {
       {error && (
         <div style={{
           textAlign: "center", padding: "4rem 1rem",
-          fontFamily: "var(--font-heading)", fontSize: "0.78rem",
+          fontFamily: "var(--font-heading)", fontSize: "0.822rem",
           letterSpacing: "0.08em", color: "#f87171",
         }}>
           {error}
@@ -335,8 +335,8 @@ export default function StackTracePage() {
       {!loading && !error && filtered.length === 0 && (
         <div style={{
           textAlign: "center", padding: "4rem 1rem",
-          color: "rgba(252,165,165,0.52)", fontFamily: "var(--font-heading)",
-          fontSize: "0.75rem", letterSpacing: "0.10em",
+          color: "rgba(252,165,165,0.647)", fontFamily: "var(--font-heading)",
+          fontSize: "0.802rem", letterSpacing: "0.10em",
         }}>
           No processes match this filter.
         </div>

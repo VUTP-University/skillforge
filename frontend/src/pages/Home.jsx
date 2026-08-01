@@ -139,35 +139,35 @@ export default function Home() {
 
             {/* XP */}
             <div className="glass-card p-5">
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
                 // experience
               </p>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: "var(--color-green)", lineHeight: 1, marginBottom: "0.6rem" }}>
                 {animatedXP.toLocaleString()} XP
               </p>
               <ProgressBar value={xpPct} ascii chars={26} />
-              <p style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
+              <p style={{ fontSize: "0.757rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
                 {xpPct}% to LV{nextLevel}
               </p>
             </div>
 
             {/* Job chronicle */}
             <div className="glass-card p-5">
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
                 // job_log
               </p>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: "var(--color-green)", lineHeight: 1, marginBottom: "0.6rem" }}>
                 {animatedCompleted} / {totalLive !== null ? totalLive : "—"}
               </p>
               <ProgressBar value={completedPct} ascii chars={26} />
-              <p style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
+              <p style={{ fontSize: "0.757rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
                 {completedPct}% complete
               </p>
             </div>
 
             {/* Rank */}
             <div className="glass-card p-5">
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
                 // rank
               </p>
               <p
@@ -178,7 +178,7 @@ export default function Home() {
               </p>
               <Link
                 to="/leaderboard"
-                style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", textDecoration: "none" }}
+                style={{ fontSize: "0.757rem", color: "var(--color-text-tertiary)", textDecoration: "none" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-blue)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-tertiary)")}
               >
@@ -225,7 +225,7 @@ export default function Home() {
                   >
                     {lang.name}
                   </h3>
-                  <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)", fontFamily: "var(--font-body)" }}>
+                  <p style={{ fontSize: "0.848rem", color: "var(--color-text-secondary)", fontFamily: "var(--font-body)" }}>
                     {lang.description}
                   </p>
                   <div className="job-card-cta">

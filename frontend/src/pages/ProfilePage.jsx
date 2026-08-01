@@ -37,17 +37,24 @@ const DIFF_META = {
   senior: { label: "Senior", color: "var(--color-red-bright)" },
 };
 
+const ACH_CATEGORY_META = {
+  job:        { label: "Job",         color: "var(--color-green)",     border: "var(--color-green-border)", glow: "var(--color-green-glow)" },
+  process:    { label: "Stack Trace", color: "var(--color-red-bright)", border: "var(--color-red-border)",   glow: "var(--color-red-glow)" },
+  test_suite: { label: "Test Suite",  color: "var(--color-amber)",     border: "var(--color-amber-border)", glow: "var(--color-amber-glow)" },
+  general:    { label: "General",     color: "var(--color-blue)",      border: "var(--color-blue-border)",  glow: "var(--color-blue-glow)" },
+};
+
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
 function StatChip({ icon, value, label, valueColor }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
       {icon}
-      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: valueColor ?? "var(--color-text)" }}>
+      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.802rem", fontWeight: 700, color: valueColor ?? "var(--color-text)" }}>
         {value}
       </span>
       {label && (
-        <span style={{ fontSize: "0.65rem", color: "var(--color-text-tertiary)" }}>{label}</span>
+        <span style={{ fontSize: "0.738rem", color: "var(--color-text-tertiary)" }}>{label}</span>
       )}
     </div>
   );
@@ -203,7 +210,7 @@ export default function ProfilePage() {
     return (
       <div className="flex flex-col items-center gap-4 py-32 text-center">
         <p style={{ fontFamily: "var(--font-brand)", fontSize: "2.5rem", color: "var(--color-red-bright)" }}>404</p>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", fontWeight: 700, color: "var(--color-text-secondary)" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.867rem", fontWeight: 700, color: "var(--color-text-secondary)" }}>
           {loadErr ?? "Profile not found."}
         </p>
         <button onClick={() => navigate(-1)} className="sf-btn-ghost">
@@ -217,6 +224,7 @@ export default function ProfilePage() {
   const comps           = profile.completions ?? [];
   const processChallenges  = profile.process_challenges ?? [];
   const testRuns  = profile.test_runs ?? [];
+  const achievements = profile.achievements ?? [];
   const vanquishedCount = processChallenges.filter(c => c.status === "completed").length;
   const runsCompleted = testRuns.filter(s => s.status === "completed").length;
   const runsXP        = testRuns.reduce((sum, s) => sum + (s.score_xp || 0), 0);
@@ -273,7 +281,7 @@ export default function ProfilePage() {
                 <span style={{
                   padding: "0.2rem 0.65rem", borderRadius: "3px",
                   border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
-                  fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700,
                 }}>
                   {profile.rank}
                 </span>
@@ -286,14 +294,14 @@ export default function ProfilePage() {
 
               {/* Email — own profile only */}
               {isOwnProfile && profile.email && (
-                <p style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>
+                <p style={{ fontSize: "0.835rem", color: "var(--color-text-secondary)", marginBottom: "0.5rem" }}>
                   {profile.email}
                 </p>
               )}
 
               {/* Member since */}
               <p style={{
-                fontSize: "0.68rem", color: "var(--color-text-tertiary)",
+                fontSize: "0.757rem", color: "var(--color-text-tertiary)",
                 fontFamily: "var(--font-heading)", marginBottom: "1rem",
               }}>
                 // member since {new Date(profile.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
@@ -353,6 +361,18 @@ export default function ProfilePage() {
                     valueColor="var(--color-amber)"
                   />
                 )}
+                {achievements.length > 0 && (
+                  <StatChip
+                    icon={
+                      <svg style={{ width: 14, height: 14, color: "var(--color-blue)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.75A1.125 1.125 0 0113.5 13.125v-1.5M8.25 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.75c.621 0 1.125-.504 1.125-1.125v-1.5m0 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v5.25m5.25 0h-5.25" />
+                      </svg>
+                    }
+                    value={achievements.length}
+                    label={achievements.length === 1 ? "Achievement" : "Achievements"}
+                    valueColor="var(--color-blue)"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -374,7 +394,7 @@ export default function ProfilePage() {
               placeholder="new@email.com"
             />
             {emailMsg && (
-              <p style={{ fontSize: "0.72rem", color: emailMsg.ok ? "var(--color-green)" : "var(--color-red-bright)", marginTop: "-0.25rem" }}>
+              <p style={{ fontSize: "0.783rem", color: emailMsg.ok ? "var(--color-green)" : "var(--color-red-bright)", marginTop: "-0.25rem" }}>
                 {emailMsg.text}
               </p>
             )}
@@ -402,7 +422,7 @@ export default function ProfilePage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
               <Avatar src={avatarPreview ?? profile.avatar_url} username={profile.username} size={56} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: "0.68rem", color: "var(--color-text-secondary)", marginBottom: "0.4rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <p style={{ fontSize: "0.757rem", color: "var(--color-text-secondary)", marginBottom: "0.4rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {avatarFile ? avatarFile.name : "JPEG or PNG, max 2 MB"}
                 </p>
                 <input
@@ -419,7 +439,7 @@ export default function ProfilePage() {
             </div>
 
             {avatarMsg && (
-              <p style={{ fontSize: "0.72rem", color: avatarMsg.ok ? "var(--color-green)" : "var(--color-red-bright)" }}>
+              <p style={{ fontSize: "0.783rem", color: avatarMsg.ok ? "var(--color-green)" : "var(--color-red-bright)" }}>
                 {avatarMsg.text}
               </p>
             )}
@@ -462,6 +482,69 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* ── Achievements — trophy case ── */}
+      {achievements.length > 0 ? (
+        <div className="space-y-4">
+          {/* Section label */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ height: "1px", flex: 1, background: "var(--color-blue-dim)" }} />
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700, color: "var(--color-blue)", flexShrink: 0 }}>
+              // achievements_log
+            </span>
+            <div style={{ height: "1px", flex: 1, background: "var(--color-blue-dim)" }} />
+          </div>
+
+          {/* Category legend */}
+          <div style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap", justifyContent: "center" }}>
+            {Object.values(ACH_CATEGORY_META).map(meta => (
+              <span key={meta.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: meta.color, boxShadow: `0 0 6px ${meta.glow}` }} />
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", color: "var(--color-text-tertiary)" }}>
+                  {meta.label}
+                </span>
+              </span>
+            ))}
+          </div>
+
+          {/* Trophy grid — fixed 4 columns, capped to ~3 rows before it scrolls.
+              Everything (name, description, category, date) sits directly on
+              the card — no hover-to-reveal. */}
+          <div className="ach-trophy-case">
+            {achievements.map((a, i) => {
+              const meta = ACH_CATEGORY_META[a.category] ?? ACH_CATEGORY_META.general;
+              return (
+                <div
+                  key={a.slug}
+                  className="ach-card"
+                  style={{ "--cat-color": meta.color, "--cat-border": meta.border, "--cat-glow": meta.glow, animationDelay: `${i * 30}ms` }}
+                >
+                  <div className="ach-card-head">
+                    <div className="ach-card-glyph">{a.glyph}</div>
+                    <span className="ach-card-name">{a.name}</span>
+                  </div>
+                  <p className="ach-card-desc">{a.description}</p>
+                  <div className="ach-card-meta">
+                    <span className="ach-card-category" style={{ color: meta.color }}>{meta.label}</span>
+                    <span className="ach-card-date">
+                      {new Date(a.earned_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : isOwnProfile ? (
+        <div style={{ borderRadius: "6px", padding: "2rem", textAlign: "center", border: "1px dashed var(--color-blue-border)", background: "rgba(111,214,255,0.03)" }}>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.835rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
+            No achievements yet
+          </p>
+          <p style={{ fontSize: "0.783rem", color: "var(--color-text-tertiary)" }}>
+            Complete jobs, patch processes, and clear test suites to start unlocking them.
+          </p>
+        </div>
+      ) : null}
+
       {/* ── Job progress ── */}
       <div className="space-y-4">
           <SectionDivider title="Progress" />
@@ -477,10 +560,10 @@ export default function ProfilePage() {
                   style={{ padding: "0.85rem 1rem", display: "flex", alignItems: "center", gap: "0.75rem", opacity: count === 0 ? 0.40 : 1 }}
                 >
                   <span style={{ width: 8, height: 8, borderRadius: "2px", background: cfg.color, flexShrink: 0 }} />
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-text-secondary)", flex: 1 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: "var(--color-text-secondary)", flex: 1 }}>
                     {cfg.name}
                   </span>
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.88rem", fontWeight: 700, color: count > 0 ? "var(--color-green)" : "var(--color-text-faint)" }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.887rem", fontWeight: 700, color: count > 0 ? "var(--color-green)" : "var(--color-text-faint)" }}>
                     {count}
                   </span>
                 </div>
@@ -492,17 +575,17 @@ export default function ProfilePage() {
           <>
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingLeft: "0.25rem" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-text-tertiary)", flex: 1 }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700, color: "var(--color-text-tertiary)", flex: 1 }}>
                 {isOwnProfile ? "// submission_history" : "// job_submissions"}
                 {subs ? ` (${subs.total.toLocaleString()} run${subs.total !== 1 ? "s" : ""})` : ""}
               </p>
               {!isOwnProfile && (
-                <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0, fontStyle: "italic" }}>
+                <span style={{ fontSize: "0.692rem", color: "var(--color-text-faint)", flexShrink: 0, fontStyle: "italic" }}>
                   code hidden
                 </span>
               )}
               {subs && subs.pages > 1 && (
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
                   page {subs.page} of {subs.pages}
                 </span>
               )}
@@ -518,7 +601,7 @@ export default function ProfilePage() {
                 background: "rgba(77,255,143,0.02)",
               }}>
                 {["Job", "Language", "Score", "Status", "Date"].map(h => (
-                  <span key={h} style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
+                  <span key={h} style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                     {h}
                   </span>
                 ))}
@@ -526,15 +609,15 @@ export default function ProfilePage() {
 
               {/* Loading / empty / rows */}
               {subsLoading && !subs ? (
-                <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.7rem" }}>
+                <div style={{ padding: "2rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.77rem" }}>
                   Loading…
                 </div>
               ) : subs && subs.items.length === 0 ? (
                 <div style={{ padding: "2.5rem", textAlign: "center" }}>
-                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
+                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.802rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
                     No submissions yet
                   </p>
-                  <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)" }}>
+                  <p style={{ fontSize: "0.783rem", color: "var(--color-text-tertiary)" }}>
                     {isOwnProfile
                       ? "Start solving jobs to earn XP and build your history."
                       : "This user hasn't submitted any jobs yet."}
@@ -556,28 +639,28 @@ export default function ProfilePage() {
                 };
                 const rowCells = (
                   <>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.802rem", fontWeight: 700, color: "var(--color-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {s.job_title}
                     </span>
                     <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.64rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                         {lang?.name ?? s.language}
                       </span>
                     </span>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: scoreColor, flexShrink: 0, minWidth: "2.8rem", textAlign: "right" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, color: scoreColor, flexShrink: 0, minWidth: "2.8rem", textAlign: "right" }}>
                       {total > 0 ? `${passed}/${total}` : "—"}
                     </span>
                     <span style={{
                       flexShrink: 0, padding: "0.18rem 0.5rem", borderRadius: "3px",
-                      fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700,
+                      fontFamily: "var(--font-heading)", fontSize: "0.627rem", fontWeight: 700,
                       background: s.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
                       color:      s.all_passed ? "var(--color-green)"    : "var(--color-red-bright)",
                       border:     `1px solid ${s.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                     }}>
                       {s.all_passed ? "PASS" : "FAIL"}
                     </span>
-                    <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "72px", textAlign: "right" }}>
+                    <span style={{ fontSize: "0.692rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "72px", textAlign: "right" }}>
                       {new Date(s.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   </>
@@ -619,7 +702,7 @@ export default function ProfilePage() {
             {/* Pagination controls */}
             {subs && subs.pages > 1 && (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "0.25rem" }}>
-                <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)" }}>
+                <span style={{ fontSize: "0.718rem", color: "var(--color-text-faint)" }}>
                   {((subs.page - 1) * subs.per_page + 1).toLocaleString()}–{Math.min(subs.page * subs.per_page, subs.total).toLocaleString()} of {subs.total.toLocaleString()}
                 </span>
                 <div style={{ display: "flex", gap: "0.4rem" }}>
@@ -651,7 +734,7 @@ export default function ProfilePage() {
           {/* Section label — red, matches The Stack Trace */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ height: "1px", flex: 1, background: "var(--color-red-dim)" }} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
               // stack_trace_log
             </span>
             <div style={{ height: "1px", flex: 1, background: "var(--color-red-dim)" }} />
@@ -696,7 +779,7 @@ export default function ProfilePage() {
                   {/* Process name + truncated verdict */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
-                      fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700,
+                      fontFamily: "var(--font-heading)", fontSize: "0.822rem", fontWeight: 700,
                       color: "var(--color-text-secondary)", margin: 0,
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>
@@ -704,7 +787,7 @@ export default function ProfilePage() {
                     </p>
                     {verdict && (
                       <p style={{
-                        fontSize: "0.60rem", color: "var(--color-text-tertiary)", margin: 0,
+                        fontSize: "0.705rem", color: "var(--color-text-tertiary)", margin: 0,
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                         fontStyle: "italic",
                       }}>
@@ -716,13 +799,13 @@ export default function ProfilePage() {
                   {/* Language */}
                   <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                     <span style={{ width: 6, height: 6, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                       {lang?.name ?? c.language}
                     </span>
                   </span>
 
                   {/* Difficulty */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: procDiff.color, flexShrink: 0 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, color: procDiff.color, flexShrink: 0 }}>
                     {procDiff.label}
                   </span>
 
@@ -732,7 +815,7 @@ export default function ProfilePage() {
                     background: c.status === "completed" ? "var(--color-green-dim)" : "var(--color-red-dim)",
                     border: `1px solid ${c.status === "completed" ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                     color: c.status === "completed" ? "var(--color-green)" : "var(--color-red-bright)",
-                    fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                    fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700,
                   }}>
                     {c.status === "completed" ? "PATCHED" : "UNRESOLVED"}
                   </span>
@@ -744,18 +827,18 @@ export default function ProfilePage() {
                         <div style={{ height: 3, borderRadius: 2, background: "rgba(255,95,86,0.15)", marginBottom: "0.2rem" }}>
                           <div style={{ height: 3, borderRadius: 2, background: procDiff.color, width: `${c.score_pct ?? 0}%` }} />
                         </div>
-                        <span style={{ fontSize: "0.50rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)" }}>
+                        <span style={{ fontSize: "0.64rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)" }}>
                           {c.score_pct ?? 0}%
                         </span>
                       </div>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
                         +{c.xp_earned}
                       </span>
                     </>
                   )}
 
                   {/* Date */}
-                  <span style={{ fontSize: "0.60rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
+                  <span style={{ fontSize: "0.705rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
                     {new Date(c.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                 </div>
@@ -770,10 +853,10 @@ export default function ProfilePage() {
             border: "1px dashed var(--color-red-border)", background: "rgba(255,95,86,0.04)",
           }}
         >
-          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.835rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
             No stack traces yet
           </p>
-          <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
+          <p style={{ fontSize: "0.783rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
             Take on a hostile process and see if your code holds up.
           </p>
           <Link
@@ -792,7 +875,7 @@ export default function ProfilePage() {
           {/* Section label — amber, matches The Test Suite */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ height: "1px", flex: 1, background: "var(--color-amber-dim)" }} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-amber)", flexShrink: 0 }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700, color: "var(--color-amber)", flexShrink: 0 }}>
               // test_suite_log
             </span>
             <div style={{ height: "1px", flex: 1, background: "var(--color-amber-dim)" }} />
@@ -806,8 +889,8 @@ export default function ProfilePage() {
               [`+${runsXP} XP`, "Total earned"],
             ].map(([val, lbl]) => (
               <div key={lbl} style={{ padding: "0.4rem 0.85rem", borderRadius: "4px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)", display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: "var(--color-amber)" }}>{val}</span>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)" }}>{lbl}</span>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.822rem", fontWeight: 700, color: "var(--color-amber)" }}>{val}</span>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", color: "var(--color-text-tertiary)" }}>{lbl}</span>
               </div>
             ))}
           </div>
@@ -846,7 +929,7 @@ export default function ProfilePage() {
                     background: "rgba(255,255,255,0.04)",
                     border: "1px solid var(--color-border-2)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                    fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
                     color: langMeta.color,
                   }}>
                     {langMeta.glyph}
@@ -854,14 +937,14 @@ export default function ProfilePage() {
 
                   {/* Language + accuracy bar */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", margin: 0, marginBottom: "0.25rem" }}>
+                    <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.802rem", fontWeight: 700, color: "var(--color-text-secondary)", margin: 0, marginBottom: "0.25rem" }}>
                       {langMeta.label}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <div style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.07)", maxWidth: 80 }}>
                         <div style={{ height: 3, borderRadius: 2, background: barColor, width: `${accuracy}%`, transition: "width 0.4s ease" }} />
                       </div>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", color: "var(--color-text-tertiary)" }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", color: "var(--color-text-tertiary)" }}>
                         {s.correct_count}/{s.total_questions} correct
                       </span>
                     </div>
@@ -873,18 +956,18 @@ export default function ProfilePage() {
                     background: completed ? "var(--color-amber-dim)" : "rgba(255,255,255,0.05)",
                     border: `1px solid ${completed ? "var(--color-amber-border)" : "var(--color-border-2)"}`,
                     color: completed ? "var(--color-amber)" : "var(--color-text-tertiary)",
-                    fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700,
+                    fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700,
                   }}>
                     {completed ? "COMPLETED" : "EXPIRED"}
                   </span>
 
                   {/* XP */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: s.score_xp > 0 ? "var(--color-amber)" : "var(--color-text-faint)", flexShrink: 0 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: s.score_xp > 0 ? "var(--color-amber)" : "var(--color-text-faint)", flexShrink: 0 }}>
                     +{s.score_xp} XP
                   </span>
 
                   {/* Date */}
-                  <span style={{ fontSize: "0.60rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
+                  <span style={{ fontSize: "0.705rem", color: "var(--color-text-faint)", flexShrink: 0, minWidth: "80px", textAlign: "right" }}>
                     {new Date(s.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                 </div>
@@ -894,10 +977,10 @@ export default function ProfilePage() {
         </div>
       ) : isOwnProfile ? (
         <div style={{ borderRadius: "6px", padding: "2rem", textAlign: "center", border: "1px dashed var(--color-amber-border)", background: "rgba(255,204,102,0.03)" }}>
-          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
+          <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.835rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
             No runs completed yet
           </p>
-          <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
+          <p style={{ fontSize: "0.783rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
             Clear the weekly test suite and prove your knowledge.
           </p>
           <Link
@@ -951,16 +1034,16 @@ export default function ProfilePage() {
                     <>
                       <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
-                        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
+                        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                           {lang?.name ?? subModal.language}
                         </span>
                       </span>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: diff.color, flexShrink: 0 }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700, color: diff.color, flexShrink: 0 }}>
                         {diff.label}
                       </span>
                       <span style={{
                         padding: "0.18rem 0.5rem", borderRadius: "3px",
-                        fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700,
+                        fontFamily: "var(--font-heading)", fontSize: "0.627rem", fontWeight: 700,
                         background: subModal.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
                         color:      subModal.all_passed ? "var(--color-green)"    : "var(--color-red-bright)",
                         border:     `1px solid ${subModal.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
@@ -975,7 +1058,7 @@ export default function ProfilePage() {
             )}
 
             {subModalLoading && !subModal?.solution_code ? (
-              <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
+              <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.783rem" }}>
                 Retrieving submission…
               </div>
             ) : subModal && (
@@ -983,10 +1066,10 @@ export default function ProfilePage() {
                 {/* Test results bar */}
                 {subModal.test_results && (
                   <div style={{ padding: "0.8rem 1.4rem", borderBottom: "1px solid var(--color-border-2)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
                       Tests
                     </span>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: subModal.all_passed ? "var(--color-green)" : "var(--color-red-bright)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.822rem", fontWeight: 700, color: subModal.all_passed ? "var(--color-green)" : "var(--color-red-bright)" }}>
                       {subModal.test_results.passed}/{subModal.test_results.total} passed
                     </span>
                     <div style={{ display: "flex", gap: "0.28rem", flexWrap: "wrap", flex: 1 }}>
@@ -999,14 +1082,14 @@ export default function ProfilePage() {
                             background: r.passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
                             border: `1px solid ${r.passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                             display: "inline-flex", alignItems: "center", justifyContent: "center",
-                            fontSize: "0.48rem", color: r.passed ? "var(--color-green)" : "var(--color-red-bright)",
+                            fontSize: "0.627rem", color: r.passed ? "var(--color-green)" : "var(--color-red-bright)",
                           }}
                         >
                           {r.passed ? "✓" : "✗"}
                         </span>
                       ))}
                     </div>
-                    <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
+                    <span style={{ fontSize: "0.692rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
                       {new Date(subModal.submitted_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                     </span>
                   </div>
@@ -1014,14 +1097,14 @@ export default function ProfilePage() {
 
                 {/* Code */}
                 <div style={{ padding: "0.85rem 1.4rem 1.2rem" }}>
-                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-tertiary)", marginBottom: "0.55rem" }}>
+                  <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, color: "var(--color-text-tertiary)", marginBottom: "0.55rem" }}>
                     // submitted_code
                   </p>
                   <pre style={{
                     margin: 0, padding: "1rem 1.1rem",
                     background: "rgba(0,0,0,0.4)", borderRadius: "4px",
                     border: "1px solid var(--color-border-2)",
-                    fontFamily: "var(--font-heading)", fontSize: "0.77rem",
+                    fontFamily: "var(--font-heading)", fontSize: "0.816rem",
                     color: "var(--color-text-secondary)", lineHeight: 1.7,
                     overflowX: "auto", whiteSpace: "pre", tabSize: 4,
                   }}>

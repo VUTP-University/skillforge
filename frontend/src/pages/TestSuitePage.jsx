@@ -72,7 +72,7 @@ function OrnamentDivider() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "2rem 0" }}>
       <div style={{ flex: 1, height: "1px", background: `rgba(${GR},0.20)` }} />
-      <span style={{ color: `rgba(${GR},0.60)`, fontSize: "0.8rem" }}>◆</span>
+      <span style={{ color: `rgba(${GR},0.60)`, fontSize: "0.835rem" }}>◆</span>
       <div style={{ flex: 1, height: "1px", background: `rgba(${GR},0.20)` }} />
     </div>
   );
@@ -131,7 +131,7 @@ function LangCard({ card, canPlay, activeRun, starting, onStart }) {
         background: "rgba(0,0,0,0.50)",
         border: `1px solid rgba(${card.colorRgb},0.38)`,
         fontFamily: "var(--font-heading)",
-        fontSize: "0.56rem", fontWeight: 700,
+        fontSize: "0.679rem", fontWeight: 700,
         color: card.color,
       }}>
         {card.label}
@@ -161,7 +161,7 @@ function LangCard({ card, canPlay, activeRun, starting, onStart }) {
         {card.title}
       </h3>
       <p style={{
-        fontSize: "0.70rem",
+        fontSize: "0.77rem",
         color: "var(--color-text-tertiary)",
         marginBottom: "0.85rem",
         lineHeight: 1.45,
@@ -184,7 +184,7 @@ function LangCard({ card, canPlay, activeRun, starting, onStart }) {
             : `rgba(${card.colorRgb},0.10)`,
           color: disabled ? "var(--color-text-faint)" : card.color,
           fontFamily: "var(--font-heading)",
-          fontSize: "0.60rem", fontWeight: 700,
+          fontSize: "0.705rem", fontWeight: 700,
           cursor: disabled ? "not-allowed" : "pointer",
           transition: "all 0.16s",
           display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem",
@@ -268,7 +268,7 @@ function MixCard({ canPlay, activeRun, starting, onStart }) {
       <div style={{ flex: 1, minWidth: 180 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
           <span style={{
-            fontFamily: "var(--font-heading)", fontSize: "0.56rem", fontWeight: 700,
+            fontFamily: "var(--font-heading)", fontSize: "0.679rem", fontWeight: 700,
             color,
             padding: "0.18rem 0.5rem", borderRadius: "3px",
             background: `rgba(${rgb},0.08)`, border: `1px solid rgba(${rgb},0.22)`,
@@ -276,7 +276,7 @@ function MixCard({ canPlay, activeRun, starting, onStart }) {
             All Paths
           </span>
           <span style={{
-            fontFamily: "var(--font-heading)", fontSize: "0.50rem",
+            fontFamily: "var(--font-heading)", fontSize: "0.64rem",
             color: "var(--color-text-faint)",
           }}>
             mixed difficulty
@@ -288,7 +288,7 @@ function MixCard({ canPlay, activeRun, starting, onStart }) {
         }}>
           The Grand Mix
         </h3>
-        <p style={{ fontSize: "0.73rem", color: "var(--color-text-tertiary)", lineHeight: 1.5 }}>
+        <p style={{ fontSize: "0.789rem", color: "var(--color-text-tertiary)", lineHeight: 1.5 }}>
           Questions drawn from all four languages — Python, JavaScript, Java, and C#.
           The ultimate all-rounder run.
         </p>
@@ -299,8 +299,8 @@ function MixCard({ canPlay, activeRun, starting, onStart }) {
         <div style={{ display: "flex", gap: "1.25rem" }}>
           {[["20", "Questions"], ["380 XP", "Max Reward"], ["5 min", "Limit"]].map(([v, l]) => (
             <div key={l} style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-text-secondary)", lineHeight: 1 }}>{v}</p>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", color: "var(--color-text-faint)", marginTop: "0.2rem" }}>{l}</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: "var(--color-text-secondary)", lineHeight: 1 }}>{v}</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.627rem", color: "var(--color-text-faint)", marginTop: "0.2rem" }}>{l}</p>
             </div>
           ))}
         </div>
@@ -312,7 +312,7 @@ function MixCard({ canPlay, activeRun, starting, onStart }) {
             border: `1px solid ${disabled ? "var(--color-border-2)" : `rgba(${rgb},0.35)`}`,
             background: disabled ? "rgba(255,255,255,0.04)" : `rgba(${rgb},0.08)`,
             color: disabled ? "var(--color-text-faint)" : color,
-            fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700,
+            fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700,
             cursor: disabled ? "not-allowed" : "pointer",
             transition: "all 0.15s",
             display: "flex", alignItems: "center", gap: "0.4rem",
@@ -434,7 +434,7 @@ export default function TestSuitePage() {
             ].map(([val, lbl]) => (
               <div key={lbl} style={{ textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", fontWeight: 700, color: G, lineHeight: 1 }}>{val}</p>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)", marginTop: "0.25rem" }}>{lbl}</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", color: "var(--color-text-tertiary)", marginTop: "0.25rem" }}>{lbl}</p>
               </div>
             ))}
           </div>
@@ -443,7 +443,7 @@ export default function TestSuitePage() {
 
       {/* ── Error banner ── */}
       {error && (
-        <div style={{ marginBottom: "1.5rem", padding: "0.75rem 1rem", borderRadius: "4px", background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)", color: "var(--color-red-bright)", fontSize: "0.82rem" }}>
+        <div style={{ marginBottom: "1.5rem", padding: "0.75rem 1rem", borderRadius: "4px", background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)", color: "var(--color-red-bright)", fontSize: "0.848rem" }}>
           {error}
         </div>
       )}
@@ -452,10 +452,10 @@ export default function TestSuitePage() {
       {activeRun && (
         <div style={{ marginBottom: "1.75rem", padding: "1.1rem 1.25rem", borderRadius: "6px", background: `rgba(${GR},0.07)`, border: `1px solid rgba(${GR},0.30)`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
           <div>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: G, marginBottom: "0.2rem" }}>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, color: G, marginBottom: "0.2rem" }}>
               Run In Progress
             </p>
-            <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)" }}>
+            <p style={{ fontSize: "0.848rem", color: "var(--color-text-secondary)" }}>
               You have an active {LANG_LABEL[activeRun.language] ?? activeRun.language} run. Return before time runs out.
             </p>
           </div>
@@ -465,7 +465,7 @@ export default function TestSuitePage() {
               padding: "0.55rem 1.25rem", borderRadius: "4px",
               border: `1px solid rgba(${GR},0.50)`,
               background: `rgba(${GR},0.12)`, color: GL,
-              fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+              fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
               cursor: "pointer", flexShrink: 0, transition: "all 0.15s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${GR},0.22)`)}
@@ -483,20 +483,20 @@ export default function TestSuitePage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.15rem" }}>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.15rem" }}>
               Weekly Run Complete
             </p>
-            <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)" }}>
+            <p style={{ fontSize: "0.848rem", color: "var(--color-text-secondary)" }}>
               Next run available in{" "}
               <strong style={{ color: "var(--color-text)" }}>{formatCountdown(nextAt)}</strong>.
             </p>
           </div>
           {lastRun && (
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: G }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: G }}>
                 {lastRun.score_xp} XP
               </p>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", color: "var(--color-text-tertiary)" }}>
                 {lastRun.correct_count}/{lastRun.total_questions} correct
               </p>
             </div>
@@ -507,7 +507,7 @@ export default function TestSuitePage() {
       {/* ── Section header + XP legend ── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
         <p style={{
-          fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+          fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
           color: "var(--color-text-tertiary)",
         }}>
           // choose_your_path
@@ -516,7 +516,7 @@ export default function TestSuitePage() {
           {[["Easy", "10 XP", "var(--color-green)"], ["Medium", "20 XP", "var(--color-amber)"], ["Hard", "30 XP", "var(--color-red-bright)"]].map(([d, xp, c]) => (
             <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
               <div style={{ width: 6, height: 6, borderRadius: "1px", background: c, flexShrink: 0 }} />
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-secondary)" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", color: "var(--color-text-secondary)" }}>
                 {d} · {xp}
               </span>
             </div>

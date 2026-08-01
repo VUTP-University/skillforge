@@ -62,11 +62,14 @@
   --color-dot-green:  #27c93f;
 
   /* Text ladder — phosphor green-white, nothing readable below faint.
-     Bumped up a step from the initial pass for stronger reading contrast. */
+     Bumped up a step from the initial pass for stronger reading contrast;
+     faint raised again (0.46 -> 0.62 alpha) after it measured 3.56:1 against
+     the CRT background — below WCAG AA (4.5:1) for normal-size text. Now
+     ~5.7:1 while staying visually the dimmest tier. */
   --color-text:            rgba(218, 255, 232, 0.98);
   --color-text-secondary:  rgba(196, 240, 214, 0.82);
   --color-text-tertiary:   rgba(180, 226, 202, 0.84);
-  --color-text-faint:      rgba(180, 226, 202, 0.46);
+  --color-text-faint:      rgba(180, 226, 202, 0.62);
 
   --color-sub:   var(--color-text-secondary);
   --color-dim:   var(--color-text-tertiary);
@@ -320,7 +323,7 @@
     flex: 1;
     text-align: center;
     font-family: var(--font-heading);
-    font-size: 0.68rem;
+    font-size: 0.757rem;
     color: var(--color-text-tertiary);
     letter-spacing: 0.02em;
     white-space: nowrap;
@@ -365,7 +368,7 @@
   .brand-version {
     display: block;
     font-family: var(--font-heading);
-    font-size: 0.6rem;
+    font-size: 0.705rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--color-text-tertiary);
@@ -441,7 +444,7 @@
   .sf-label {
     display: block;
     font-family: var(--font-heading);
-    font-size: 0.7rem;
+    font-size: 0.77rem;
     font-weight: 600;
     letter-spacing: 0.01em;
     color: var(--color-text-tertiary);
@@ -463,7 +466,7 @@
     padding: 0.68rem 1.5rem;
     border-radius: 4px;
     font-family: var(--font-heading);
-    font-size: 0.8rem;
+    font-size: 0.835rem;
     font-weight: 700;
     letter-spacing: 0.02em;
     background: var(--color-green);
@@ -513,7 +516,7 @@
     padding: 0.68rem 1.5rem;
     border-radius: 4px;
     font-family: var(--font-heading);
-    font-size: 0.8rem;
+    font-size: 0.835rem;
     font-weight: 700;
     letter-spacing: 0.02em;
     background: rgba(111, 214, 255, 0.06);
@@ -550,7 +553,7 @@
     padding: 0.38rem 0.9rem;
     border-radius: 4px;
     font-family: var(--font-heading);
-    font-size: 0.68rem;
+    font-size: 0.757rem;
     font-weight: 600;
     letter-spacing: 0.01em;
     background: transparent;
@@ -576,7 +579,7 @@
     padding: 0.38rem 0.875rem;
     border-radius: 4px;
     font-family: var(--font-heading);
-    font-size: 0.65rem;
+    font-size: 0.738rem;
     font-weight: 600;
     letter-spacing: 0.01em;
     background: transparent;
@@ -604,7 +607,7 @@
     align-items: center;
     gap: 0.625rem;
     color: var(--color-error-text);
-    font-size: 0.88rem;
+    font-size: 0.887rem;
     font-family: var(--font-body);
   }
 
@@ -617,7 +620,7 @@
     align-items: center;
     gap: 0.625rem;
     color: var(--color-green);
-    font-size: 0.88rem;
+    font-size: 0.887rem;
     font-family: var(--font-body);
   }
 
@@ -691,7 +694,7 @@
 
   .ti-prompt {
     font-family: var(--font-heading);
-    font-size: 0.78rem;
+    font-size: 0.822rem;
     font-weight: 600;
     color: var(--color-green);
     letter-spacing: 0.01em;
@@ -700,7 +703,7 @@
 
   .ti-output {
     font-family: var(--font-heading);
-    font-size: 0.7rem;
+    font-size: 0.77rem;
     color: var(--color-text-tertiary);
     letter-spacing: 0.01em;
     margin: 0 0 1.35rem;
@@ -732,7 +735,7 @@
   /* "$ cat features.log" output lines */
   .ti-feature {
     font-family: var(--font-heading);
-    font-size: 0.76rem;
+    font-size: 0.809rem;
     font-weight: 600;
     color: var(--color-text-secondary);
     letter-spacing: 0.01em;
@@ -860,7 +863,7 @@
     align-items: center;
     gap: 0.75rem;
     color: rgba(77, 255, 143, 0.35);
-    font-size: 0.8rem;
+    font-size: 0.835rem;
     letter-spacing: 0.15em;
     font-family: var(--font-heading);
   }
@@ -921,7 +924,7 @@
   /* ASCII block-character bar — used by <ProgressBar ascii /> */
   .ascii-bar {
     font-family: var(--font-heading);
-    font-size: 0.85rem;
+    font-size: 0.867rem;
     letter-spacing: 1px;
     color: var(--color-green);
     text-shadow: 0 0 6px var(--color-green-glow);
@@ -969,7 +972,7 @@
     display: inline-flex;
     align-items: center;
     font-family: var(--font-heading);
-    font-size: 0.62rem;
+    font-size: 0.718rem;
     font-weight: 700;
     letter-spacing: 0.01em;
     padding: 0.20rem 0.6rem;
@@ -1016,7 +1019,7 @@
     align-items: center;
     gap: 0.5rem;
     font-family: var(--font-heading);
-    font-size: 0.64rem;
+    font-size: 0.731rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--color-text-tertiary);
@@ -1071,7 +1074,7 @@
 
   .nav-link {
     font-family: var(--font-heading);
-    font-size: 0.72rem;
+    font-size: 0.783rem;
     font-weight: 600;
     color: var(--color-text-tertiary);
     text-decoration: none;
@@ -1102,7 +1105,7 @@
     padding: 0.625rem 0.75rem;
     border-radius: 4px;
     font-family: var(--font-heading);
-    font-size: 0.72rem;
+    font-size: 0.783rem;
     font-weight: 600;
     color: var(--color-text-secondary);
     text-decoration: none;
@@ -1173,7 +1176,7 @@
 
   .section-divider h2 {
     font-family: var(--font-heading);
-    font-size: 0.68rem;
+    font-size: 0.757rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: var(--color-text-tertiary);
@@ -1227,7 +1230,7 @@
     color: var(--color-green);
     text-shadow: 0 0 8px var(--color-green-glow-strong);
     font-family: var(--font-heading);
-    font-size: 0.7rem;
+    font-size: 0.77rem;
     font-weight: 700;
     letter-spacing: 0.02em;
     flex-shrink: 0;
@@ -1340,7 +1343,7 @@
 
   .hud-name {
     font-family: var(--font-heading);
-    font-size: 0.74rem;
+    font-size: 0.796rem;
     font-weight: 700;
     color: var(--color-text);
     white-space: nowrap;
@@ -1356,7 +1359,7 @@
 
   .hud-rank {
     font-family: var(--font-heading);
-    font-size: 0.60rem;
+    font-size: 0.705rem;
     font-weight: 600;
     white-space: nowrap;
     color: var(--color-text-tertiary);
@@ -1364,16 +1367,16 @@
 
   .hud-xp-caption {
     font-family: var(--font-heading);
-    font-size: 0.6rem;
+    font-size: 0.705rem;
     letter-spacing: 0.01em;
     color: var(--color-text-tertiary);
     white-space: nowrap;
   }
 
-  .hud-dot { color: var(--color-text-faint); font-size: 0.6rem; }
+  .hud-dot { color: var(--color-text-faint); font-size: 0.705rem; }
 
   .hud-ascii.ascii-bar {
-    font-size: 0.62rem;
+    font-size: 0.718rem;
     letter-spacing: 0.5px;
   }
 
@@ -1382,7 +1385,7 @@
     align-items: center;
     flex-shrink: 0;
     font-family: var(--font-heading);
-    font-size: 0.58rem;
+    font-size: 0.692rem;
     font-weight: 700;
     padding: 0.12rem 0.45rem;
     border-radius: 2px;
@@ -1453,7 +1456,7 @@
     gap: 0.375rem;
     margin-top: 0.7rem;
     font-family: var(--font-heading);
-    font-size: 0.62rem;
+    font-size: 0.718rem;
     color: var(--color-text-tertiary);
     transition: color 0.2s;
   }
@@ -1637,6 +1640,143 @@
 .st-glyph--md { font-size: 1.6rem; }
 .st-glyph--sm { font-size: 0.95rem; }
 
+/* ─── Achievement trophy case — fixed 4-column grid of cards, capped to
+   roughly 3 rows tall then scrolls (catalogs can run into the dozens once
+   every job/language/level tier is unlocked). Everything — glyph, name,
+   description, category, earned date — sits directly on the card; no
+   hover-to-reveal (a hover tooltip here previously read as see-through
+   against the page, so it's gone). Each card tints via
+   --cat-color/--cat-border/--cat-glow set inline per achievement, and the
+   background is a solid dark fill with the category tint layered on top —
+   fully opaque, not just a translucent color — so the light body text
+   always has real contrast to sit on. ── */
+
+.ach-trophy-case {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  max-height: 17rem; /* ~3 rows of cards + gaps */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.15rem 0.15rem 0.35rem 0.15rem;
+}
+
+.ach-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--cat-border, var(--color-blue-border));
+  background: linear-gradient(var(--cat-glow, var(--color-blue-glow)), var(--cat-glow, var(--color-blue-glow))), #0a100c;
+  cursor: default;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  animation: ach-tile-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ach-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--cat-color, var(--color-blue));
+}
+
+.ach-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ach-card-glyph {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--cat-border, var(--color-blue-border));
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1;
+  font-size: 0.58rem;
+  color: var(--cat-color, var(--color-blue));
+  text-shadow: 0 0 8px var(--cat-glow, var(--color-blue-glow));
+  user-select: none;
+  animation: ach-tile-pulse 3.6s ease-in-out infinite 0.4s;
+}
+
+.ach-card-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ach-card-desc {
+  font-size: 0.6rem;
+  line-height: 1.35;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ach-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.1rem;
+}
+
+.ach-card-category {
+  font-family: var(--font-heading);
+  font-size: 0.54rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ach-card-date {
+  font-size: 0.54rem;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Thin CRT-tinted scrollbar for the trophy case */
+.ach-trophy-case {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-blue-border) transparent;
+}
+.ach-trophy-case::-webkit-scrollbar { width: 6px; }
+.ach-trophy-case::-webkit-scrollbar-track { background: transparent; }
+.ach-trophy-case::-webkit-scrollbar-thumb {
+  background: var(--color-blue-border);
+  border-radius: 3px;
+}
+
+@keyframes ach-tile-in {
+  0%   { opacity: 0; transform: scale(0.9) translateY(4px); }
+  100% { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+@keyframes ach-tile-pulse {
+  0%, 100% { text-shadow: 0 0 6px var(--cat-glow, var(--color-blue-glow)); }
+  50%      { text-shadow: 0 0 12px var(--cat-glow, var(--color-blue-glow)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ach-card, .ach-card-glyph { animation: none; }
+}
+
 /* ─── FAQ / Docs — terminal man-page style ─────────────────────── */
 
 .faq-page {
@@ -1714,7 +1854,7 @@
 .faq-volume-title {
   display: block;
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: 0.783rem;
   font-weight: 700;
   color: var(--color-text-secondary);
   transition: color 0.15s;
@@ -1727,7 +1867,7 @@
 .faq-volume-sub {
   display: block;
   font-family: var(--font-heading);
-  font-size: 0.62rem;
+  font-size: 0.718rem;
   color: var(--color-text-faint);
   white-space: nowrap;
   overflow: hidden;
@@ -1773,7 +1913,7 @@
 
 .faq-prose h3 {
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: 0.757rem;
   font-weight: 700;
   color: var(--color-text-secondary);
   margin-top: 1.5rem;
@@ -1839,14 +1979,14 @@
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
-  font-size: 0.85rem;
+  font-size: 0.867rem;
 }
 
 .faq-prose thead tr { border-bottom: 1px solid var(--color-green-border); }
 
 .faq-prose th {
   font-family: var(--font-heading);
-  font-size: 0.6rem;
+  font-size: 0.705rem;
   font-weight: 700;
   color: var(--color-green);
   padding: 0.5rem 0.75rem;
@@ -1859,7 +1999,7 @@
   color: var(--color-text-secondary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.867rem;
   line-height: 1.5;
 }
 
@@ -1894,7 +2034,7 @@
 .faq-prose-divider {
   text-align: center;
   color: var(--color-text-faint);
-  font-size: 0.7rem;
+  font-size: 0.77rem;
   margin: 2rem 0;
   font-family: var(--font-heading);
 }
@@ -1926,5 +2066,5 @@
   }
 
   .faq-volume-sub { display: none; }
-  .faq-volume-title { font-size: 0.62rem; white-space: nowrap; }
+  .faq-volume-title { font-size: 0.718rem; white-space: nowrap; }
 }

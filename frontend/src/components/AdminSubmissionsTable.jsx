@@ -42,7 +42,7 @@ function Pagination({ page, totalPages, onChange }) {
   const base = {
     minWidth: "2rem", height: "2rem", padding: "0 0.5rem",
     borderRadius: "0.375rem", fontFamily: "var(--font-heading)",
-    fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em",
+    fontSize: "0.718rem", fontWeight: 700, letterSpacing: "0.06em",
     cursor: "pointer", transition: "all 0.15s", border: "1px solid",
   };
   return (
@@ -51,7 +51,7 @@ function Pagination({ page, totalPages, onChange }) {
         style={{ ...base, borderColor: "rgba(255,255,255,0.10)", background: "transparent", color: page === 1 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.50)", cursor: page === 1 ? "not-allowed" : "pointer" }}>←</button>
       {pages.map((p, i) =>
         p === "…"
-          ? <span key={`e${i}`} style={{ color: "var(--color-text-faint)", fontSize: "0.7rem", padding: "0 0.25rem" }}>…</span>
+          ? <span key={`e${i}`} style={{ color: "var(--color-text-faint)", fontSize: "0.77rem", padding: "0 0.25rem" }}>…</span>
           : <button key={p} onClick={() => onChange(p)} style={{ ...base, borderColor: p === page ? "var(--color-green-border)" : "rgba(255,255,255,0.08)", background: p === page ? "var(--color-green-dim)" : "transparent", color: p === page ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>{p}</button>
       )}
       <button disabled={page === totalPages} onClick={() => onChange(page + 1)}
@@ -102,34 +102,34 @@ function SolutionModal({ submissionId, onClose }) {
               <Link
                 to={`/users/${detail.user_id}`}
                 onClick={onClose}
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", textDecoration: "none", flexShrink: 0 }}
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: "var(--color-green)", textDecoration: "none", flexShrink: 0 }}
               >
                 {detail.username}
               </Link>
-              <span style={{ color: "var(--color-text-faint)", fontSize: "0.8rem", flexShrink: 0 }}>→</span>
+              <span style={{ color: "var(--color-text-faint)", fontSize: "0.835rem", flexShrink: 0 }}>→</span>
               {/* Job link */}
               <Link
                 to={`/jobs/${detail.language}/${detail.job_id}`}
                 onClick={onClose}
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textDecoration: "none", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.848rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textDecoration: "none", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
               >
                 {detail.job_title}
               </Link>
               {/* Language */}
               <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: LANG_COLORS[lang] ?? "#fff" }} />
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--color-text-secondary)", textTransform: "uppercase" }}>
                   {LANG_LABELS[lang] ?? lang}
                 </span>
               </span>
               {/* Difficulty */}
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.08em", color: diff?.color, textTransform: "uppercase", flexShrink: 0 }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700, letterSpacing: "0.08em", color: diff?.color, textTransform: "uppercase", flexShrink: 0 }}>
                 {diff?.label}
               </span>
               {/* Status pill */}
               <span style={{
                 padding: "0.18rem 0.5rem", borderRadius: "4px", flexShrink: 0,
-                fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                fontFamily: "var(--font-heading)", fontSize: "0.627rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
                 background: detail.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
                 color:      detail.all_passed ? "var(--color-green)"               : "var(--color-red-bright)",
                 border:     `1px solid ${detail.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
@@ -138,7 +138,7 @@ function SolutionModal({ submissionId, onClose }) {
               </span>
             </>
           ) : (
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.82rem", fontWeight: 700, color: "var(--color-text-secondary)", flex: 1 }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.848rem", fontWeight: 700, color: "var(--color-text-secondary)", flex: 1 }}>
               Loading…
             </span>
           )}
@@ -154,20 +154,20 @@ function SolutionModal({ submissionId, onClose }) {
 
         {/* Body */}
         {loading ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.72rem" }}>
+          <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)", fontSize: "0.783rem" }}>
             Loading submission…
           </div>
         ) : error ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-red-bright)", fontSize: "0.8rem" }}>{error}</div>
+          <div style={{ padding: "3rem", textAlign: "center", color: "var(--color-red-bright)", fontSize: "0.835rem" }}>{error}</div>
         ) : (
           <div style={{ overflowY: "auto", flex: 1 }}>
             {/* Test results bar */}
             {detail.test_results && (
               <div style={{ padding: "0.8rem 1.4rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
                   Tests
                 </span>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: detail.all_passed ? "var(--color-green)" : "var(--color-red-bright)" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.822rem", fontWeight: 700, color: detail.all_passed ? "var(--color-green)" : "var(--color-red-bright)" }}>
                   {detail.test_results.passed}/{detail.test_results.total} passed
                 </span>
                 <div style={{ display: "flex", gap: "0.28rem", flexWrap: "wrap", flex: 1 }}>
@@ -180,14 +180,14 @@ function SolutionModal({ submissionId, onClose }) {
                         background: r.passed ? "var(--color-green-border)" : "var(--color-red-dim)",
                         border: `1px solid ${r.passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
                         display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        fontSize: "0.48rem", color: r.passed ? "var(--color-green)" : "var(--color-red-bright)",
+                        fontSize: "0.627rem", color: r.passed ? "var(--color-green)" : "var(--color-red-bright)",
                       }}
                     >
                       {r.passed ? "✓" : "✗"}
                     </span>
                   ))}
                 </div>
-                <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
+                <span style={{ fontSize: "0.692rem", color: "var(--color-text-faint)", flexShrink: 0 }}>
                   {new Date(detail.submitted_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                 </span>
               </div>
@@ -195,14 +195,14 @@ function SolutionModal({ submissionId, onClose }) {
 
             {/* Code */}
             <div style={{ padding: "0.85rem 1.4rem 1.2rem" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)", marginBottom: "0.55rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)", marginBottom: "0.55rem" }}>
                 Submitted Code
               </p>
               <pre style={{
                 margin: 0, padding: "1rem 1.1rem",
                 background: "rgba(0,0,0,0.48)", borderRadius: "8px",
                 border: "1px solid rgba(255,255,255,0.06)",
-                fontFamily: "'Courier New', Courier, monospace", fontSize: "0.77rem",
+                fontFamily: "'Courier New', Courier, monospace", fontSize: "0.816rem",
                 color: "rgba(255,255,255,0.80)", lineHeight: 1.7,
                 overflowX: "auto", whiteSpace: "pre", tabSize: 4,
               }}>
@@ -303,7 +303,7 @@ export default function AdminSubmissionsTable() {
               key={val}
               onClick={() => { setStatusFilter(val); setPage(1); }}
               style={{
-                fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700,
                 letterSpacing: "0.07em", textTransform: "uppercase",
                 padding: "0.38rem 0.75rem", borderRadius: "6px",
                 border: "1px solid",
@@ -336,7 +336,7 @@ export default function AdminSubmissionsTable() {
           background: "rgba(255,255,255,0.02)",
         }}>
           {["User", "Job", "Language", "Score", "Status", "Date", ""].map((h, i) => (
-            <span key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
+            <span key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.627rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
               {h}
             </span>
           ))}
@@ -377,7 +377,7 @@ export default function AdminSubmissionsTable() {
               {/* User link */}
               <Link
                 to={`/users/${s.user_id}`}
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: "var(--color-green)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -387,7 +387,7 @@ export default function AdminSubmissionsTable() {
               {/* Job link */}
               <Link
                 to={`/jobs/${lang}/${s.job_id}`}
-                style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.72)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 600, color: "rgba(255,255,255,0.736)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.95)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.72)")}
               >
@@ -397,13 +397,13 @@ export default function AdminSubmissionsTable() {
               {/* Language */}
               <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: LANG_COLORS[lang] ?? "#fff", flexShrink: 0 }} />
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.07em", color: "var(--color-text-tertiary)", textTransform: "uppercase" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.64rem", fontWeight: 700, letterSpacing: "0.07em", color: "var(--color-text-tertiary)", textTransform: "uppercase" }}>
                   {LANG_LABELS[lang] ?? lang}
                 </span>
               </span>
 
               {/* Score */}
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: scoreColor }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, color: scoreColor }}>
                 {total > 0 ? `${passed}/${total}` : "—"}
               </span>
 
@@ -411,7 +411,7 @@ export default function AdminSubmissionsTable() {
               <span style={{
                 display: "inline-flex", alignItems: "center",
                 padding: "0.15rem 0.45rem", borderRadius: "4px",
-                fontFamily: "var(--font-heading)", fontSize: "0.46rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                fontFamily: "var(--font-heading)", fontSize: "0.614rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
                 background: s.all_passed ? "var(--color-green-dim)" : "var(--color-red-dim)",
                 color:      s.all_passed ? "var(--color-green)"               : "var(--color-red-bright)",
                 border:     `1px solid ${s.all_passed ? "var(--color-green-border)" : "var(--color-red-border)"}`,
@@ -420,7 +420,7 @@ export default function AdminSubmissionsTable() {
               </span>
 
               {/* Date */}
-              <span style={{ fontSize: "0.58rem", color: "var(--color-text-faint)" }}>
+              <span style={{ fontSize: "0.692rem", color: "var(--color-text-faint)" }}>
                 {new Date(s.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </span>
 
@@ -428,7 +428,7 @@ export default function AdminSubmissionsTable() {
               <button
                 onClick={() => setModalId(s.id)}
                 style={{
-                  fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.653rem", fontWeight: 700,
                   letterSpacing: "0.07em", textTransform: "uppercase",
                   padding: "0.28rem 0.6rem", borderRadius: "5px",
                   border: "1px solid var(--color-green-border)",

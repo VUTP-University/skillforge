@@ -96,7 +96,7 @@ function Pagination({ page, totalPages, onChange }) {
   const base = {
     minWidth: "2rem", height: "2rem", padding: "0 0.5rem",
     borderRadius: "0.375rem", fontFamily: "var(--font-heading)",
-    fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.06em",
+    fontSize: "0.718rem", fontWeight: 700, letterSpacing: "0.06em",
     cursor: "pointer", transition: "all 0.15s", border: "1px solid",
   };
   return (
@@ -105,7 +105,7 @@ function Pagination({ page, totalPages, onChange }) {
         style={{ ...base, borderColor: "rgba(255,255,255,0.10)", background: "transparent", color: page === 1 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.50)", cursor: page === 1 ? "not-allowed" : "pointer" }}>←</button>
       {pages.map((p, i) =>
         p === "…"
-          ? <span key={`e${i}`} style={{ color: "var(--color-text-faint)", fontSize: "0.7rem", padding: "0 0.25rem" }}>…</span>
+          ? <span key={`e${i}`} style={{ color: "var(--color-text-faint)", fontSize: "0.77rem", padding: "0 0.25rem" }}>…</span>
           : <button key={p} onClick={() => onChange(p)} style={{ ...base, borderColor: p === page ? "var(--color-green-border)" : "rgba(255,255,255,0.08)", background: p === page ? "var(--color-green-dim)" : "transparent", color: p === page ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>{p}</button>
       )}
       <button disabled={page === totalPages} onClick={() => onChange(page + 1)}
@@ -129,7 +129,7 @@ function DeleteModal({ title, body, onConfirm, onCancel, busy }) {
         <div className="flex gap-3">
           <button className="sf-btn-ghost" style={{ flex: 1 }} onClick={onCancel} disabled={busy}>Cancel</button>
           <button disabled={busy} onClick={onConfirm}
-            style={{ flex: 1, padding: "0.6rem 1rem", borderRadius: "0.5rem", cursor: busy ? "not-allowed" : "pointer", border: "1px solid var(--color-red-border)", background: "var(--color-red-dim)", color: "var(--color-red-bright)", opacity: busy ? 0.6 : 1, fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s" }}>
+            style={{ flex: 1, padding: "0.6rem 1rem", borderRadius: "0.5rem", cursor: busy ? "not-allowed" : "pointer", border: "1px solid var(--color-red-border)", background: "var(--color-red-dim)", color: "var(--color-red-bright)", opacity: busy ? 0.6 : 1, fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s" }}>
             {busy ? "Deleting…" : "Delete"}
           </button>
         </div>
@@ -170,7 +170,7 @@ function RoleModal({ target, selectedRole, onRoleSelect, onConfirm, onCancel, bu
                   background: active ? m.bg : "rgba(255,255,255,0.02)",
                   transition: "all 0.15s",
                 }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: active ? m.color : "rgba(255,255,255,0.45)" }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: active ? m.color : "rgba(255,255,255,0.45)" }}>
                   {m.label}
                 </span>
                 {active && (
@@ -201,7 +201,7 @@ function RoleModal({ target, selectedRole, onRoleSelect, onConfirm, onCancel, bu
    ═══════════════════════════════════════════════════ */
 
 const rowStyle    = { display: "flex", alignItems: "center", gap: "1rem", padding: "0 1.25rem" };
-const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" };
+const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" };
 
 /* ═══════════════════════════════════════════════════
    MAIN COMPONENT
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
                       <p className="text-dim text-xs mt-0.5">{new Date(job.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
                     </div>
                     <div style={JC.language}>
-                      <span className="text-xs font-medium" style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.05em", color: "rgba(255,255,255,0.60)" }}>{LANG_LABELS[job.language] ?? job.language}</span>
+                      <span className="text-xs font-medium" style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.05em", color: "rgba(255,255,255,0.682)" }}>{LANG_LABELS[job.language] ?? job.language}</span>
                     </div>
                     <div style={{ ...JC.difficulty, display: "flex", justifyContent: "center" }}>
                       <DiffBadge difficulty={job.difficulty} />
@@ -416,9 +416,9 @@ export default function AdminDashboard() {
                     <div style={JC.xp}><span className="text-green font-bold text-sm">{job.xp_reward}</span></div>
                     <div style={{ ...JC.author, minWidth: 0 }}><span className="text-sub text-xs truncate block">{job.author ?? "—"}</span></div>
                     <div style={{ ...JC.actions, display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                      <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem" }} onClick={() => navigate(`/admin/jobs/${job.id}/edit`)}>Edit</button>
+                      <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem" }} onClick={() => navigate(`/admin/jobs/${job.id}/edit`)}>Edit</button>
                       <button onClick={() => setDeleteQ({ id: job.id, title: job.title })}
-                        style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s" }}
+                        style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.705)", fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s" }}
                         onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-red-bright)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "var(--color-red-dim)"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "transparent"; }}>
                         Delete
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
           {!usersLoading && users.length > 0 && (
             <div className="grid grid-cols-4 gap-3 mb-4">
               {[
-                { label: "Total",      value: users.length,                color: "rgba(255,255,255,0.60)" },
+                { label: "Total",      value: users.length,                color: "rgba(255,255,255,0.682)" },
                 { label: "Admins",     value: roleCounts.admin     ?? 0,   color: ROLE_META.admin.color     },
                 { label: "Moderators", value: roleCounts.moderator ?? 0,   color: ROLE_META.moderator.color },
                 { label: "Users",      value: roleCounts.user      ?? 0,   color: ROLE_META.user.color      },
@@ -493,13 +493,13 @@ export default function AdminDashboard() {
 
                       {/* Identity */}
                       <div style={{ ...UC.identity, display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0 }}>
-                        <div className="avatar-initials" style={{ width: "2rem", height: "2rem", fontSize: "0.75rem", flexShrink: 0 }}>
+                        <div className="avatar-initials" style={{ width: "2rem", height: "2rem", fontSize: "0.802rem", flexShrink: 0 }}>
                           {u.username[0].toUpperCase()}
                         </div>
                         <div style={{ minWidth: 0 }}>
                           <p className="text-white text-sm font-semibold truncate">
                             {u.username}
-                            {isSelf && <span className="ml-2 text-green" style={{ fontSize: "0.65rem", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>(you)</span>}
+                            {isSelf && <span className="ml-2 text-green" style={{ fontSize: "0.738rem", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>(you)</span>}
                           </p>
                           <p className="text-dim text-xs truncate">{u.email}</p>
                         </div>
@@ -523,13 +523,13 @@ export default function AdminDashboard() {
                           disabled={isSelf}
                           onClick={() => !isSelf && setRoleTarget({ user: u, selectedRole: u.role })}
                           className="sf-btn-ghost"
-                          style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}>
+                          style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}>
                           Change Role
                         </button>
                         <button
                           disabled={isSelf}
                           onClick={() => !isSelf && setDeleteU({ id: u.id, username: u.username })}
-                          style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}
+                          style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.705)", fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}
                           onMouseEnter={(e) => { if (!isSelf) { e.currentTarget.style.color = "var(--color-red-bright)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "var(--color-red-dim)"; }}}
                           onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "transparent"; }}>
                           Delete
@@ -639,7 +639,7 @@ function JobReportsSection({ users, navigate }) {
               onClick={() => setFilter(f)}
               style={{
                 padding: "0.35rem 0.75rem", borderRadius: "0.375rem", cursor: "pointer",
-                fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700,
                 letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s",
                 border: filter === f ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.10)",
                 background: filter === f ? "var(--color-green-dim)" : "transparent",
@@ -657,10 +657,10 @@ function JobReportsSection({ users, navigate }) {
         <div className="glass-card p-5 mb-4" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
               <p className="text-white font-semibold text-sm">{selected.job_title ?? `Job #${selected.job_id}`}</p>
-              <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
-                Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+              <p style={{ fontSize: "0.783rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
+                Reported by <span style={{ color: "rgba(255,255,255,0.682)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
               </p>
             </div>
             <button
@@ -673,15 +673,15 @@ function JobReportsSection({ users, navigate }) {
 
           {/* Reason */}
           <div style={{ padding: "0.75rem 1rem", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", marginBottom: "1.25rem" }}>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.4rem" }}>Reason</p>
-            <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.65 }}>{selected.reason}</p>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.4rem" }}>Reason</p>
+            <p style={{ fontSize: "0.855rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.65 }}>{selected.reason}</p>
           </div>
 
           {/* Controls */}
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             {/* Status picker */}
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Status</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Status</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                 {Object.entries(REPORT_STATUS_META).map(([val, m]) => (
                   <button key={val} onClick={() => setPatch((p) => ({ ...p, status: val }))}
@@ -692,7 +692,7 @@ function JobReportsSection({ users, navigate }) {
                       background: patch.status === val ? m.bg : "rgba(255,255,255,0.02)",
                       transition: "all 0.15s",
                     }}>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: patch.status === val ? m.color : "rgba(255,255,255,0.45)" }}>{m.label}</span>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: patch.status === val ? m.color : "rgba(255,255,255,0.45)" }}>{m.label}</span>
                     {patch.status === val && (
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: m.color }}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -705,7 +705,7 @@ function JobReportsSection({ users, navigate }) {
 
             {/* Assign to */}
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Assigned To</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Assigned To</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                 <button onClick={() => setPatch((p) => ({ ...p, assigned_to_id: null }))}
                   style={{
@@ -715,9 +715,9 @@ function JobReportsSection({ users, navigate }) {
                     background: patch.assigned_to_id === null ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)",
                     transition: "all 0.15s",
                   }}>
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === null ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.35)" }}>Unassigned</span>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === null ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.35)" }}>Unassigned</span>
                   {patch.assigned_to_id === null && (
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "rgba(255,255,255,0.50)" }}>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "rgba(255,255,255,0.637)" }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
                   )}
@@ -731,9 +731,9 @@ function JobReportsSection({ users, navigate }) {
                       background: patch.assigned_to_id === u.id ? "var(--color-green-dim)" : "rgba(255,255,255,0.02)",
                       transition: "all 0.15s",
                     }}>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>
                       {u.username}
-                      <span style={{ marginLeft: "0.4rem", fontSize: "0.55rem", opacity: 0.55 }}>({ROLE_META[u.role]?.label})</span>
+                      <span style={{ marginLeft: "0.4rem", fontSize: "0.672rem", opacity: 0.55 }}>({ROLE_META[u.role]?.label})</span>
                     </span>
                     {patch.assigned_to_id === u.id && (
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--color-green)" }}>
@@ -798,7 +798,7 @@ function JobReportsSection({ users, navigate }) {
               </div>
               <div style={RC.date}><span className="text-dim text-xs">{new Date(report.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span></div>
               <div style={{ ...RC.actions, display: "flex", justifyContent: "flex-end" }}>
-                <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem" }} onClick={() => openReport(report)}>
+                <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem" }} onClick={() => openReport(report)}>
                   Review
                 </button>
               </div>

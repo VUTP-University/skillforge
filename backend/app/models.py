@@ -114,6 +114,9 @@ class User(db.Model):
     submissions = db.relationship(
         "JobSubmission", back_populates="user", cascade="all, delete-orphan"
     )
+    achievements = db.relationship(
+        "UserAchievement", back_populates="user", cascade="all, delete-orphan"
+    )
 
     @property
     def level(self):
@@ -596,3 +599,83 @@ class JobReport(db.Model):
 
     def __repr__(self):
         return f"<JobReport {self.id} job={self.job_id} status={self.status.value}>"
+
+
+# ── Achievements ─────────────────────────────────────────────────────────────
+
+
+class AchievementCategory(enum.Enum):
+    job        = "job"
+    process    = "process"
+    test_suite = "test_suite"
+    general    = "general"
+
+
+class AchievementCriteriaType(enum.Enum):
+    job_completions        = "job_completions"         # count JobCompletion, optional language/difficulty filter
+    process_challenges     = "process_challenges"       # count completed ProcessChallenge, optional severity filter
+    test_run_completions   = "test_run_completions"     # count non-active TestRun rows
+    test_run_perfect_score = "test_run_perfect_score"   # any TestRun with correct_count == total questions
+    total_xp               = "total_xp"                 # user.total_xp >= threshold
+    level                  = "level"                    # user.level >= threshold
+    rank                   = "rank"                      # user.rank == params["rank"]
+    has_avatar             = "has_avatar"                # user.avatar is not None
+    job_comments_count     = "job_comments_count"        # count JobComment for user
+    jobs_authored_count    = "jobs_authored_count"       # count Job where author_id == user.id
+
+
+class Achievement(db.Model):
+    __tablename__ = "achievements"
+
+    id              = db.Column(db.Integer, primary_key=True)
+    slug            = db.Column(db.String(80), unique=True, nullable=False)
+    name            = db.Column(db.String(120), nullable=False)
+    description     = db.Column(db.String(255), nullable=False)
+    category        = db.Column(db.Enum(AchievementCategory, name="achievement_category"), nullable=False)
+    glyph           = db.Column(db.String(8), nullable=False)
+    criteria_type   = db.Column(db.Enum(AchievementCriteriaType, name="achievement_criteria_type"), nullable=False)
+    criteria_params = db.Column(db.JSON, nullable=False, default=dict)
+    sort_order      = db.Column(db.Integer, nullable=False, default=0)
+    created_at      = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    unlocks = db.relationship(
+        "UserAchievement", back_populates="achievement", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+        return f"<Achievement {self.slug}>"
+
+
+class UserAchievement(db.Model):
+    __tablename__ = "user_achievements"
+
+    id             = db.Column(db.Integer, primary_key=True)
+    user_id        = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    achievement_id = db.Column(
+        db.Integer,
+        db.ForeignKey("achievements.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    earned_at      = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    user        = db.relationship("User", back_populates="achievements")
+    achievement = db.relationship("Achievement", back_populates="unlocks")
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "achievement_id", name="uq_user_achievement"),
+    )
+
+    def __repr__(self):
+        return f"<UserAchievement user={self.user_id} achievement={self.achievement_id}>"

@@ -68,7 +68,7 @@ function MarkdownContent({ text }) {
             padding: "1rem 1.1rem",
             overflowX: "auto",
             margin: "0.9rem 0",
-            fontSize: "0.8rem",
+            fontSize: "0.835rem",
             lineHeight: 1.6,
             fontFamily: "monospace",
             color: "#e5e7eb",
@@ -85,7 +85,7 @@ function MarkdownContent({ text }) {
     const h2Match = line.match(/^##\s+(.*)/);
     const h1Match = line.match(/^#\s+(.*)/);
     if (h3Match) {
-      output.push(<h3 key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "#fca5a5", letterSpacing: "0.08em", textTransform: "uppercase", margin: "1.2rem 0 0.4rem" }}>{inlineFormat(h3Match[1])}</h3>);
+      output.push(<h3 key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.867rem", color: "#fca5a5", letterSpacing: "0.08em", textTransform: "uppercase", margin: "1.2rem 0 0.4rem" }}>{inlineFormat(h3Match[1])}</h3>);
       i++; continue;
     }
     if (h2Match) {
@@ -107,7 +107,7 @@ function MarkdownContent({ text }) {
       output.push(
         <ul key={`ul-${i}`} style={{ margin: "0.6rem 0 0.6rem 1.25rem", padding: 0, listStyleType: "disc" }}>
           {items.map((item, idx) => (
-            <li key={idx} style={{ color: "rgba(255,255,255,0.78)", fontSize: "0.88rem", lineHeight: 1.65, fontFamily: "var(--font-body)" }}>
+            <li key={idx} style={{ color: "rgba(255,255,255,0.78)", fontSize: "0.887rem", lineHeight: 1.65, fontFamily: "var(--font-body)" }}>
               {inlineFormat(item)}
             </li>
           ))}
@@ -123,7 +123,7 @@ function MarkdownContent({ text }) {
 
     // Regular paragraph
     output.push(
-      <p key={i} style={{ color: "rgba(255,255,255,0.78)", fontSize: "0.88rem", lineHeight: 1.7, margin: "0.5rem 0", fontFamily: "var(--font-body)" }}>
+      <p key={i} style={{ color: "rgba(255,255,255,0.78)", fontSize: "0.887rem", lineHeight: 1.7, margin: "0.5rem 0", fontFamily: "var(--font-body)" }}>
         {inlineFormat(line)}
       </p>
     );
@@ -267,7 +267,7 @@ function ResultScreen({ result, process }) {
           border: `1px solid ${diff.color}55`,
           color: diff.color,
           fontFamily: "var(--font-heading)",
-          fontSize: "0.6rem",
+          fontSize: "0.705rem",
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           marginBottom: "2rem",
@@ -298,7 +298,7 @@ function ResultScreen({ result, process }) {
           }}
         >
           {animated}
-          <span style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.55)", marginLeft: "0.25rem" }}>
+          <span style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.66)", marginLeft: "0.25rem" }}>
             / {maxXp} XP
           </span>
         </div>
@@ -311,7 +311,7 @@ function ResultScreen({ result, process }) {
             border: "1px solid var(--color-green-border)",
             color: "var(--color-green)",
             fontFamily: "var(--font-heading)",
-            fontSize: "0.62rem",
+            fontSize: "0.718rem",
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             display: "inline-block",
@@ -358,9 +358,9 @@ function ResultScreen({ result, process }) {
             style={{
               background: "none",
               border: "none",
-              color: "rgba(255,255,255,0.40)",
+              color: "rgba(255,255,255,0.593)",
               fontFamily: "var(--font-heading)",
-              fontSize: "0.62rem",
+              fontSize: "0.718rem",
               letterSpacing: "0.10em",
               textTransform: "uppercase",
               cursor: "pointer",
@@ -387,8 +387,8 @@ function ResultScreen({ result, process }) {
               <p
                 style={{
                   fontFamily: "var(--font-body)",
-                  fontSize: "0.84rem",
-                  color: "rgba(255,255,255,0.65)",
+                  fontSize: "0.861rem",
+                  color: "rgba(255,255,255,0.705)",
                   lineHeight: 1.65,
                   margin: 0,
                   whiteSpace: "pre-wrap",
@@ -414,7 +414,7 @@ function ResultScreen({ result, process }) {
           background: "rgba(220,38,38,0.10)",
           color: "#fca5a5",
           fontFamily: "var(--font-heading)",
-          fontSize: "0.68rem",
+          fontSize: "0.757rem",
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           textDecoration: "none",
@@ -599,10 +599,10 @@ export default function StackTraceChallengePage() {
   if (error) {
     return (
       <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
-        <p style={{ color: "#fca5a5", fontFamily: "var(--font-heading)", fontSize: "0.85rem", marginBottom: "1rem" }}>
+        <p style={{ color: "#fca5a5", fontFamily: "var(--font-heading)", fontSize: "0.867rem", marginBottom: "1rem" }}>
           {error}
         </p>
-        <Link to="/stack-trace" style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textDecoration: "none", fontFamily: "var(--font-heading)", letterSpacing: "0.10em" }}>
+        <Link to="/stack-trace" style={{ color: "rgba(255,255,255,0.593)", fontSize: "0.802rem", textDecoration: "none", fontFamily: "var(--font-heading)", letterSpacing: "0.10em" }}>
           ← Return to Stack Trace
         </Link>
       </div>
@@ -686,7 +686,7 @@ export default function StackTraceChallengePage() {
                   border: `1px solid ${diff.color}55`,
                   color: diff.color,
                   fontFamily: "var(--font-heading)",
-                  fontSize: "0.58rem",
+                  fontSize: "0.692rem",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                 }}
@@ -710,7 +710,7 @@ export default function StackTraceChallengePage() {
               style={{
                 fontFamily: "var(--font-heading)",
                 fontStyle: "italic",
-                fontSize: "0.82rem",
+                fontSize: "0.848rem",
                 color: "rgba(255,200,200,0.85)",
                 lineHeight: 1.65,
                 margin: 0,
@@ -725,10 +725,10 @@ export default function StackTraceChallengePage() {
             <div
               style={{
                 fontFamily: "var(--font-heading)",
-                fontSize: "0.60rem",
+                fontSize: "0.705rem",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,0.52)",
+                color: "rgba(255,255,255,0.647)",
                 marginBottom: "0.75rem",
               }}
             >
@@ -764,10 +764,10 @@ export default function StackTraceChallengePage() {
               <div
                 style={{
                   fontFamily: "var(--font-heading)",
-                  fontSize: "0.58rem",
+                  fontSize: "0.692rem",
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.52)",
+                  color: "rgba(255,255,255,0.647)",
                   marginBottom: "0.3rem",
                 }}
               >
@@ -793,9 +793,9 @@ export default function StackTraceChallengePage() {
                 borderRadius: "3px",
                 background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.10)",
-                color: "rgba(255,255,255,0.50)",
+                color: "rgba(255,255,255,0.637)",
                 fontFamily: "var(--font-heading)",
-                fontSize: "0.62rem",
+                fontSize: "0.718rem",
                 letterSpacing: "0.10em",
                 textTransform: "uppercase",
               }}
@@ -823,7 +823,7 @@ export default function StackTraceChallengePage() {
                 foldGutter: true,
                 highlightActiveLine: true,
               }}
-              style={{ minHeight: "300px", fontSize: "0.85rem" }}
+              style={{ minHeight: "300px", fontSize: "0.867rem" }}
             />
           </div>
 
@@ -842,7 +842,7 @@ export default function StackTraceChallengePage() {
                   : "rgba(220,38,38,0.18)",
                 color: submitting || !code.trim() ? "rgba(252,165,165,0.40)" : "#fca5a5",
                 fontFamily: "var(--font-heading)",
-                fontSize: "0.68rem",
+                fontSize: "0.757rem",
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
                 cursor: submitting || !code.trim() ? "not-allowed" : "pointer",
@@ -880,9 +880,9 @@ export default function StackTraceChallengePage() {
                 borderRadius: "0.5rem",
                 border: "1px solid rgba(255,255,255,0.10)",
                 background: "transparent",
-                color: "rgba(255,255,255,0.52)",
+                color: "rgba(255,255,255,0.647)",
                 fontFamily: "var(--font-heading)",
-                fontSize: "0.62rem",
+                fontSize: "0.718rem",
                 letterSpacing: "0.10em",
                 textTransform: "uppercase",
                 cursor: submitting ? "not-allowed" : "pointer",

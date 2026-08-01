@@ -34,7 +34,7 @@ function RankBadge({ rank }) {
     <span style={{
       padding: "0.15rem 0.5rem", borderRadius: "3px",
       border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
-      fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700,
+      fontFamily: "var(--font-heading)", fontSize: "0.64rem", fontWeight: 700,
       flexShrink: 0,
     }}>
       {rank}
@@ -84,7 +84,7 @@ export default function LeaderboardPage() {
         <svg style={{ width: 36, height: 36, color: "var(--color-text-faint)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "var(--color-text-secondary)" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.867rem", color: "var(--color-text-secondary)" }}>
           {error}
         </p>
       </div>
@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
         <svg style={{ width: 36, height: 36, color: "var(--color-text-faint)" }} fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
         </svg>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", color: "var(--color-text-secondary)" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.867rem", color: "var(--color-text-secondary)" }}>
           No players on record yet.
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function LeaderboardPage() {
         >
           Leaderboard
         </h1>
-        <p style={{ fontSize: "0.85rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-body)" }}>
+        <p style={{ fontSize: "0.867rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-body)" }}>
           Top players ranked by total XP
         </p>
         {myRank > 0 && (
@@ -139,7 +139,7 @@ export default function LeaderboardPage() {
             <svg style={{ width: 12, height: 12, color: "var(--color-green)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-green)" }}>
+            <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, color: "var(--color-green)" }}>
               Your Rank: #{myRank}
             </span>
           </div>
@@ -196,7 +196,7 @@ export default function LeaderboardPage() {
                     maxWidth: "100%",
                   }}>
                     {player.username}
-                    {isMe && <span style={{ color: "var(--color-green)", fontSize: "0.6rem", marginLeft: "0.3rem" }}>you</span>}
+                    {isMe && <span style={{ color: "var(--color-green)", fontSize: "0.705rem", marginLeft: "0.3rem" }}>you</span>}
                   </p>
 
                   {/* Rank badge */}
@@ -207,7 +207,7 @@ export default function LeaderboardPage() {
                     <svg style={{ width: 11, height: 11, color: slot.color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                     </svg>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: slot.color }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: slot.color }}>
                       {player.total_xp.toLocaleString()} XP
                     </span>
                   </div>
@@ -246,7 +246,7 @@ export default function LeaderboardPage() {
                 >
                   {/* Position */}
                   <span style={{
-                    fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700,
+                    fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700,
                     color: "var(--color-text-faint)", width: "1.8rem", textAlign: "right", flexShrink: 0,
                   }}>
                     {position}
@@ -261,7 +261,7 @@ export default function LeaderboardPage() {
                     <div style={{ minWidth: 0 }}>
                       <p
                         style={{
-                          fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700,
+                          fontFamily: "var(--font-heading)", fontSize: "0.835rem", fontWeight: 700,
                           color: isMe ? "var(--color-green)" : "var(--color-text-secondary)",
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                           transition: "color 0.12s",
@@ -270,7 +270,7 @@ export default function LeaderboardPage() {
                         onMouseLeave={e => (e.currentTarget.style.color = isMe ? "var(--color-green)" : "var(--color-text-secondary)")}
                       >
                         {player.username}
-                        {isMe && <span style={{ fontSize: "0.58rem", marginLeft: "0.35rem", opacity: 0.65 }}>you</span>}
+                        {isMe && <span style={{ fontSize: "0.692rem", marginLeft: "0.35rem", opacity: 0.65 }}>you</span>}
                       </p>
                     </div>
                   </Link>
@@ -281,7 +281,7 @@ export default function LeaderboardPage() {
                     style={{
                       padding: "0.15rem 0.5rem", borderRadius: "3px",
                       border: `1px solid ${rs.border}`, background: rs.bg, color: rs.color,
-                      fontFamily: "var(--font-heading)", fontSize: "0.5rem", fontWeight: 700, flexShrink: 0,
+                      fontFamily: "var(--font-heading)", fontSize: "0.64rem", fontWeight: 700, flexShrink: 0,
                     }}
                   >
                     {player.rank}
@@ -289,7 +289,7 @@ export default function LeaderboardPage() {
 
                   {/* Level */}
                   <span style={{
-                    fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+                    fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
                     color: "var(--color-text-tertiary)", flexShrink: 0, minWidth: "3.5rem", textAlign: "right",
                   }}>
                     Lv. {player.level}
@@ -298,7 +298,7 @@ export default function LeaderboardPage() {
                   {/* XP */}
                   <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0, minWidth: "5rem", justifyContent: "flex-end" }}>
                     <BoltIcon />
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)" }}>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.783rem", fontWeight: 700, color: "var(--color-green)" }}>
                       {player.total_xp.toLocaleString()}
                     </span>
                   </div>

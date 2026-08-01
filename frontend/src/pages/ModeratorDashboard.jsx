@@ -18,7 +18,7 @@ const ROLE_META = {
 };
 
 const rowStyle    = { display: "flex", alignItems: "center", gap: "1rem", padding: "0 1.25rem" };
-const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" };
+const headerLabel = { fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" };
 
 function ReportStatusBadge({ status }) {
   const m = REPORT_STATUS_META[status] ?? REPORT_STATUS_META.reported;
@@ -105,7 +105,7 @@ export default function ModeratorDashboard() {
               <button key={f} onClick={() => setFilter(f)}
                 style={{
                   padding: "0.35rem 0.75rem", borderRadius: "0.375rem", cursor: "pointer",
-                  fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700,
+                  fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700,
                   letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s",
                   border: filter === f ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.10)",
                   background: filter === f ? "var(--color-green-dim)" : "transparent",
@@ -122,10 +122,10 @@ export default function ModeratorDashboard() {
           <div className="glass-card p-5 mb-4" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
                 <p className="text-white font-semibold text-sm">{selected.job_title ?? `Job #${selected.job_id}`}</p>
-                <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
-                  Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                <p style={{ fontSize: "0.783rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
+                  Reported by <span style={{ color: "rgba(255,255,255,0.682)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                 </p>
               </div>
               <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", fontSize: "1.25rem", lineHeight: 1, flexShrink: 0 }}
@@ -135,13 +135,13 @@ export default function ModeratorDashboard() {
             </div>
 
             <div style={{ padding: "0.75rem 1rem", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", marginBottom: "1.25rem" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.4rem" }}>Reason</p>
-              <p style={{ fontSize: "0.83rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.65 }}>{selected.reason}</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.4rem" }}>Reason</p>
+              <p style={{ fontSize: "0.855rem", color: "rgba(255,255,255,0.75)", lineHeight: 1.65 }}>{selected.reason}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Status</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Status</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                   {Object.entries(REPORT_STATUS_META).map(([val, m]) => (
                     <button key={val} onClick={() => setPatch((p) => ({ ...p, status: val }))}
@@ -151,7 +151,7 @@ export default function ModeratorDashboard() {
                         border: patch.status === val ? `1px solid ${m.border.replace("0.30", "0.60")}` : "1px solid rgba(255,255,255,0.08)",
                         background: patch.status === val ? m.bg : "rgba(255,255,255,0.02)", transition: "all 0.15s",
                       }}>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: patch.status === val ? m.color : "rgba(255,255,255,0.45)" }}>{m.label}</span>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: patch.status === val ? m.color : "rgba(255,255,255,0.45)" }}>{m.label}</span>
                       {patch.status === val && (
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: m.color }}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -163,7 +163,7 @@ export default function ModeratorDashboard() {
               </div>
 
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Assigned To</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>Assigned To</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                   <button onClick={() => setPatch((p) => ({ ...p, assigned_to_id: null }))}
                     style={{
@@ -172,9 +172,9 @@ export default function ModeratorDashboard() {
                       border: patch.assigned_to_id === null ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(255,255,255,0.08)",
                       background: patch.assigned_to_id === null ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)", transition: "all 0.15s",
                     }}>
-                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === null ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.35)" }}>Unassigned</span>
+                    <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === null ? "rgba(255,255,255,0.70)" : "rgba(255,255,255,0.35)" }}>Unassigned</span>
                     {patch.assigned_to_id === null && (
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "rgba(255,255,255,0.50)" }}>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "rgba(255,255,255,0.637)" }}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     )}
@@ -187,9 +187,9 @@ export default function ModeratorDashboard() {
                         border: patch.assigned_to_id === u.id ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.08)",
                         background: patch.assigned_to_id === u.id ? "var(--color-green-dim)" : "rgba(255,255,255,0.02)", transition: "all 0.15s",
                       }}>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>
+                      <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", color: patch.assigned_to_id === u.id ? "var(--color-green)" : "rgba(255,255,255,0.45)" }}>
                         {u.username}
-                        <span style={{ marginLeft: "0.4rem", fontSize: "0.55rem", opacity: 0.55 }}>({ROLE_META[u.role]?.label})</span>
+                        <span style={{ marginLeft: "0.4rem", fontSize: "0.672rem", opacity: 0.55 }}>({ROLE_META[u.role]?.label})</span>
                       </span>
                       {patch.assigned_to_id === u.id && (
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--color-green)" }}>
@@ -243,7 +243,7 @@ export default function ModeratorDashboard() {
                 <div style={{ ...RC.status, display: "flex", justifyContent: "center" }}><ReportStatusBadge status={report.status} /></div>
                 <div style={RC.date}><span className="text-dim text-xs">{new Date(report.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span></div>
                 <div style={{ ...RC.actions, display: "flex", justifyContent: "flex-end" }}>
-                  <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem" }} onClick={() => openReport(report)}>Review</button>
+                  <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem" }} onClick={() => openReport(report)}>Review</button>
                 </div>
               </div>
             ))}

@@ -15,6 +15,7 @@ Click your username or avatar in the **top navigation bar** to open the user men
 - **Avatar** — the image shown next to your name across the app
 - **Username & Rank** — your handle and current title
 - **Level & Total XP** — where you stand right now
+- **Achievements** — every one you've unlocked, grouped and color-coded by category
 - **Job Completions** — every job you've cleared, with the XP each one earned
 
 ## Setting Your Avatar

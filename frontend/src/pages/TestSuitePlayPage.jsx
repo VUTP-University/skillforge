@@ -65,7 +65,7 @@ function TimerRing({ timeLeft, total = 300 }) {
         }}>
           {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
         </span>
-        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.42rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
+        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.588rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
           remaining
         </span>
       </div>
@@ -155,19 +155,19 @@ function ResultsScreen({ data, timedOut }) {
       <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "1.9rem", fontWeight: 700, color: timedOut ? "var(--color-red-bright)" : "var(--color-amber)", marginBottom: "0.4rem", textShadow: `0 0 30px ${timedOut ? "var(--color-red-border)" : "var(--color-amber)"}` }}>
         {timedOut ? "Time Expired" : "Run Complete"}
       </h1>
-      <p style={{ fontSize: "0.88rem", color: "var(--color-text-secondary)", marginBottom: "2rem" }}>
+      <p style={{ fontSize: "0.887rem", color: "var(--color-text-secondary)", marginBottom: "2rem" }}>
         {timedOut ? "You ran out of time." : "Nice work — results are in."}
       </p>
 
       {/* XP counter */}
       <div style={{ marginBottom: "2rem", padding: "1.5rem", borderRadius: "16px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)" }}>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.5rem" }}>
           XP Earned
         </p>
         <p style={{ fontFamily: "var(--font-heading)", fontSize: "3.5rem", fontWeight: 700, color: "var(--color-amber)", lineHeight: 1, textShadow: "0 0 50px var(--color-amber), 0 0 20px var(--color-amber-border)" }}>
           +{animXP}
         </p>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.08em", color: "var(--color-text-secondary)", marginTop: "0.4rem" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", letterSpacing: "0.08em", color: "var(--color-text-secondary)", marginTop: "0.4rem" }}>
           {data.correct_count} of {data.total} passed · {accuracy}% accuracy
         </p>
       </div>
@@ -181,10 +181,10 @@ function ResultsScreen({ data, timedOut }) {
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", fontWeight: 700, color: m.color, lineHeight: 1, marginBottom: "0.25rem" }}>
                 {correct}/{total}
               </p>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-secondary)" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.672rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-secondary)" }}>
                 {m.label}
               </p>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", color: m.color, marginTop: "0.2rem" }}>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", color: m.color, marginTop: "0.2rem" }}>
                 +{correct * (diff === "easy" ? 10 : diff === "medium" ? 20 : 30)} XP
               </p>
             </div>
@@ -194,26 +194,26 @@ function ResultsScreen({ data, timedOut }) {
 
       {/* Question review */}
       <div style={{ textAlign: "left", marginBottom: "2rem" }}>
-        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.75rem" }}>
+        <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.75rem" }}>
           Answer Review
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "320px", overflowY: "auto", paddingRight: "0.25rem" }}>
           {data.results.map((r, i) => (
             <div key={r.id} style={{ padding: "0.7rem 0.9rem", borderRadius: "9px", background: r.was_correct ? "var(--color-green-dim)" : "var(--color-red-dim)", border: `1px solid ${r.was_correct ? "var(--color-green-border)" : "var(--color-red-border)"}`, display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: r.was_correct ? "var(--color-green)" : "var(--color-red-bright)", flexShrink: 0, marginTop: "1px" }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700, color: r.was_correct ? "var(--color-green)" : "var(--color-red-bright)", flexShrink: 0, marginTop: "1px" }}>
                 {r.was_correct ? "✓" : "✗"}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: "0.80rem", color: "var(--color-text-secondary)", marginBottom: r.was_correct ? 0 : "0.3rem", lineHeight: 1.5 }}>
+                <p style={{ fontSize: "0.835rem", color: "var(--color-text-secondary)", marginBottom: r.was_correct ? 0 : "0.3rem", lineHeight: 1.5 }}>
                   {i + 1}. {r.question}
                 </p>
                 {!r.was_correct && (
-                  <p style={{ fontSize: "0.73rem", color: "var(--color-green)" }}>
+                  <p style={{ fontSize: "0.789rem", color: "var(--color-green)" }}>
                     ✓ {r.options[r.correct_index]}
                   </p>
                 )}
               </div>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, color: r.was_correct ? "var(--color-green)" : "var(--color-text-faint)", flexShrink: 0 }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, color: r.was_correct ? "var(--color-green)" : "var(--color-text-faint)", flexShrink: 0 }}>
                 {r.was_correct ? `+${r.xp}` : "0"} XP
               </span>
             </div>
@@ -228,7 +228,7 @@ function ResultsScreen({ data, timedOut }) {
           width: "100%", maxWidth: 320, padding: "0.7rem 1.5rem",
           borderRadius: "10px", border: "1px solid var(--color-amber-border)",
           background: "var(--color-amber-dim)", color: "var(--color-amber)",
-          fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700,
+          fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700,
           letterSpacing: "0.10em", textTransform: "uppercase",
           textDecoration: "none", margin: "0 auto", transition: "all 0.15s",
         }}
@@ -420,10 +420,10 @@ function TestSuitePlay({ runData }) {
     const base = {
       width: 28, height: 28, borderRadius: "7px", flexShrink: 0,
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700,
+      fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
       border: "1px solid rgba(255,255,255,0.12)",
       background: "rgba(255,255,255,0.05)",
-      color: "rgba(255,255,255,0.50)",
+      color: "rgba(255,255,255,0.637)",
       transition: "all 0.15s",
     };
 
@@ -443,7 +443,7 @@ function TestSuitePlay({ runData }) {
 
       {/* ── Error banner ── */}
       {submitErr && (
-        <div style={{ marginBottom: "1rem", padding: "0.7rem 1rem", borderRadius: "9px", background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)", color: "var(--color-red-bright)", fontSize: "0.80rem" }}>
+        <div style={{ marginBottom: "1rem", padding: "0.7rem 1rem", borderRadius: "9px", background: "var(--color-red-dim)", border: "1px solid var(--color-red-border)", color: "var(--color-red-bright)", fontSize: "0.835rem" }}>
           {submitErr}
         </div>
       )}
@@ -456,10 +456,10 @@ function TestSuitePlay({ runData }) {
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
             Q {qIdx + 1} / {questions.length}
           </span>
-          <span style={{ padding: "0.15rem 0.55rem", borderRadius: "3px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)", fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700, color: "var(--color-amber)" }}>
+          <span style={{ padding: "0.15rem 0.55rem", borderRadius: "3px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)", fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: "var(--color-amber)" }}>
             +{earnedSoFar} XP
           </span>
         </div>
@@ -476,17 +476,17 @@ function TestSuitePlay({ runData }) {
                 display: "inline-flex", alignItems: "center", gap: "0.28rem",
                 padding: "0.18rem 0.55rem", borderRadius: "3px",
                 border: `1px solid ${diff.border}`, background: diff.bg, color: diff.color,
-                fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
+                fontFamily: "var(--font-heading)", fontSize: "0.672rem", fontWeight: 700,
                 letterSpacing: "0.10em", textTransform: "uppercase",
               }}>
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: diff.color, flexShrink: 0 }} />
                 {diff.label}
               </span>
-              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.60rem", fontWeight: 700, color: diff.color }}>
+              <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: diff.color }}>
                 +{question.xp} XP
               </span>
             </div>
-            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
+            <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
               Question
             </p>
           </div>
@@ -523,7 +523,7 @@ function TestSuitePlay({ runData }) {
               {OPTION_LABELS[idx]}
             </div>
             {/* Option text */}
-            <span style={{ fontSize: "0.83rem", color: getOptionColor(idx), lineHeight: 1.45, transition: "color 0.15s" }}>
+            <span style={{ fontSize: "0.855rem", color: getOptionColor(idx), lineHeight: 1.45, transition: "color 0.15s" }}>
               {opt}
             </span>
             {/* Feedback icon */}
@@ -545,7 +545,7 @@ function TestSuitePlay({ runData }) {
       {phase === "feedback" && (
         <div style={{ marginTop: "0.85rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <div className="sf-spinner" style={{ width: 12, height: 12, borderWidth: 2 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.60rem", letterSpacing: "0.08em", color: "var(--color-text-tertiary)" }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", letterSpacing: "0.08em", color: "var(--color-text-tertiary)" }}>
             Next question loading…
           </span>
         </div>
@@ -555,7 +555,7 @@ function TestSuitePlay({ runData }) {
       {phase === "submitting" && (
         <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem" }}>
           <div className="sf-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.10em", color: "var(--color-text-secondary)" }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.738rem", letterSpacing: "0.10em", color: "var(--color-text-secondary)" }}>
             Submitting…
           </span>
         </div>
