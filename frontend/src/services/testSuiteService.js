@@ -18,6 +18,6 @@ api.interceptors.response.use(
   }
 );
 
-export const getTriviaStatus  = ()                    => api.get("/trivia/status").then(r => r.data);
-export const startTrivia      = (language)            => api.post("/trivia/start", { language }).then(r => r.data);
-export const submitTrivia     = (sessionId, answers)  => api.post(`/trivia/${sessionId}/submit`, { answers }).then(r => r.data);
+export const getTestSuiteStatus = ()                => api.get("/test-suite/status").then(r => r.data);
+export const startRun           = (language)        => api.post("/test-suite/start", { language }).then(r => r.data);
+export const submitRun          = (runId, answers)  => api.post(`/test-suite/${runId}/submit`, { answers }).then(r => r.data);

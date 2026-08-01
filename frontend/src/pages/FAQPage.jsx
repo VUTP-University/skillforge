@@ -3,17 +3,17 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import welcomeMd     from "../content/faq/welcome.md?raw";
-import questsMd      from "../content/faq/quests.md?raw";
+import jobsMd        from "../content/faq/jobs.md?raw";
 import xpMd          from "../content/faq/xp-ranks.md?raw";
-import underworldMd  from "../content/faq/underworld.md?raw";
+import stackTraceMd  from "../content/faq/stack-trace.md?raw";
 import leaderboardMd from "../content/faq/leaderboard.md?raw";
 import profileMd     from "../content/faq/profile.md?raw";
 
 const VOLUMES = [
   { id: "welcome",     glyph: "~",  title: "Welcome",          file: "welcome.md",     content: welcomeMd     },
-  { id: "quests",      glyph: ">_", title: "The Job Board",    file: "quests.md",      content: questsMd      },
+  { id: "jobs",        glyph: ">_", title: "The Job Board",    file: "jobs.md",        content: jobsMd        },
   { id: "xp",          glyph: "^",  title: "XP & Ranks",       file: "xp-ranks.md",    content: xpMd          },
-  { id: "underworld",  glyph: "!",  title: "The Stack Trace",  file: "underworld.md",  content: underworldMd  },
+  { id: "stack-trace", glyph: "!",  title: "The Stack Trace",  file: "stack-trace.md", content: stackTraceMd  },
   { id: "leaderboard", glyph: "#",  title: "Leaderboard",      file: "leaderboard.md", content: leaderboardMd },
   { id: "profile",     glyph: "@",  title: "Your Profile",     file: "profile.md",     content: profileMd     },
 ];

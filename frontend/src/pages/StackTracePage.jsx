@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getBosses, startChallenge } from "../services/underworldService";
+import { getProcesses, startChallenge } from "../services/stackTraceService";
 
 const DIFF_META = {
   warning:  { label: "Warning",  color: "var(--color-amber)",      dimBorder: "rgba(255,204,102,0.20)", hotBorder: "rgba(255,204,102,0.65)", glow: "rgba(255,204,102,0.25)", bg: "rgba(255,204,102,0.10)" },
@@ -34,15 +34,15 @@ function IconCheck({ size = 13, color = "currentColor" }) {
   );
 }
 
-/* ── Boss card (landscape layout) ───────────────────────────── */
+/* ── Process card (landscape layout) ───────────────────────────── */
 
-function BossCard({ boss, onChallenge, isStarting }) {
+function ProcessCard({ process, onChallenge, isStarting }) {
   const [hovered, setHovered] = useState(false);
-  const diff = DIFF_META[boss.difficulty] ?? DIFF_META.warning;
+  const diff = DIFF_META[process.difficulty] ?? DIFF_META.warning;
 
   return (
     <div
-      className="uw-boss-card"
+      className="st-process-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -56,8 +56,8 @@ function BossCard({ boss, onChallenge, isStarting }) {
       }}
     >
       {/* ── Glyph panel ── */}
-      <div className="uw-boss-portrait" style={{ "--tier-color": diff.color, "--tier-glow": diff.glow }}>
-        <div className="uw-glyph uw-glyph--lg">{boss.glyph}</div>
+      <div className="st-process-portrait" style={{ "--tier-color": diff.color, "--tier-glow": diff.glow }}>
+        <div className="st-glyph st-glyph--lg">{process.glyph}</div>
 
         {/* Difficulty badge */}
         <div style={{
@@ -90,7 +90,7 @@ function BossCard({ boss, onChallenge, isStarting }) {
               textShadow: hovered ? `0 0 20px ${diff.glow}` : "none",
               transition: "color 0.22s, text-shadow 0.22s",
             }}>
-              {boss.name}
+              {process.name}
             </h3>
             <span style={{
               flexShrink: 0, padding: "0.18rem 0.55rem", borderRadius: "3px",
@@ -99,7 +99,7 @@ function BossCard({ boss, onChallenge, isStarting }) {
               fontFamily: "var(--font-heading)", fontSize: "0.53rem",
               letterSpacing: "0.10em", textTransform: "uppercase",
             }}>
-              {LANG_LABELS[boss.language] ?? boss.language}
+              {LANG_LABELS[process.language] ?? process.language}
             </span>
           </div>
 
@@ -108,14 +108,14 @@ function BossCard({ boss, onChallenge, isStarting }) {
             fontSize: "0.64rem", letterSpacing: "0.03em", lineHeight: 1.5,
             color: "rgba(255,180,180,0.60)", margin: 0,
           }}>
-            "{boss.lore}"
+            "{process.lore}"
           </p>
 
           <p style={{
             fontFamily: "var(--font-body)", fontSize: "0.73rem", lineHeight: 1.5,
             color: "rgba(255,210,210,0.65)", margin: 0,
           }}>
-            {boss.specialty}
+            {process.specialty}
           </p>
         </div>
 
@@ -132,7 +132,7 @@ function BossCard({ boss, onChallenge, isStarting }) {
                 <circle cx="12" cy="12" r="9"/><path strokeLinecap="round" d="M12 7v5l3 2"/>
               </svg>
               <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.57rem", letterSpacing: "0.07em" }}>
-                {boss.time_minutes}m
+                {process.time_minutes}m
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.30rem", color: diff.color }}>
@@ -140,12 +140,12 @@ function BossCard({ boss, onChallenge, isStarting }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
               </svg>
               <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.57rem", letterSpacing: "0.07em", fontWeight: 700 }}>
-                {boss.max_xp} XP
+                {process.max_xp} XP
               </span>
             </div>
           </div>
 
-          {boss.on_cooldown ? (
+          {process.on_cooldown ? (
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
               padding: "0.52rem 1rem", borderRadius: "8px",
@@ -157,12 +157,12 @@ function BossCard({ boss, onChallenge, isStarting }) {
                 letterSpacing: "0.10em", textTransform: "uppercase",
                 color: "rgba(255,255,255,0.48)",
               }}>
-                Resolved · Resets {formatReset(boss.cooldown_resets_at)}
+                Resolved · Resets {formatReset(process.cooldown_resets_at)}
               </span>
             </div>
           ) : (
             <button
-              onClick={() => onChallenge(boss)}
+              onClick={() => onChallenge(process)}
               disabled={isStarting}
               style={{
                 width: "100%", padding: "0.60rem 1rem", borderRadius: "8px",
@@ -202,28 +202,28 @@ function BossCard({ boss, onChallenge, isStarting }) {
 
 /* ── Page ─────────────────────────────────────────────────────── */
 
-export default function UnderworldPage() {
+export default function StackTracePage() {
   const navigate = useNavigate();
 
-  const [bosses,     setBosses]     = useState([]);
+  const [processes,     setProcesses]     = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [error,      setError]      = useState(null);
   const [langFilter, setLangFilter] = useState("all");
   const [starting,   setStarting]   = useState(null);
 
   useEffect(() => {
-    getBosses()
-      .then((data) => setBosses(data.bosses))
+    getProcesses()
+      .then((data) => setProcesses(data.processes))
       .catch((err)  => setError(err?.response?.data?.error ?? "Failed to load the Stack Trace"))
       .finally(()   => setLoading(false));
   }, []);
 
-  async function handleChallenge(boss) {
-    setStarting(boss.id);
+  async function handleChallenge(process) {
+    setStarting(process.id);
     try {
-      const data = await startChallenge(boss.id);
-      navigate(`/underworld/challenge/${data.challenge.id}`, {
-        state: { challenge: data.challenge, boss: data.boss },
+      const data = await startChallenge(process.id);
+      navigate(`/stack-trace/challenge/${data.challenge.id}`, {
+        state: { challenge: data.challenge, process: data.process },
       });
     } catch (err) {
       alert(err?.response?.data?.error ?? "Failed to start challenge");
@@ -232,7 +232,7 @@ export default function UnderworldPage() {
     }
   }
 
-  const filtered = langFilter === "all" ? bosses : bosses.filter((b) => b.language === langFilter);
+  const filtered = langFilter === "all" ? processes : processes.filter((b) => b.language === langFilter);
 
   return (
     <div>
@@ -267,7 +267,7 @@ export default function UnderworldPage() {
           <div style={{ width: 70, height: 1, background: "linear-gradient(to left,  transparent, rgba(220,38,38,0.70))" }}/>
         </div>
 
-        {!loading && bosses.length > 0 && (
+        {!loading && processes.length > 0 && (
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "0.65rem",
             padding: "0.58rem 1.3rem", borderRadius: "8px",
@@ -279,7 +279,7 @@ export default function UnderworldPage() {
             <svg style={{ width: 13, height: 13, color: "#ef4444", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
             </svg>
-            {bosses.length} hostile processes detected · one trace per process per day
+            {processes.length} hostile processes detected · one trace per process per day
           </div>
         )}
       </div>
@@ -342,19 +342,19 @@ export default function UnderworldPage() {
         </div>
       )}
 
-      {/* ── Boss grid ── */}
+      {/* ── Process grid ── */}
       {!loading && !error && filtered.length > 0 && (
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
           gap: "1.25rem",
         }}>
-          {filtered.map((boss) => (
-            <BossCard
-              key={boss.id}
-              boss={boss}
+          {filtered.map((process) => (
+            <ProcessCard
+              key={process.id}
+              process={process}
               onChallenge={handleChallenge}
-              isStarting={starting === boss.id}
+              isStarting={starting === process.id}
             />
           ))}
         </div>

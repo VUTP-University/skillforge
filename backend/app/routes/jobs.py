@@ -9,10 +9,10 @@ from flask_jwt_extended import (
 )
 
 from app import db
-from app.models import Difficulty, Language, Quest, QuestComment, QuestCompletion, QuestSubmission, TestCase, User, XP_BY_DIFFICULTY
+from app.models import JobDifficulty, Language, Job, JobComment, JobCompletion, JobSubmission, TestCase, User, XP_BY_JOB_DIFFICULTY
 from app.utils import PISTON_RUNTIMES, require_role, run_tests
 
-quests_bp = Blueprint("quests", __name__)
+jobs_bp = Blueprint("jobs", __name__)
 
 MAX_TEST_CASES = 10
 
@@ -38,7 +38,7 @@ def _validate(data):
         return "Difficulty is required"
     if data["language"] not in [l.value for l in Language]:
         return f"Invalid language '{data['language']}'"
-    if data["difficulty"] not in [d.value for d in Difficulty]:
+    if data["difficulty"] not in [d.value for d in JobDifficulty]:
         return f"Invalid difficulty '{data['difficulty']}'"
 
     tcs = data.get("test_cases", [])
@@ -62,131 +62,131 @@ def _validate(data):
 
 # ── List ─────────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/", methods=["GET"])
-def list_quests():
+@jobs_bp.route("/", methods=["GET"])
+def list_jobs():
     lang = request.args.get("language")
     diff = request.args.get("difficulty")
 
-    q = Quest.query
+    q = Job.query
     if lang:
         try:
-            q = q.filter(Quest.language == Language(lang))
+            q = q.filter(Job.language == Language(lang))
         except ValueError:
             pass
     if diff:
         try:
-            q = q.filter(Quest.difficulty == Difficulty(diff))
+            q = q.filter(Job.difficulty == JobDifficulty(diff))
         except ValueError:
             pass
 
-    quests = q.order_by(Quest.created_at.desc()).all()
+    jobs = q.order_by(Job.created_at.desc()).all()
     role = _caller_role()
     include_sol = role in ("admin", "moderator")
-    return jsonify([quest.to_dict(include_solution=include_sol) for quest in quests])
+    return jsonify([job.to_dict(include_solution=include_sol) for job in jobs])
 
 
 # ── Single ────────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/<int:quest_id>", methods=["GET"])
-def get_quest(quest_id):
-    quest = db.get_or_404(Quest, quest_id)
+@jobs_bp.route("/<int:job_id>", methods=["GET"])
+def get_job(job_id):
+    job = db.get_or_404(Job, job_id)
     role = _caller_role()
     include_sol = role in ("admin", "moderator")
-    return jsonify(quest.to_dict(include_solution=include_sol))
+    return jsonify(job.to_dict(include_solution=include_sol))
 
 
 # ── Create ────────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/", methods=["POST"])
+@jobs_bp.route("/", methods=["POST"])
 @require_role("admin", "moderator")
-def create_quest():
+def create_job():
     data = request.get_json(silent=True) or {}
     err = _validate(data)
     if err:
         return jsonify({"error": err}), 400
 
     author = db.get_or_404(User, int(get_jwt_identity()))
-    diff = Difficulty(data["difficulty"])
+    diff = JobDifficulty(data["difficulty"])
 
-    quest = Quest(
+    job = Job(
         title=data["title"].strip(),
         description=data["description"].strip(),
         example_solution=(data.get("example_solution") or "").strip() or None,
         language=Language(data["language"]),
         difficulty=diff,
-        xp_reward=XP_BY_DIFFICULTY[diff],
+        xp_reward=XP_BY_JOB_DIFFICULTY[diff],
         author_id=author.id,
     )
-    db.session.add(quest)
+    db.session.add(job)
     db.session.flush()
 
     for tc in data["test_cases"]:
         db.session.add(TestCase(
-            quest_id=quest.id,
+            job_id=job.id,
             index=tc["index"],
             input=tc["input"].strip(),
             output=tc["output"].strip(),
         ))
 
     db.session.commit()
-    return jsonify(quest.to_dict(include_solution=True)), 201
+    return jsonify(job.to_dict(include_solution=True)), 201
 
 
 # ── Update ────────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/<int:quest_id>", methods=["PUT"])
+@jobs_bp.route("/<int:job_id>", methods=["PUT"])
 @require_role("admin", "moderator")
-def update_quest(quest_id):
-    quest = db.get_or_404(Quest, quest_id)
+def update_job(job_id):
+    job = db.get_or_404(Job, job_id)
     data = request.get_json(silent=True) or {}
     err = _validate(data)
     if err:
         return jsonify({"error": err}), 400
 
-    diff = Difficulty(data["difficulty"])
-    quest.title            = data["title"].strip()
-    quest.description      = data["description"].strip()
-    quest.example_solution = (data.get("example_solution") or "").strip() or None
-    quest.language         = Language(data["language"])
-    quest.difficulty       = diff
-    quest.xp_reward        = XP_BY_DIFFICULTY[diff]
-    quest.updated_at       = datetime.now(timezone.utc)
+    diff = JobDifficulty(data["difficulty"])
+    job.title            = data["title"].strip()
+    job.description      = data["description"].strip()
+    job.example_solution = (data.get("example_solution") or "").strip() or None
+    job.language         = Language(data["language"])
+    job.difficulty       = diff
+    job.xp_reward        = XP_BY_JOB_DIFFICULTY[diff]
+    job.updated_at       = datetime.now(timezone.utc)
 
     # Replace all test cases
-    TestCase.query.filter_by(quest_id=quest.id).delete(synchronize_session=False)
+    TestCase.query.filter_by(job_id=job.id).delete(synchronize_session=False)
     for tc in data["test_cases"]:
         db.session.add(TestCase(
-            quest_id=quest.id,
+            job_id=job.id,
             index=tc["index"],
             input=tc["input"].strip(),
             output=tc["output"].strip(),
         ))
 
     db.session.commit()
-    return jsonify(quest.to_dict(include_solution=True))
+    return jsonify(job.to_dict(include_solution=True))
 
 
 # ── Submit ───────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/<int:quest_id>/submit", methods=["POST"])
+@jobs_bp.route("/<int:job_id>/submit", methods=["POST"])
 @jwt_required()
-def submit_quest(quest_id):
-    quest = db.get_or_404(Quest, quest_id)
-    data  = request.get_json(silent=True) or {}
-    code  = (data.get("code") or "").strip()
+def submit_job(job_id):
+    job  = db.get_or_404(Job, job_id)
+    data = request.get_json(silent=True) or {}
+    code = (data.get("code") or "").strip()
 
     if not code:
         return jsonify({"error": "No code submitted"}), 400
 
-    lang = quest.language.value
+    lang = job.language.value
     if lang not in PISTON_RUNTIMES:
         return jsonify({"error": f"Code execution for '{lang}' is not configured"}), 422
 
-    if not quest.test_cases:
+    if not job.test_cases:
         return jsonify({"error": "This job has no test cases"}), 422
 
     try:
-        result = run_tests(code, quest.test_cases, lang)
+        result = run_tests(code, job.test_cases, lang)
     except Exception as exc:
         return jsonify({"error": f"Execution engine error: {exc}"}), 503
 
@@ -194,9 +194,9 @@ def submit_quest(quest_id):
     all_passed = result.get("passed") == result.get("total") and result.get("total", 0) > 0
 
     # Always record this run
-    submission = QuestSubmission(
+    submission = JobSubmission(
         user_id=user_id,
-        quest_id=quest_id,
+        job_id=job_id,
         solution_code=code,
         test_results=result,
         all_passed=all_passed,
@@ -205,14 +205,14 @@ def submit_quest(quest_id):
 
     # Award XP on first full pass
     if all_passed:
-        existing = QuestCompletion.query.filter_by(user_id=user_id, quest_id=quest_id).first()
+        existing = JobCompletion.query.filter_by(user_id=user_id, job_id=job_id).first()
         if not existing:
             user = db.get_or_404(User, user_id)
-            db.session.add(QuestCompletion(
-                user_id=user_id, quest_id=quest_id, xp_earned=quest.xp_reward
+            db.session.add(JobCompletion(
+                user_id=user_id, job_id=job_id, xp_earned=job.xp_reward
             ))
-            user.total_xp = (user.total_xp or 0) + quest.xp_reward
-            result["xp_earned"]        = quest.xp_reward
+            user.total_xp = (user.total_xp or 0) + job.xp_reward
+            result["xp_earned"]        = job.xp_reward
             result["first_completion"] = True
         else:
             result["xp_earned"]        = 0
@@ -225,33 +225,33 @@ def submit_quest(quest_id):
 
 # ── Delete ────────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/<int:quest_id>", methods=["DELETE"])
+@jobs_bp.route("/<int:job_id>", methods=["DELETE"])
 @require_role("admin")
-def delete_quest(quest_id):
-    quest = db.get_or_404(Quest, quest_id)
-    db.session.delete(quest)
+def delete_job(job_id):
+    job = db.get_or_404(Job, job_id)
+    db.session.delete(job)
     db.session.commit()
     return jsonify({"message": "Job deleted"}), 200
 
 
 # ── Comments ──────────────────────────────────────────────────────────────────
 
-@quests_bp.route("/<int:quest_id>/comments", methods=["GET"])
-def list_comments(quest_id):
-    db.get_or_404(Quest, quest_id)
+@jobs_bp.route("/<int:job_id>/comments", methods=["GET"])
+def list_comments(job_id):
+    db.get_or_404(Job, job_id)
     comments = (
-        QuestComment.query
-        .filter_by(quest_id=quest_id)
-        .order_by(QuestComment.created_at.asc())
+        JobComment.query
+        .filter_by(job_id=job_id)
+        .order_by(JobComment.created_at.asc())
         .all()
     )
     return jsonify([c.to_dict() for c in comments])
 
 
-@quests_bp.route("/<int:quest_id>/comments", methods=["POST"])
+@jobs_bp.route("/<int:job_id>/comments", methods=["POST"])
 @jwt_required()
-def add_comment(quest_id):
-    db.get_or_404(Quest, quest_id)
+def add_comment(job_id):
+    db.get_or_404(Job, job_id)
     data    = request.get_json(silent=True) or {}
     content = (data.get("content") or "").strip()
     if not content:
@@ -260,17 +260,17 @@ def add_comment(quest_id):
         return jsonify({"error": "Comment must be 2000 characters or fewer"}), 400
 
     user_id = int(get_jwt_identity())
-    comment = QuestComment(quest_id=quest_id, user_id=user_id, content=content)
+    comment = JobComment(job_id=job_id, user_id=user_id, content=content)
     db.session.add(comment)
     db.session.commit()
     return jsonify(comment.to_dict()), 201
 
 
-@quests_bp.route("/<int:quest_id>/comments/<int:comment_id>", methods=["DELETE"])
+@jobs_bp.route("/<int:job_id>/comments/<int:comment_id>", methods=["DELETE"])
 @jwt_required()
-def delete_comment(quest_id, comment_id):
-    comment = db.get_or_404(QuestComment, comment_id)
-    if comment.quest_id != quest_id:
+def delete_comment(job_id, comment_id):
+    comment = db.get_or_404(JobComment, comment_id)
+    if comment.job_id != job_id:
         return jsonify({"error": "Comment does not belong to this job"}), 404
 
     caller_id   = int(get_jwt_identity())

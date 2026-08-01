@@ -17,16 +17,16 @@ class Language(enum.Enum):
     csharp     = "csharp"
 
 
-class Difficulty(enum.Enum):
-    shallow  = "shallow"    # 30 XP
-    cryptic  = "cryptic"    # 60 XP
-    abyssal  = "abyssal"    # 100 XP
+class JobDifficulty(enum.Enum):
+    junior = "junior"    # 30 XP
+    mid    = "mid"       # 60 XP
+    senior = "senior"    # 100 XP
 
 
-XP_BY_DIFFICULTY = {
-    Difficulty.shallow:  30,
-    Difficulty.cryptic:  60,
-    Difficulty.abyssal: 100,
+XP_BY_JOB_DIFFICULTY = {
+    JobDifficulty.junior:  30,
+    JobDifficulty.mid:     60,
+    JobDifficulty.senior: 100,
 }
 
 # Minimum total XP required to reach each level (1-100).
@@ -39,26 +39,26 @@ LEVEL_XP_TABLE: tuple[int, ...] = tuple(
 
 # 20 ranks, one per 5 levels, listed highest-first for the scan below.
 _RANK_THRESHOLDS = [
-    (96, "Grand Master"),
-    (91, "Master"),
-    (86, "Archmage"),
-    (81, "Elder"),
-    (76, "Sage"),
-    (71, "Paladin"),
-    (66, "Warden"),
+    (96, "0-Day"),
+    (91, "Root"),
+    (86, "Sudoer"),
+    (81, "Superuser"),
+    (76, "Exploit Dev"),
+    (71, "Daemon"),
+    (66, "Sysadmin"),
     (61, "Sentinel"),
-    (56, "Champion"),
-    (51, "Knight"),
-    (46, "Crusader"),
-    (41, "Journeyman"),
-    (36, "Adept"),
-    (31, "Artisan"),
-    (26, "Scholar"),
-    (21, "Acolyte"),
-    (16, "Scribe"),
-    (11, "Apprentice"),
-    (6,  "Initiate"),
-    (1,  "Novice"),
+    (56, "Toolsmith"),
+    (51, "Optimizer"),
+    (46, "Architect"),
+    (41, "Refactorer"),
+    (36, "Maintainer"),
+    (31, "Contributor"),
+    (26, "Committer"),
+    (21, "Debugger"),
+    (16, "Coder"),
+    (11, "Script Kid"),
+    (6,  "Bootstrap"),
+    (1,  "Guest"),
 ]
 
 
@@ -109,10 +109,10 @@ class User(db.Model):
         "UserRole", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
     completions = db.relationship(
-        "QuestCompletion", back_populates="user", cascade="all, delete-orphan"
+        "JobCompletion", back_populates="user", cascade="all, delete-orphan"
     )
     submissions = db.relationship(
-        "QuestSubmission", back_populates="user", cascade="all, delete-orphan"
+        "JobSubmission", back_populates="user", cascade="all, delete-orphan"
     )
 
     @property
@@ -125,7 +125,7 @@ class User(db.Model):
         for threshold, name in _RANK_THRESHOLDS:
             if lvl >= threshold:
                 return name
-        return "Novice"
+        return "Guest"
 
     def to_dict(self):
         progress = xp_progress(self.total_xp or 0)
@@ -171,15 +171,15 @@ class UserRole(db.Model):
         return f"<UserRole {self.user_id}:{self.role.value}>"
 
 
-class Quest(db.Model):
-    __tablename__ = "quests"
+class Job(db.Model):
+    __tablename__ = "jobs"
 
     id               = db.Column(db.Integer, primary_key=True)
     title            = db.Column(db.String(200), nullable=False)
     description      = db.Column(db.Text, nullable=False)
     example_solution = db.Column(db.Text, nullable=True)
     language         = db.Column(db.Enum(Language), nullable=False)
-    difficulty       = db.Column(db.Enum(Difficulty), nullable=False)
+    difficulty       = db.Column(db.Enum(JobDifficulty, name="job_difficulty"), nullable=False)
     xp_reward        = db.Column(db.Integer, nullable=False)
     author_id        = db.Column(
         db.Integer,
@@ -200,7 +200,7 @@ class Quest(db.Model):
     author     = db.relationship("User", foreign_keys=[author_id])
     test_cases = db.relationship(
         "TestCase",
-        back_populates="quest",
+        back_populates="job",
         cascade="all, delete-orphan",
         order_by="TestCase.index",
     )
@@ -224,26 +224,26 @@ class Quest(db.Model):
         return data
 
     def __repr__(self):
-        return f"<Quest {self.id}: {self.title}>"
+        return f"<Job {self.id}: {self.title}>"
 
 
 class TestCase(db.Model):
     __tablename__ = "test_cases"
 
-    id       = db.Column(db.Integer, primary_key=True)
-    quest_id = db.Column(
+    id     = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(
         db.Integer,
-        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        db.ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
     )
     index  = db.Column(db.Integer, nullable=False)   # 0 – 9
     input  = db.Column(db.Text, nullable=False)
     output = db.Column(db.Text, nullable=False)
 
-    quest = db.relationship("Quest", back_populates="test_cases")
+    job = db.relationship("Job", back_populates="test_cases")
 
     __table_args__ = (
-        db.UniqueConstraint("quest_id", "index", name="uq_quest_testcase_index"),
+        db.UniqueConstraint("job_id", "index", name="uq_job_testcase_index"),
     )
 
     def to_dict(self):
@@ -254,16 +254,16 @@ class TestCase(db.Model):
         }
 
     def __repr__(self):
-        return f"<TestCase quest={self.quest_id} idx={self.index}>"
+        return f"<TestCase job={self.job_id} idx={self.index}>"
 
 
-class QuestComment(db.Model):
-    __tablename__ = "quest_comments"
+class JobComment(db.Model):
+    __tablename__ = "job_comments"
 
     id         = db.Column(db.Integer, primary_key=True)
-    quest_id   = db.Column(
+    job_id     = db.Column(
         db.Integer,
-        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        db.ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
     )
     user_id    = db.Column(
@@ -278,13 +278,13 @@ class QuestComment(db.Model):
         nullable=False,
     )
 
-    quest = db.relationship("Quest")
-    user  = db.relationship("User")
+    job  = db.relationship("Job")
+    user = db.relationship("User")
 
     def to_dict(self):
         return {
             "id":         self.id,
-            "quest_id":   self.quest_id,
+            "job_id":     self.job_id,
             "user_id":    self.user_id,
             "username":   self.user.username,
             "avatar_url": f"/api/media/avatars/{self.user.avatar}" if self.user.avatar else None,
@@ -293,11 +293,11 @@ class QuestComment(db.Model):
         }
 
     def __repr__(self):
-        return f"<QuestComment {self.id} quest={self.quest_id} user={self.user_id}>"
+        return f"<JobComment {self.id} job={self.job_id} user={self.user_id}>"
 
 
-class QuestCompletion(db.Model):
-    __tablename__ = "quest_completions"
+class JobCompletion(db.Model):
+    __tablename__ = "job_completions"
 
     id           = db.Column(db.Integer, primary_key=True)
     user_id      = db.Column(
@@ -305,9 +305,9 @@ class QuestCompletion(db.Model):
         db.ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    quest_id     = db.Column(
+    job_id       = db.Column(
         db.Integer,
-        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        db.ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
     )
     xp_earned    = db.Column(db.Integer, nullable=False)
@@ -317,20 +317,20 @@ class QuestCompletion(db.Model):
         nullable=False,
     )
 
-    user  = db.relationship("User", back_populates="completions")
-    quest = db.relationship("Quest")
+    user = db.relationship("User", back_populates="completions")
+    job  = db.relationship("Job")
 
     __table_args__ = (
-        db.UniqueConstraint("user_id", "quest_id", name="uq_user_quest_completion"),
+        db.UniqueConstraint("user_id", "job_id", name="uq_user_job_completion"),
     )
 
     def __repr__(self):
-        return f"<QuestCompletion user={self.user_id} quest={self.quest_id}>"
+        return f"<JobCompletion user={self.user_id} job={self.job_id}>"
 
 
-class QuestSubmission(db.Model):
+class JobSubmission(db.Model):
     """Every code run a user submits, whether it passes or fails."""
-    __tablename__ = "quest_submissions"
+    __tablename__ = "job_submissions"
 
     id            = db.Column(db.Integer, primary_key=True)
     user_id       = db.Column(
@@ -339,9 +339,9 @@ class QuestSubmission(db.Model):
         nullable=False,
         index=True,
     )
-    quest_id      = db.Column(
+    job_id        = db.Column(
         db.Integer,
-        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        db.ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -355,24 +355,24 @@ class QuestSubmission(db.Model):
         index=True,
     )
 
-    user  = db.relationship("User", back_populates="submissions")
-    quest = db.relationship("Quest")
+    user = db.relationship("User", back_populates="submissions")
+    job  = db.relationship("Job")
 
     def __repr__(self):
-        return f"<QuestSubmission user={self.user_id} quest={self.quest_id} passed={self.all_passed}>"
+        return f"<JobSubmission user={self.user_id} job={self.job_id} passed={self.all_passed}>"
 
 
-# ── Trivia ──────────────────────────────────────────────────────────────────
+# ── Test Suite ──────────────────────────────────────────────────────────────
 
 
-class TriviaSessionStatus(enum.Enum):
+class TestRunStatus(enum.Enum):
     active    = "active"
     completed = "completed"
     expired   = "expired"
 
 
-class TriviaSession(db.Model):
-    __tablename__ = "trivia_sessions"
+class TestRun(db.Model):
+    __tablename__ = "test_runs"
 
     id            = db.Column(db.Integer, primary_key=True)
     user_id       = db.Column(
@@ -382,9 +382,9 @@ class TriviaSession(db.Model):
     )
     language      = db.Column(db.String(20), nullable=False)
     status        = db.Column(
-        db.Enum(TriviaSessionStatus),
+        db.Enum(TestRunStatus, name="test_run_status"),
         nullable=False,
-        default=TriviaSessionStatus.active,
+        default=TestRunStatus.active,
     )
     questions     = db.Column(db.JSON, nullable=False)
     score_xp      = db.Column(db.Integer, default=0, nullable=False)
@@ -413,13 +413,13 @@ class TriviaSession(db.Model):
         }
 
     def __repr__(self):
-        return f"<TriviaSession {self.id} user={self.user_id} lang={self.language}>"
+        return f"<TestRun {self.id} user={self.user_id} lang={self.language}>"
 
 
-# ── Underworld ──────────────────────────────────────────────────────────────
+# ── Stack Trace ─────────────────────────────────────────────────────────────
 
 
-class BossDifficulty(enum.Enum):
+class ProcessSeverity(enum.Enum):
     warning  = "warning"
     critical = "critical"
     fatal    = "fatal"
@@ -431,15 +431,15 @@ class ChallengeStatus(enum.Enum):
     failed    = "failed"
 
 
-BOSS_DIFFICULTY_CONFIG = {
-    BossDifficulty.warning:  {"minutes": 5,  "max_xp": 30},
-    BossDifficulty.critical: {"minutes": 10, "max_xp": 60},
-    BossDifficulty.fatal:    {"minutes": 15, "max_xp": 100},
+PROCESS_SEVERITY_CONFIG = {
+    ProcessSeverity.warning:  {"minutes": 5,  "max_xp": 30},
+    ProcessSeverity.critical: {"minutes": 10, "max_xp": 60},
+    ProcessSeverity.fatal:    {"minutes": 15, "max_xp": 100},
 }
 
 
-class Boss(db.Model):
-    __tablename__ = "bosses"
+class Process(db.Model):
+    __tablename__ = "processes"
 
     id          = db.Column(db.Integer, primary_key=True)
     slug        = db.Column(db.String(80),  unique=True, nullable=False)
@@ -448,14 +448,14 @@ class Boss(db.Model):
     language    = db.Column(db.String(20),  nullable=False)   # plain string: python / javascript / java / csharp
     description = db.Column(db.Text, nullable=False)
     specialty   = db.Column(db.String(200), nullable=False)
-    difficulty  = db.Column(db.Enum(BossDifficulty), nullable=False)
+    difficulty  = db.Column(db.Enum(ProcessSeverity, name="process_severity"), nullable=False)
     aura        = db.Column(db.Text, nullable=False)
     lore        = db.Column(db.String(200), nullable=False)
 
-    challenges  = db.relationship("BossChallenge", back_populates="boss", cascade="all, delete-orphan")
+    challenges  = db.relationship("ProcessChallenge", back_populates="process", cascade="all, delete-orphan")
 
     def to_dict(self):
-        cfg = BOSS_DIFFICULTY_CONFIG[self.difficulty]
+        cfg = PROCESS_SEVERITY_CONFIG[self.difficulty]
         return {
             "id":          self.id,
             "slug":        self.slug,
@@ -472,11 +472,11 @@ class Boss(db.Model):
         }
 
     def __repr__(self):
-        return f"<Boss {self.slug}>"
+        return f"<Process {self.slug}>"
 
 
-class BossChallenge(db.Model):
-    __tablename__ = "boss_challenges"
+class ProcessChallenge(db.Model):
+    __tablename__ = "process_challenges"
 
     id                 = db.Column(db.Integer, primary_key=True)
     user_id            = db.Column(
@@ -484,15 +484,15 @@ class BossChallenge(db.Model):
         db.ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    boss_id            = db.Column(
+    process_id         = db.Column(
         db.Integer,
-        db.ForeignKey("bosses.id", ondelete="CASCADE"),
+        db.ForeignKey("processes.id", ondelete="CASCADE"),
         nullable=False,
     )
     challenge_text     = db.Column(db.Text, nullable=False)
-    boss_taunt         = db.Column(db.Text, nullable=False)
+    process_taunt      = db.Column(db.Text, nullable=False)
     user_solution      = db.Column(db.Text, nullable=True)
-    boss_verdict       = db.Column(db.Text, nullable=True)
+    process_verdict    = db.Column(db.Text, nullable=True)
     technical_feedback = db.Column(db.Text, nullable=True)
     xp_earned          = db.Column(db.Integer, default=0,  nullable=False)
     score_pct          = db.Column(db.Integer, default=0,  nullable=False)
@@ -504,18 +504,18 @@ class BossChallenge(db.Model):
     )
     submitted_at       = db.Column(db.DateTime, nullable=True)
 
-    user = db.relationship("User")
-    boss = db.relationship("Boss", back_populates="challenges")
+    user    = db.relationship("User")
+    process = db.relationship("Process", back_populates="challenges")
 
     def to_dict(self):
         return {
             "id":                 self.id,
             "user_id":            self.user_id,
-            "boss_id":            self.boss_id,
+            "process_id":         self.process_id,
             "challenge_text":     self.challenge_text,
-            "boss_taunt":         self.boss_taunt,
+            "process_taunt":      self.process_taunt,
             "user_solution":      self.user_solution,
-            "boss_verdict":       self.boss_verdict,
+            "process_verdict":    self.process_verdict,
             "technical_feedback": self.technical_feedback,
             "xp_earned":          self.xp_earned,
             "score_pct":          self.score_pct,
@@ -525,10 +525,10 @@ class BossChallenge(db.Model):
         }
 
     def __repr__(self):
-        return f"<BossChallenge {self.id} user={self.user_id} boss={self.boss_id}>"
+        return f"<ProcessChallenge {self.id} user={self.user_id} process={self.process_id}>"
 
 
-# ── Quest Reports ────────────────────────────────────────────────────────────
+# ── Job Reports ─────────────────────────────────────────────────────────────
 
 
 class ReportStatus(enum.Enum):
@@ -537,13 +537,13 @@ class ReportStatus(enum.Enum):
     solved      = "solved"
 
 
-class QuestReport(db.Model):
-    __tablename__ = "quest_reports"
+class JobReport(db.Model):
+    __tablename__ = "job_reports"
 
     id             = db.Column(db.Integer, primary_key=True)
-    quest_id       = db.Column(
+    job_id         = db.Column(
         db.Integer,
-        db.ForeignKey("quests.id", ondelete="CASCADE"),
+        db.ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -575,15 +575,15 @@ class QuestReport(db.Model):
         nullable=False,
     )
 
-    quest       = db.relationship("Quest", foreign_keys=[quest_id])
+    job         = db.relationship("Job", foreign_keys=[job_id])
     reporter    = db.relationship("User", foreign_keys=[reporter_id])
     assigned_to = db.relationship("User", foreign_keys=[assigned_to_id])
 
     def to_dict(self):
         return {
             "id":             self.id,
-            "quest_id":       self.quest_id,
-            "quest_title":    self.quest.title if self.quest else None,
+            "job_id":         self.job_id,
+            "job_title":      self.job.title if self.job else None,
             "reporter_id":    self.reporter_id,
             "reporter":       self.reporter.username if self.reporter else None,
             "reason":         self.reason,
@@ -595,4 +595,4 @@ class QuestReport(db.Model):
         }
 
     def __repr__(self):
-        return f"<QuestReport {self.id} quest={self.quest_id} status={self.status.value}>"
+        return f"<JobReport {self.id} job={self.job_id} status={self.status.value}>"

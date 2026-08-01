@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Quest, QuestReport, ReportStatus, User
+from app.models import Job, JobReport, ReportStatus, User
 from app.utils import require_role
 
 reports_bp = Blueprint("reports", __name__)
@@ -16,20 +16,20 @@ def create_report():
     user_id = int(get_jwt_identity())
     data    = request.get_json() or {}
 
-    quest_id = data.get("quest_id")
-    reason   = (data.get("reason") or "").strip()
+    job_id = data.get("job_id")
+    reason = (data.get("reason") or "").strip()
 
-    if not quest_id or not reason:
-        return jsonify({"error": "quest_id and reason are required"}), 400
+    if not job_id or not reason:
+        return jsonify({"error": "job_id and reason are required"}), 400
     if len(reason) > 500:
         return jsonify({"error": "Reason cannot exceed 500 characters"}), 400
 
-    quest = Quest.query.get(quest_id)
-    if not quest:
+    job = Job.query.get(job_id)
+    if not job:
         return jsonify({"error": "Job not found"}), 404
 
-    report = QuestReport(
-        quest_id=quest_id,
+    report = JobReport(
+        job_id=job_id,
         reporter_id=user_id,
         reason=reason,
     )
@@ -42,10 +42,10 @@ def create_report():
 @require_role("admin", "moderator")
 def list_reports():
     status_filter = request.args.get("status")
-    query = QuestReport.query.order_by(QuestReport.created_at.desc())
+    query = JobReport.query.order_by(JobReport.created_at.desc())
     if status_filter:
         try:
-            query = query.filter(QuestReport.status == ReportStatus(status_filter))
+            query = query.filter(JobReport.status == ReportStatus(status_filter))
         except ValueError:
             pass
     return jsonify([r.to_dict() for r in query.all()])
@@ -54,7 +54,7 @@ def list_reports():
 @reports_bp.patch("/<int:report_id>")
 @require_role("admin", "moderator")
 def update_report(report_id):
-    report = QuestReport.query.get_or_404(report_id)
+    report = JobReport.query.get_or_404(report_id)
     data   = request.get_json() or {}
 
     if "status" in data:

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { submitTrivia } from "../services/triviaService";
+import { submitRun } from "../services/testSuiteService";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -222,7 +222,7 @@ function ResultsScreen({ data, timedOut }) {
       </div>
 
       <Link
-        to="/trivia"
+        to="/test-suite"
         style={{
           display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
           width: "100%", maxWidth: 320, padding: "0.7rem 1.5rem",
@@ -243,29 +243,29 @@ function ResultsScreen({ data, timedOut }) {
 
 /* ── Main Page ──────────────────────────────────────────────────────────── */
 
-export default function TriviaPlayPage() {
+export default function TestSuitePlayPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const sessionData = location.state;
+  const runData = location.state;
 
   // Redirect back if arrived without state
   useEffect(() => {
-    if (!sessionData?.session_id || !sessionData?.questions) {
-      navigate("/trivia", { replace: true });
+    if (!runData?.run_id || !runData?.questions) {
+      navigate("/test-suite", { replace: true });
     }
-  }, [sessionData, navigate]);
+  }, [runData, navigate]);
 
-  if (!sessionData?.session_id) return null;
+  if (!runData?.run_id) return null;
 
-  return <TriviaPlay sessionData={sessionData} />;
+  return <TestSuitePlay runData={runData} />;
 }
 
-function TriviaPlay({ sessionData }) {
+function TestSuitePlay({ runData }) {
   const navigate       = useNavigate();
   const { updateUser } = useAuth();
 
-  const { session_id, expires_at, questions } = sessionData;
+  const { run_id, expires_at, questions } = runData;
 
   // ── State ─────────────────────────────────────────────────────────────────
   const [qIdx,       setQIdx]       = useState(0);
@@ -313,7 +313,7 @@ function TriviaPlay({ sessionData }) {
     submittedRef.current = true;
     setPhase("submitting");
     try {
-      const res = await submitTrivia(session_id, finalAnswers);
+      const res = await submitRun(run_id, finalAnswers);
       setResults(res);
       setPhase("results");
     } catch (err) {
@@ -321,7 +321,7 @@ function TriviaPlay({ sessionData }) {
       setPhase("playing");
       submittedRef.current = false;
     }
-  }, [session_id]);
+  }, [run_id]);
 
   const handleAutoSubmit = useCallback(() => {
     doSubmit(answers);

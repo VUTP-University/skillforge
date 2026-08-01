@@ -7,9 +7,9 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import TriviaSession, TriviaSessionStatus, User
+from app.models import TestRun, TestRunStatus, User
 
-trivia_bp = Blueprint("trivia", __name__)
+test_suite_bp = Blueprint("test_suite", __name__)
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -24,13 +24,13 @@ VALID_LANGUAGES = {"python", "javascript", "java", "csharp", "mix"}
 
 # ── Question pools (loaded once at import time) ───────────────────────────────
 
-_TRIVIA_DIR = Path(__file__).parent.parent / "trivia"
+_QUESTIONS_DIR = Path(__file__).parent.parent / "test_suite_questions"
 _POOLS: dict[str, list] = {}
 
 
 def _pool(lang: str) -> list:
     if lang not in _POOLS:
-        path = _TRIVIA_DIR / f"{lang}_questions.json"
+        path = _QUESTIONS_DIR / f"{lang}_questions.json"
         with open(path, encoding="utf-8") as f:
             _POOLS[lang] = json.load(f)
     return _POOLS[lang]
@@ -76,63 +76,63 @@ def _prepare(q: dict) -> dict:
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _last_used_session(user_id: int) -> TriviaSession | None:
+def _last_used_run(user_id: int) -> TestRun | None:
     cutoff = datetime.now(timezone.utc) - timedelta(days=COOLDOWN_DAYS)
     return (
-        TriviaSession.query
+        TestRun.query
         .filter(
-            TriviaSession.user_id == user_id,
-            TriviaSession.status.in_([TriviaSessionStatus.completed, TriviaSessionStatus.expired]),
-            TriviaSession.started_at >= cutoff,
+            TestRun.user_id == user_id,
+            TestRun.status.in_([TestRunStatus.completed, TestRunStatus.expired]),
+            TestRun.started_at >= cutoff,
         )
-        .order_by(TriviaSession.started_at.desc())
+        .order_by(TestRun.started_at.desc())
         .first()
     )
 
 
-def _active_session(user_id: int) -> TriviaSession | None:
+def _active_run(user_id: int) -> TestRun | None:
     now = datetime.now(timezone.utc)
     return (
-        TriviaSession.query
+        TestRun.query
         .filter(
-            TriviaSession.user_id == user_id,
-            TriviaSession.status == TriviaSessionStatus.active,
-            TriviaSession.expires_at > now,
+            TestRun.user_id == user_id,
+            TestRun.status == TestRunStatus.active,
+            TestRun.expires_at > now,
         )
-        .order_by(TriviaSession.started_at.desc())
+        .order_by(TestRun.started_at.desc())
         .first()
     )
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
-@trivia_bp.route("/status", methods=["GET"])
+@test_suite_bp.route("/status", methods=["GET"])
 @jwt_required()
 def get_status():
     user_id = int(get_jwt_identity())
-    active  = _active_session(user_id)
-    used    = _last_used_session(user_id)
+    active  = _active_run(user_id)
+    used    = _last_used_run(user_id)
 
     can_play = used is None and active is None
 
     payload = {"can_play": can_play}
 
     if active:
-        payload["active_session"] = {
+        payload["active_run"] = {
             **active.to_dict(),
             "questions": [_strip_correct(q) for q in active.questions],
         }
     elif used:
         next_at = used.started_at.replace(tzinfo=timezone.utc) + timedelta(days=COOLDOWN_DAYS)
         payload["next_available_at"] = next_at.isoformat()
-        payload["last_session"] = used.to_dict()
+        payload["last_run"] = used.to_dict()
 
     return jsonify(payload)
 
 
-@trivia_bp.route("/start", methods=["POST"])
+@test_suite_bp.route("/start", methods=["POST"])
 @jwt_required()
-def start_trivia():
+def start_run():
     user_id  = int(get_jwt_identity())
     data     = request.get_json(silent=True) or {}
     language = (data.get("language") or "").strip().lower()
@@ -140,18 +140,18 @@ def start_trivia():
     if language not in VALID_LANGUAGES:
         return jsonify({"error": f"Invalid language. Choose from: {', '.join(sorted(VALID_LANGUAGES))}"}), 400
 
-    # Check for an existing active session — return it instead of creating a new one
-    active = _active_session(user_id)
+    # Check for an existing active run — return it instead of creating a new one
+    active = _active_run(user_id)
     if active:
         return jsonify({
-            "session_id": active.id,
+            "run_id":     active.id,
             "expires_at": active.expires_at.isoformat(),
             "questions":  [_strip_correct(q) for q in active.questions],
             "resumed":    True,
         })
 
     # Block if already played this week
-    used = _last_used_session(user_id)
+    used = _last_used_run(user_id)
     if used:
         next_at = used.started_at.replace(tzinfo=timezone.utc) + timedelta(days=COOLDOWN_DAYS)
         return jsonify({
@@ -164,40 +164,40 @@ def start_trivia():
     now        = datetime.now(timezone.utc)
     expires_at = now + timedelta(seconds=DURATION_SECONDS)
 
-    session = TriviaSession(
+    run = TestRun(
         user_id    = user_id,
         language   = language,
         questions  = questions,
         started_at = now,
         expires_at = expires_at,
     )
-    db.session.add(session)
+    db.session.add(run)
     db.session.commit()
 
     return jsonify({
-        "session_id": session.id,
-        "expires_at": session.expires_at.isoformat(),
+        "run_id":     run.id,
+        "expires_at": run.expires_at.isoformat(),
         "questions":  [_strip_correct(q) for q in questions],
         "resumed":    False,
     }), 201
 
 
-@trivia_bp.route("/<int:session_id>/submit", methods=["POST"])
+@test_suite_bp.route("/<int:run_id>/submit", methods=["POST"])
 @jwt_required()
-def submit_trivia(session_id):
+def submit_run(run_id):
     user_id = int(get_jwt_identity())
-    session = db.get_or_404(TriviaSession, session_id)
+    run     = db.get_or_404(TestRun, run_id)
 
-    if session.user_id != user_id:
+    if run.user_id != user_id:
         return jsonify({"error": "Forbidden"}), 403
 
-    if session.status != TriviaSessionStatus.active:
-        return jsonify({"error": "Session is no longer active"}), 409
+    if run.status != TestRunStatus.active:
+        return jsonify({"error": "Run is no longer active"}), 409
 
     now = datetime.now(timezone.utc)
 
     # Mark expired if time ran out (client submitted late)
-    timed_out = now > session.expires_at.replace(tzinfo=timezone.utc)
+    timed_out = now > run.expires_at.replace(tzinfo=timezone.utc)
 
     data    = request.get_json(silent=True) or {}
     answers = data.get("answers", [])   # [{id, selected}]
@@ -209,7 +209,7 @@ def submit_trivia(session_id):
     total_xp      = 0
     correct_count = 0
 
-    for q in session.questions:
+    for q in run.questions:
         selected      = answer_map.get(q["id"])
         was_correct   = selected == q["correct_index"]
         xp            = q["xp"] if was_correct else 0
@@ -232,18 +232,18 @@ def submit_trivia(session_id):
     user = db.get_or_404(User, user_id)
     user.total_xp = (user.total_xp or 0) + total_xp
 
-    session.status        = TriviaSessionStatus.expired if timed_out else TriviaSessionStatus.completed
-    session.score_xp      = total_xp
-    session.correct_count = correct_count
-    session.completed_at  = now
+    run.status        = TestRunStatus.expired if timed_out else TestRunStatus.completed
+    run.score_xp      = total_xp
+    run.correct_count = correct_count
+    run.completed_at  = now
     db.session.commit()
 
     return jsonify({
-        "session":       session.to_dict(),
+        "run":           run.to_dict(),
         "results":       results,
         "xp_earned":     total_xp,
         "correct_count": correct_count,
-        "total":         len(session.questions),
+        "total":         len(run.questions),
         "timed_out":     timed_out,
     })
 

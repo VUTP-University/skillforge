@@ -48,26 +48,26 @@ Every 5 levels, your rank changes. Ranks are cosmetic — a label shown on your 
 
 | Levels | Rank |
 |--------|------|
-| 1–5 | Novice |
-| 6–10 | Initiate |
-| 11–15 | Apprentice |
-| 16–20 | Scribe |
-| 21–25 | Acolyte |
-| 26–30 | Scholar |
-| 31–35 | Artisan |
-| 36–40 | Adept |
-| 41–45 | Journeyman |
-| 46–50 | Crusader |
-| 51–55 | Knight |
-| 56–60 | Champion |
+| 1–5 | Guest |
+| 6–10 | Bootstrap |
+| 11–15 | Script Kid |
+| 16–20 | Coder |
+| 21–25 | Debugger |
+| 26–30 | Committer |
+| 31–35 | Contributor |
+| 36–40 | Maintainer |
+| 41–45 | Refactorer |
+| 46–50 | Architect |
+| 51–55 | Optimizer |
+| 56–60 | Toolsmith |
 | 61–65 | Sentinel |
-| 66–70 | Warden |
-| 71–75 | Paladin |
-| 76–80 | Sage |
-| 81–85 | Elder |
-| 86–90 | Archmage |
-| 91–95 | Master |
-| 96–100 | Grand Master |
+| 66–70 | Sysadmin |
+| 71–75 | Daemon |
+| 76–80 | Exploit Dev |
+| 81–85 | Superuser |
+| 86–90 | Sudoer |
+| 91–95 | Root |
+| 96–100 | 0-Day |
 
 ---
 
@@ -82,4 +82,4 @@ Your **Profile** shows the same stats, plus a full log of every job, Stack Trace
 
 ---
 
-> *Every Grand Master was once a Novice. The only difference is the number of jobs in between.*
+> *Every 0-Day was once a Guest. The only difference is the number of jobs in between.*

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getQuests } from "../services/questService";
+import { getJobs } from "../services/jobService";
 import { getMyProfile } from "../services/profileService";
 import { getRankStyle } from "../constants/ranks";
 import ProgressBar from "../components/ProgressBar";
@@ -36,8 +36,8 @@ const LANGUAGES = [
 
 const SECTIONS = [
   { name: "Leaderboard", path: "/leaderboard", glyph: "#", proc: "leaderboard.sh", description: "Compete with the best coders" },
-  { name: "Stack Trace", path: "/underworld",  glyph: "!", proc: "stack_trace.sh", description: "Debug hostile processes for big XP" },
-  { name: "Test Suite",  path: "/trivia",      glyph: "?", proc: "test_suite.sh",  description: "Pass the weekly knowledge run" },
+  { name: "Stack Trace", path: "/stack-trace",  glyph: "!", proc: "stack_trace.sh", description: "Debug hostile processes for big XP" },
+  { name: "Test Suite",  path: "/test-suite",      glyph: "?", proc: "test_suite.sh",  description: "Pass the weekly knowledge run" },
 ];
 
 function ArrowIcon({ className = "" }) {
@@ -70,18 +70,18 @@ export default function Home() {
   const displayName = user?.username || "Adventurer";
   const rankStyle = getRankStyle(user?.rank);
 
-  const [questCounts,    setQuestCounts]    = useState({});
+  const [jobCounts,    setJobCounts]    = useState({});
   const [totalLive,      setTotalLive]      = useState(null);
   const [completedCount, setCompletedCount] = useState(0);
 
   useEffect(() => {
-    getQuests().then((quests) => {
-      const counts = quests.reduce((acc, q) => {
+    getJobs().then((jobs) => {
+      const counts = jobs.reduce((acc, q) => {
         acc[q.language] = (acc[q.language] ?? 0) + 1;
         return acc;
       }, {});
-      setQuestCounts(counts);
-      setTotalLive(quests.length);
+      setJobCounts(counts);
+      setTotalLive(jobs.length);
     }).catch(() => {});
     getMyProfile()
       .then(data => setCompletedCount(data.completions?.length ?? 0))
@@ -151,7 +151,7 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Quest chronicle */}
+            {/* Job chronicle */}
             <div className="glass-card p-5">
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
                 // job_log
@@ -174,7 +174,7 @@ export default function Home() {
                 className="glow-pulse-blue"
                 style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: rankStyle.color, lineHeight: 1, marginBottom: "0.6rem" }}
               >
-                {user?.rank ?? "Novice"}
+                {user?.rank ?? "Guest"}
               </p>
               <Link
                 to="/leaderboard"
@@ -207,16 +207,16 @@ export default function Home() {
         <SectionDivider title="Choose Your Job" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {LANGUAGES.map((lang) => (
-            <Link key={lang.slug} to={`/quests/${lang.slug}`} style={{ textDecoration: "none" }}>
-              <div className="group quest-card" style={{ "--card-accent": lang.accentColor }}>
-                <div className="quest-card-bar">
+            <Link key={lang.slug} to={`/jobs/${lang.slug}`} style={{ textDecoration: "none" }}>
+              <div className="group job-card" style={{ "--card-accent": lang.accentColor }}>
+                <div className="job-card-bar">
                   <TermDots />
                   <span className="term-title">{lang.interpreter}</span>
                 </div>
-                <div className="quest-card-body">
+                <div className="job-card-body">
                   <div className="flex items-start justify-between">
-                    <div className="quest-card-glyph">{lang.glyph}</div>
-                    <Badge variant="blue">{questCounts[lang.slug] ?? "—"} jobs</Badge>
+                    <div className="job-card-glyph">{lang.glyph}</div>
+                    <Badge variant="blue">{jobCounts[lang.slug] ?? "—"} jobs</Badge>
                   </div>
 
                   <h3
@@ -228,7 +228,7 @@ export default function Home() {
                   <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)", fontFamily: "var(--font-body)" }}>
                     {lang.description}
                   </p>
-                  <div className="quest-card-cta">
+                  <div className="job-card-cta">
                     <span>./begin_job</span>
                     <ArrowIcon />
                   </div>

@@ -25,20 +25,20 @@ def create_app(config_class=Config):
     from .routes.users       import users_bp
     from .routes.auth        import auth_bp
     from .routes.admin       import admin_bp
-    from .routes.quests      import quests_bp
+    from .routes.jobs        import jobs_bp
     from .routes.profile     import profile_bp
-    from .routes.underworld  import underworld_bp
-    from .routes.trivia      import trivia_bp
+    from .routes.processes   import stack_trace_bp
+    from .routes.test_suite  import test_suite_bp
     from .routes.reports     import reports_bp
 
     app.register_blueprint(health_bp,      url_prefix="/api")
     app.register_blueprint(users_bp,       url_prefix="/api/users")
     app.register_blueprint(auth_bp,        url_prefix="/api/auth")
     app.register_blueprint(admin_bp,       url_prefix="/api/admin")
-    app.register_blueprint(quests_bp,      url_prefix="/api/quests")
+    app.register_blueprint(jobs_bp,        url_prefix="/api/jobs")
     app.register_blueprint(profile_bp,     url_prefix="/api")
-    app.register_blueprint(underworld_bp,  url_prefix="/api/underworld")
-    app.register_blueprint(trivia_bp,      url_prefix="/api/trivia")
+    app.register_blueprint(stack_trace_bp, url_prefix="/api/stack-trace")
+    app.register_blueprint(test_suite_bp,  url_prefix="/api/test-suite")
     app.register_blueprint(reports_bp,     url_prefix="/api/reports")
 
     return app

@@ -11,7 +11,7 @@ import {
   failChallengeBeacon,
   getChallenge,
   submitChallenge,
-} from "../services/underworldService";
+} from "../services/stackTraceService";
 
 const DIFF_META = {
   warning:  { label: "Warning",  color: "var(--color-amber)" },
@@ -197,12 +197,12 @@ function useCountUp(target, duration = 900) {
 
 // ── Result screen ────────────────────────────────────────────────────────────
 
-function ResultScreen({ result, boss }) {
+function ResultScreen({ result, process }) {
   const [showFeedback, setShowFeedback] = useState(false);
-  const diff     = DIFF_META[boss.difficulty] ?? { label: boss.difficulty, color: "var(--color-red-bright)" };
+  const diff     = DIFF_META[process.difficulty] ?? { label: process.difficulty, color: "var(--color-red-bright)" };
   const isFailed = result.status === "failed";
   const xp       = result.xp_earned ?? 0;
-  const maxXp    = boss.max_xp ?? 0;
+  const maxXp    = process.max_xp ?? 0;
   const pct      = maxXp > 0 ? Math.round((xp / maxXp) * 100) : 0;
   const animated = useCountUp(xp);
 
@@ -245,7 +245,7 @@ function ResultScreen({ result, boss }) {
           "--tier-glow": glowColor,
         }}
       >
-        <div className="uw-glyph uw-glyph--lg">{boss.glyph}</div>
+        <div className="st-glyph st-glyph--lg">{process.glyph}</div>
       </div>
 
       <h2
@@ -256,7 +256,7 @@ function ResultScreen({ result, boss }) {
           marginBottom: "0.25rem",
         }}
       >
-        {boss.name}
+        {process.name}
       </h2>
 
       <div
@@ -322,7 +322,7 @@ function ResultScreen({ result, boss }) {
       </div>
 
       {/* Verdict */}
-      {result.boss_verdict && (
+      {result.process_verdict && (
         <div
           style={{
             padding: "1.25rem 1.5rem",
@@ -345,7 +345,7 @@ function ResultScreen({ result, boss }) {
               margin: 0,
             }}
           >
-            "{result.boss_verdict}"
+            "{result.process_verdict}"
           </p>
         </div>
       )}
@@ -403,7 +403,7 @@ function ResultScreen({ result, boss }) {
 
       {/* Return link */}
       <Link
-        to="/underworld"
+        to="/stack-trace"
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -429,13 +429,13 @@ function ResultScreen({ result, boss }) {
 
 // ── Main challenge page ───────────────────────────────────────────────────────
 
-export default function UnderworldChallengePage() {
+export default function StackTraceChallengePage() {
   const { challengeId } = useParams();
   const location        = useLocation();
   const { updateUser }  = useAuth();
 
   const [challenge,    setChallenge]    = useState(null);
-  const [boss,         setBoss]         = useState(null);
+  const [process,         setProcess]         = useState(null);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
 
@@ -452,12 +452,12 @@ export default function UnderworldChallengePage() {
 
   useEffect(() => {
     const state = location.state;
-    if (state?.challenge && state?.boss) {
-      initChallenge(state.challenge, state.boss);
+    if (state?.challenge && state?.process) {
+      initChallenge(state.challenge, state.process);
       setLoading(false);
     } else {
       getChallenge(challengeId)
-        .then(({ challenge: c, boss: b }) => {
+        .then(({ challenge: c, process: b }) => {
           initChallenge(c, b);
         })
         .catch((err) => {
@@ -470,7 +470,7 @@ export default function UnderworldChallengePage() {
 
   function initChallenge(c, b) {
     setChallenge(c);
-    setBoss(b);
+    setProcess(b);
 
     // If already resolved show result immediately
     if (c.status !== "active") {
@@ -529,7 +529,7 @@ export default function UnderworldChallengePage() {
     clearTimeout(timerRef.current);
     try {
       const data = await failChallenge(cid ?? challengeId);
-      setResult({ status: "failed", xp_earned: 0, boss_verdict: null, technical_feedback: null, ...data });
+      setResult({ status: "failed", xp_earned: 0, process_verdict: null, technical_feedback: null, ...data });
     } catch {
       setResult({ status: "failed", xp_earned: 0 });
     }
@@ -602,20 +602,20 @@ export default function UnderworldChallengePage() {
         <p style={{ color: "#fca5a5", fontFamily: "var(--font-heading)", fontSize: "0.85rem", marginBottom: "1rem" }}>
           {error}
         </p>
-        <Link to="/underworld" style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textDecoration: "none", fontFamily: "var(--font-heading)", letterSpacing: "0.10em" }}>
+        <Link to="/stack-trace" style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textDecoration: "none", fontFamily: "var(--font-heading)", letterSpacing: "0.10em" }}>
           ← Return to Stack Trace
         </Link>
       </div>
     );
   }
 
-  if (!challenge || !boss) return null;
+  if (!challenge || !process) return null;
 
-  const diff   = DIFF_META[boss.difficulty] ?? { label: boss.difficulty, color: "var(--color-red-bright)" };
+  const diff   = DIFF_META[process.difficulty] ?? { label: process.difficulty, color: "var(--color-red-bright)" };
 
   // Show result screen
   if (result !== null) {
-    return <ResultScreen result={result} boss={boss} />;
+    return <ResultScreen result={result} process={process} />;
   }
 
   const tColor    = timerColor(timeLeft);
@@ -637,9 +637,9 @@ export default function UnderworldChallengePage() {
           gap: "1.5rem",
           alignItems: "start",
         }}
-        className="underworld-challenge-grid"
+        className="stack-trace-challenge-grid"
       >
-        {/* ── Left: boss info + challenge text ── */}
+        {/* ── Left: process info + challenge text ── */}
         <div
           style={{
             background: "rgba(127,29,29,0.10)",
@@ -650,7 +650,7 @@ export default function UnderworldChallengePage() {
             maxHeight: "80vh",
           }}
         >
-          {/* Boss header */}
+          {/* Process header */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
             <div
               style={{
@@ -663,7 +663,7 @@ export default function UnderworldChallengePage() {
                 "--tier-color": diff.color,
               }}
             >
-              <div className="uw-glyph uw-glyph--md">{boss.glyph}</div>
+              <div className="st-glyph st-glyph--md">{process.glyph}</div>
             </div>
             <div>
               <h2
@@ -675,7 +675,7 @@ export default function UnderworldChallengePage() {
                   marginBottom: "0.25rem",
                 }}
               >
-                {boss.name}
+                {process.name}
               </h2>
               <div
                 style={{
@@ -696,7 +696,7 @@ export default function UnderworldChallengePage() {
             </div>
           </div>
 
-          {/* Boss taunt */}
+          {/* Process taunt */}
           <div
             style={{
               padding: "0.9rem 1.1rem",
@@ -716,7 +716,7 @@ export default function UnderworldChallengePage() {
                 margin: 0,
               }}
             >
-              "{challenge.boss_taunt}"
+              "{challenge.process_taunt}"
             </p>
           </div>
 
@@ -780,7 +780,7 @@ export default function UnderworldChallengePage() {
                   fontWeight: 700,
                   color: tColor,
                   letterSpacing: "0.05em",
-                  animation: tFlashing ? "uwFlash 0.6s ease-in-out infinite alternate" : "none",
+                  animation: tFlashing ? "stFlash 0.6s ease-in-out infinite alternate" : "none",
                 }}
               >
                 {formatTime(timeLeft)}
@@ -800,7 +800,7 @@ export default function UnderworldChallengePage() {
                 textTransform: "uppercase",
               }}
             >
-              {LANG_LABELS[boss.language] ?? boss.language}
+              {LANG_LABELS[process.language] ?? process.language}
             </div>
           </div>
 
@@ -817,7 +817,7 @@ export default function UnderworldChallengePage() {
               value={code}
               onChange={(val) => setCode(val)}
               theme={vscodeDark}
-              extensions={[getLangExtension(boss.language)]}
+              extensions={[getLangExtension(process.language)]}
               basicSetup={{
                 lineNumbers: true,
                 foldGutter: true,
@@ -908,12 +908,12 @@ export default function UnderworldChallengePage() {
 
       {/* Responsive overrides injected as a style tag */}
       <style>{`
-        @keyframes uwFlash {
+        @keyframes stFlash {
           from { opacity: 1; }
           to   { opacity: 0.35; }
         }
         @media (max-width: 767px) {
-          .underworld-challenge-grid {
+          .stack-trace-challenge-grid {
             grid-template-columns: 1fr !important;
           }
         }

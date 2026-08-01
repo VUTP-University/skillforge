@@ -6,20 +6,20 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
 from app.models import (
-    Boss,
-    BossChallenge,
-    BossDifficulty,
-    BOSS_DIFFICULTY_CONFIG,
+    Process,
+    ProcessChallenge,
+    ProcessSeverity,
+    PROCESS_SEVERITY_CONFIG,
     ChallengeStatus,
     User,
 )
 
-underworld_bp = Blueprint("underworld", __name__)
+stack_trace_bp = Blueprint("stack_trace", __name__)
 
 
-# ── Boss seed data ───────────────────────────────────────────────────────────
+# ── Process seed data ─────────────────────────────────────────────────────────
 
-BOSS_SEED = [
+PROCESS_SEED = [
     # Python
     dict(slug="necropy", name="NullDoc", glyph="#", language="python",
          description="A rogue process that erases every docstring and type hint it touches, leaving only silence in its wake.",
@@ -101,22 +101,22 @@ BOSS_SEED = [
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
-def _seed_bosses():
-    """Upsert all bosses from BOSS_SEED — inserts new ones and updates existing ones by slug."""
-    existing = {b.slug: b for b in Boss.query.all()}
-    for data in BOSS_SEED:
-        boss = existing.get(data["slug"])
-        if boss is None:
-            boss = Boss(slug=data["slug"])
-            db.session.add(boss)
-        boss.name        = data["name"]
-        boss.glyph       = data["glyph"]
-        boss.language    = data["language"]
-        boss.description = data["description"]
-        boss.specialty   = data["specialty"]
-        boss.difficulty  = BossDifficulty(data["difficulty"])
-        boss.aura        = data["aura"]
-        boss.lore        = data["lore"]
+def _seed_processes():
+    """Upsert all processes from PROCESS_SEED — inserts new ones and updates existing ones by slug."""
+    existing = {p.slug: p for p in Process.query.all()}
+    for data in PROCESS_SEED:
+        process = existing.get(data["slug"])
+        if process is None:
+            process = Process(slug=data["slug"])
+            db.session.add(process)
+        process.name        = data["name"]
+        process.glyph       = data["glyph"]
+        process.language    = data["language"]
+        process.description = data["description"]
+        process.specialty   = data["specialty"]
+        process.difficulty  = ProcessSeverity(data["difficulty"])
+        process.aura        = data["aura"]
+        process.lore        = data["lore"]
     db.session.commit()
 
 
@@ -126,8 +126,8 @@ def _get_openai_client():
 
 
 def _difficulty_config(difficulty_enum):
-    """Return the {minutes, max_xp} config dict for a BossDifficulty."""
-    return BOSS_DIFFICULTY_CONFIG[difficulty_enum]
+    """Return the {minutes, max_xp} config dict for a ProcessSeverity."""
+    return PROCESS_SEVERITY_CONFIG[difficulty_enum]
 
 
 def _today_utc():
@@ -135,16 +135,16 @@ def _today_utc():
     return datetime.now(timezone.utc).date()
 
 
-def _challenge_cooldown(user_id, boss_id):
+def _challenge_cooldown(user_id, process_id):
     """
     Return (on_cooldown: bool, resets_at: str|None).
     Cooldown = a challenge (any status) started on today's UTC calendar day.
     """
     today = _today_utc()
     existing = (
-        BossChallenge.query
-        .filter_by(user_id=user_id, boss_id=boss_id)
-        .filter(db.func.date(BossChallenge.started_at) == today)
+        ProcessChallenge.query
+        .filter_by(user_id=user_id, process_id=process_id)
+        .filter(db.func.date(ProcessChallenge.started_at) == today)
         .first()
     )
     if existing is None:
@@ -157,59 +157,59 @@ def _challenge_cooldown(user_id, boss_id):
 
 # ── Routes ───────────────────────────────────────────────────────────────────
 
-@underworld_bp.get("/bosses")
+@stack_trace_bp.get("/processes")
 @jwt_required()
-def list_bosses():
-    _seed_bosses()
-    user_id = int(get_jwt_identity())
-    bosses  = Boss.query.order_by(Boss.id).all()
+def list_processes():
+    _seed_processes()
+    user_id   = int(get_jwt_identity())
+    processes = Process.query.order_by(Process.id).all()
 
     result = []
-    for boss in bosses:
-        on_cooldown, resets_at = _challenge_cooldown(user_id, boss.id)
-        d = boss.to_dict()
+    for process in processes:
+        on_cooldown, resets_at = _challenge_cooldown(user_id, process.id)
+        d = process.to_dict()
         d["on_cooldown"]       = on_cooldown
         d["cooldown_resets_at"] = resets_at
         result.append(d)
 
-    return jsonify({"bosses": result}), 200
+    return jsonify({"processes": result}), 200
 
 
-@underworld_bp.post("/bosses/<int:boss_id>/challenge")
+@stack_trace_bp.post("/processes/<int:process_id>/challenge")
 @jwt_required()
-def start_challenge(boss_id):
-    _seed_bosses()
+def start_challenge(process_id):
+    _seed_processes()
     user_id = int(get_jwt_identity())
 
-    boss = Boss.query.get_or_404(boss_id)
+    process = Process.query.get_or_404(process_id)
 
-    # Cooldown check — one challenge per boss per UTC calendar day
-    on_cooldown, resets_at = _challenge_cooldown(user_id, boss_id)
+    # Cooldown check — one challenge per process per UTC calendar day
+    on_cooldown, resets_at = _challenge_cooldown(user_id, process_id)
     if on_cooldown:
-        return jsonify({"error": "Already challenged this boss today", "resets_at": resets_at}), 409
+        return jsonify({"error": "Already challenged this process today", "resets_at": resets_at}), 409
 
-    # Check no currently-active challenge for this boss exists
+    # Check no currently-active challenge for this process exists
     active = (
-        BossChallenge.query
-        .filter_by(user_id=user_id, boss_id=boss_id, status=ChallengeStatus.active)
+        ProcessChallenge.query
+        .filter_by(user_id=user_id, process_id=process_id, status=ChallengeStatus.active)
         .first()
     )
     if active:
         return jsonify({"error": "An active challenge already exists", "challenge_id": active.id}), 409
 
-    cfg            = _difficulty_config(boss.difficulty)
+    cfg            = _difficulty_config(process.difficulty)
     time_minutes   = cfg["minutes"]
     max_xp         = cfg["max_xp"]
-    difficulty_name = boss.difficulty.value.capitalize()
-    lang_upper     = boss.language.upper()
+    difficulty_name = process.difficulty.value.capitalize()
+    lang_upper     = process.language.upper()
 
     system_prompt = (
-        f"You are {boss.name}, a hostile process encountered deep in SkillForge's Stack Trace. "
-        f"Specialty: {boss.specialty}. Behavior: {boss.aura}. "
+        f"You are {process.name}, a hostile process encountered deep in SkillForge's Stack Trace. "
+        f"Specialty: {process.specialty}. Behavior: {process.aura}. "
         f"Severity: {difficulty_name} — {time_minutes} minutes, up to {max_xp} XP.\n"
-        f"Generate a {difficulty_name} {lang_upper} coding challenge testing {boss.specialty}. "
+        f"Generate a {difficulty_name} {lang_upper} coding challenge testing {process.specialty}. "
         f"Be solvable in {time_minutes} minutes.\n"
-        'Return ONLY valid JSON: {"boss_taunt": "...(2-3 sentences of cold, hostile terminal/system-log '
+        'Return ONLY valid JSON: {"process_taunt": "...(2-3 sentences of cold, hostile terminal/system-log '
         'style intimidation — no fantasy language)", '
         '"challenge": "...(full Markdown challenge)"}'
     )
@@ -225,43 +225,43 @@ def start_challenge(boss_id):
             ],
         )
         payload = json.loads(response.choices[0].message.content)
-        boss_taunt     = payload.get("boss_taunt", "Process incoming. Resolve or crash.")
+        process_taunt  = payload.get("process_taunt", "Process incoming. Resolve or crash.")
         challenge_text = payload.get("challenge", "No challenge generated.")
     except Exception as exc:
         current_app.logger.error("OpenAI generation failed: %s", exc)
         return jsonify({"error": "Failed to generate challenge — the Stack Trace is momentarily unreachable"}), 502
 
-    challenge = BossChallenge(
+    challenge = ProcessChallenge(
         user_id        = user_id,
-        boss_id        = boss.id,
+        process_id     = process.id,
         challenge_text = challenge_text,
-        boss_taunt     = boss_taunt,
+        process_taunt  = process_taunt,
         status         = ChallengeStatus.active,
         started_at     = datetime.now(timezone.utc),
     )
     db.session.add(challenge)
     db.session.commit()
 
-    return jsonify({"challenge": challenge.to_dict(), "boss": boss.to_dict()}), 201
+    return jsonify({"challenge": challenge.to_dict(), "process": process.to_dict()}), 201
 
 
-@underworld_bp.get("/challenges/<int:challenge_id>")
+@stack_trace_bp.get("/challenges/<int:challenge_id>")
 @jwt_required()
 def get_challenge(challenge_id):
     user_id   = int(get_jwt_identity())
-    challenge = BossChallenge.query.get_or_404(challenge_id)
+    challenge = ProcessChallenge.query.get_or_404(challenge_id)
 
     if challenge.user_id != user_id:
         return jsonify({"error": "Forbidden"}), 403
 
-    return jsonify({"challenge": challenge.to_dict(), "boss": challenge.boss.to_dict()}), 200
+    return jsonify({"challenge": challenge.to_dict(), "process": challenge.process.to_dict()}), 200
 
 
-@underworld_bp.post("/challenges/<int:challenge_id>/submit")
+@stack_trace_bp.post("/challenges/<int:challenge_id>/submit")
 @jwt_required()
 def submit_challenge(challenge_id):
     user_id   = int(get_jwt_identity())
-    challenge = BossChallenge.query.get_or_404(challenge_id)
+    challenge = ProcessChallenge.query.get_or_404(challenge_id)
 
     if challenge.user_id != user_id:
         return jsonify({"error": "Forbidden"}), 403
@@ -270,7 +270,7 @@ def submit_challenge(challenge_id):
         return jsonify({"error": "Challenge is no longer active", "status": challenge.status.value}), 409
 
     # Check time limit
-    cfg          = _difficulty_config(challenge.boss.difficulty)
+    cfg          = _difficulty_config(challenge.process.difficulty)
     time_seconds = cfg["minutes"] * 60
     max_xp       = cfg["max_xp"]
 
@@ -288,14 +288,14 @@ def submit_challenge(challenge_id):
     if not solution:
         return jsonify({"error": "Solution is required"}), 400
 
-    boss = challenge.boss
+    process = challenge.process
 
     system_prompt = (
-        f"You are {boss.name} evaluating a challenger. "
-        f"Specialty: {boss.specialty}. Behavior: {boss.aura}. Max XP: {max_xp}.\n"
+        f"You are {process.name} evaluating a challenger. "
+        f"Specialty: {process.specialty}. Behavior: {process.aura}. Max XP: {max_xp}.\n"
         f"Score 0–{max_xp} based on correctness and adherence to your specialty standards. "
         "Be harsh but fair. Terse, hostile terminal/system-log voice — no fantasy language.\n"
-        f'Return ONLY valid JSON: {{"score": <int>, "boss_verdict": "...(3-4 sentences verdict in character)", '
+        f'Return ONLY valid JSON: {{"score": <int>, "process_verdict": "...(3-4 sentences verdict in character)", '
         '"technical_feedback": "...(technical analysis)"}}'
     )
 
@@ -311,10 +311,10 @@ def submit_challenge(challenge_id):
                 {"role": "user",   "content": user_prompt},
             ],
         )
-        payload            = json.loads(response.choices[0].message.content)
-        raw_score          = int(payload.get("score", 0))
-        boss_verdict       = payload.get("boss_verdict", "Insufficient. Recompile and try again.")
-        technical_feedback = payload.get("technical_feedback", "")
+        payload             = json.loads(response.choices[0].message.content)
+        raw_score           = int(payload.get("score", 0))
+        process_verdict     = payload.get("process_verdict", "Insufficient. Recompile and try again.")
+        technical_feedback  = payload.get("technical_feedback", "")
     except Exception as exc:
         current_app.logger.error("OpenAI evaluation failed: %s", exc)
         return jsonify({"error": "Failed to evaluate solution — the Stack Trace is momentarily unreachable"}), 502
@@ -330,7 +330,7 @@ def submit_challenge(challenge_id):
 
     # Update challenge record
     challenge.user_solution      = solution
-    challenge.boss_verdict       = boss_verdict
+    challenge.process_verdict    = process_verdict
     challenge.technical_feedback = technical_feedback
     challenge.xp_earned          = xp_earned
     challenge.score_pct          = score_pct
@@ -341,13 +341,13 @@ def submit_challenge(challenge_id):
 
     return jsonify({
         "challenge": challenge.to_dict(),
-        "boss":      boss.to_dict(),
+        "process":   process.to_dict(),
         "xp_earned": xp_earned,
         "score_pct": score_pct,
     }), 200
 
 
-@underworld_bp.post("/challenges/<int:challenge_id>/fail")
+@stack_trace_bp.post("/challenges/<int:challenge_id>/fail")
 @jwt_required(optional=True)
 def fail_challenge(challenge_id):
     """
@@ -356,7 +356,7 @@ def fail_challenge(challenge_id):
     (the challenge record itself carries the user_id for verification).
     """
     user_id   = get_jwt_identity()
-    challenge = BossChallenge.query.get_or_404(challenge_id)
+    challenge = ProcessChallenge.query.get_or_404(challenge_id)
 
     # For authenticated callers verify ownership; for beacon (unauthenticated)
     # we trust the challenge_id itself (the beacon contains no auth token).

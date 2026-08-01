@@ -18,7 +18,7 @@ import {
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
-const UW_DIFF_META = {
+const PROCESS_SEVERITY_META = {
   warning:  { label: "Warning",  color: "var(--color-amber)" },
   critical: { label: "Critical", color: "#ff8a5c" },
   fatal:    { label: "Fatal",    color: "var(--color-red-bright)" },
@@ -32,9 +32,9 @@ const LANG_CONFIG = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Junior", color: "var(--color-green)" },
-  cryptic: { label: "Mid",    color: "var(--color-amber)" },
-  abyssal: { label: "Senior", color: "var(--color-red-bright)" },
+  junior: { label: "Junior", color: "var(--color-green)" },
+  mid:    { label: "Mid",    color: "var(--color-amber)" },
+  senior: { label: "Senior", color: "var(--color-red-bright)" },
 };
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
@@ -213,13 +213,13 @@ export default function ProfilePage() {
     );
   }
 
-  const rs              = RANK_STYLE[profile.rank] ?? RANK_STYLE["Novice"];
+  const rs              = RANK_STYLE[profile.rank] ?? RANK_STYLE["Guest"];
   const comps           = profile.completions ?? [];
-  const bossChallenges  = profile.boss_challenges ?? [];
-  const triviaSessions  = profile.trivia_sessions ?? [];
-  const vanquishedCount = bossChallenges.filter(c => c.status === "completed").length;
-  const triviaCompleted = triviaSessions.filter(s => s.status === "completed").length;
-  const triviaXP        = triviaSessions.reduce((sum, s) => sum + (s.score_xp || 0), 0);
+  const processChallenges  = profile.process_challenges ?? [];
+  const testRuns  = profile.test_runs ?? [];
+  const vanquishedCount = processChallenges.filter(c => c.status === "completed").length;
+  const runsCompleted = testRuns.filter(s => s.status === "completed").length;
+  const runsXP        = testRuns.reduce((sum, s) => sum + (s.score_xp || 0), 0);
   const byLang = comps.reduce((acc, c) => {
     acc[c.language] = (acc[c.language] || 0) + 1;
     return acc;
@@ -328,7 +328,7 @@ export default function ProfilePage() {
                   value={comps.length}
                   label={comps.length === 1 ? "Job" : "Jobs"}
                 />
-                {bossChallenges.length > 0 && (
+                {processChallenges.length > 0 && (
                   <StatChip
                     icon={
                       <svg style={{ width: 14, height: 14, color: "var(--color-red-bright)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -341,15 +341,15 @@ export default function ProfilePage() {
                     valueColor="var(--color-red-bright)"
                   />
                 )}
-                {triviaSessions.length > 0 && (
+                {testRuns.length > 0 && (
                   <StatChip
                     icon={
                       <svg style={{ width: 14, height: 14, color: "var(--color-amber)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
                       </svg>
                     }
-                    value={triviaCompleted}
-                    label={triviaCompleted === 1 ? "Run" : "Runs"}
+                    value={runsCompleted}
+                    label={runsCompleted === 1 ? "Run" : "Runs"}
                     valueColor="var(--color-amber)"
                   />
                 )}
@@ -557,7 +557,7 @@ export default function ProfilePage() {
                 const rowCells = (
                   <>
                     <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {s.quest_title}
+                      {s.job_title}
                     </span>
                     <span style={{ display: "flex", alignItems: "center", gap: "0.28rem", flexShrink: 0 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "1px", background: lang?.color ?? "var(--color-text)" }} />
@@ -591,7 +591,7 @@ export default function ProfilePage() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(77,255,143,0.03)"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                       onClick={async () => {
-                        setSubModal({ id: s.id, quest_title: s.quest_title, language: s.language, difficulty: s.difficulty, all_passed: s.all_passed });
+                        setSubModal({ id: s.id, job_title: s.job_title, language: s.language, difficulty: s.difficulty, all_passed: s.all_passed });
                         setSubModalLoading(true);
                         try {
                           const detail = await getSubmissionDetail(s.id);
@@ -646,7 +646,7 @@ export default function ProfilePage() {
         </div>
 
       {/* ── Stack Trace Log ── */}
-      {bossChallenges.length > 0 ? (
+      {processChallenges.length > 0 ? (
         <div className="space-y-4">
           {/* Section label — red, matches The Stack Trace */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -666,10 +666,10 @@ export default function ProfilePage() {
               background: "rgba(255,95,86,0.04)",
             }}
           >
-            {bossChallenges.map((c, i) => {
-              const uwDiff  = UW_DIFF_META[c.difficulty] ?? { label: c.difficulty, color: "var(--color-red-bright)" };
+            {processChallenges.map((c, i) => {
+              const procDiff  = PROCESS_SEVERITY_META[c.difficulty] ?? { label: c.difficulty, color: "var(--color-red-bright)" };
               const lang    = LANG_CONFIG[c.language];
-              const verdict = c.boss_verdict ?? "";
+              const verdict = c.process_verdict ?? "";
 
               return (
                 <div
@@ -678,7 +678,7 @@ export default function ProfilePage() {
                     display: "flex", alignItems: "center", gap: "0.75rem",
                     padding: "0.75rem 1rem",
                     borderTop: i === 0 ? "none" : "1px solid rgba(255,95,86,0.10)",
-                    borderLeft: `3px solid ${uwDiff.color}`,
+                    borderLeft: `3px solid ${procDiff.color}`,
                     transition: "background 0.12s",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,95,86,0.05)"; }}
@@ -687,20 +687,20 @@ export default function ProfilePage() {
                   {/* Entity glyph */}
                   <div style={{
                     width: 38, height: 38, borderRadius: "4px", overflow: "hidden", flexShrink: 0,
-                    border: `2px solid ${uwDiff.color}`,
-                    "--tier-color": uwDiff.color,
+                    border: `2px solid ${procDiff.color}`,
+                    "--tier-color": procDiff.color,
                   }}>
-                    <div className="uw-glyph uw-glyph--sm">{c.boss_glyph}</div>
+                    <div className="st-glyph st-glyph--sm">{c.process_glyph}</div>
                   </div>
 
-                  {/* Boss name + truncated verdict */}
+                  {/* Process name + truncated verdict */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700,
                       color: "var(--color-text-secondary)", margin: 0,
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>
-                      {c.boss_name}
+                      {c.process_name}
                     </p>
                     {verdict && (
                       <p style={{
@@ -722,8 +722,8 @@ export default function ProfilePage() {
                   </span>
 
                   {/* Difficulty */}
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: uwDiff.color, flexShrink: 0 }}>
-                    {uwDiff.label}
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: procDiff.color, flexShrink: 0 }}>
+                    {procDiff.label}
                   </span>
 
                   {/* Status badge */}
@@ -742,7 +742,7 @@ export default function ProfilePage() {
                     <>
                       <div style={{ width: 44, flexShrink: 0 }}>
                         <div style={{ height: 3, borderRadius: 2, background: "rgba(255,95,86,0.15)", marginBottom: "0.2rem" }}>
-                          <div style={{ height: 3, borderRadius: 2, background: uwDiff.color, width: `${c.score_pct ?? 0}%` }} />
+                          <div style={{ height: 3, borderRadius: 2, background: procDiff.color, width: `${c.score_pct ?? 0}%` }} />
                         </div>
                         <span style={{ fontSize: "0.50rem", color: "var(--color-text-tertiary)", fontFamily: "var(--font-heading)" }}>
                           {c.score_pct ?? 0}%
@@ -777,7 +777,7 @@ export default function ProfilePage() {
             Take on a hostile process and see if your code holds up.
           </p>
           <Link
-            to="/underworld"
+            to="/stack-trace"
             className="sf-btn-ghost"
             style={{ display: "inline-flex", color: "var(--color-red-bright)", borderColor: "var(--color-red-border)", background: "var(--color-red-dim)" }}
           >
@@ -787,7 +787,7 @@ export default function ProfilePage() {
       ) : null}
 
       {/* ── Test Suite Log ── */}
-      {triviaSessions.length > 0 ? (
+      {testRuns.length > 0 ? (
         <div className="space-y-4">
           {/* Section label — amber, matches The Test Suite */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -801,9 +801,9 @@ export default function ProfilePage() {
           {/* Summary chips */}
           <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
             {[
-              [`${triviaSessions.length}`, "Runs played"],
-              [`${triviaCompleted}`, "Completed"],
-              [`+${triviaXP} XP`, "Total earned"],
+              [`${testRuns.length}`, "Runs played"],
+              [`${runsCompleted}`, "Completed"],
+              [`+${runsXP} XP`, "Total earned"],
             ].map(([val, lbl]) => (
               <div key={lbl} style={{ padding: "0.4rem 0.85rem", borderRadius: "4px", background: "var(--color-amber-dim)", border: "1px solid var(--color-amber-border)", display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
                 <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.78rem", fontWeight: 700, color: "var(--color-amber)" }}>{val}</span>
@@ -814,7 +814,7 @@ export default function ProfilePage() {
 
           {/* Session list */}
           <div style={{ borderRadius: "6px", overflow: "hidden", border: "1px solid var(--color-amber-dim)", background: "rgba(255,204,102,0.03)" }}>
-            {triviaSessions.map((s, i) => {
+            {testRuns.map((s, i) => {
               const langMeta = {
                 python:     { label: "Python",     glyph: "py", color: "var(--gem-python)" },
                 javascript: { label: "JavaScript", glyph: "js", color: "var(--gem-javascript)" },
@@ -901,7 +901,7 @@ export default function ProfilePage() {
             Clear the weekly test suite and prove your knowledge.
           </p>
           <Link
-            to="/trivia"
+            to="/test-suite"
             className="sf-btn-ghost"
             style={{ display: "inline-flex", color: "var(--color-amber)", borderColor: "var(--color-amber-border)", background: "var(--color-amber-dim)" }}
           >
@@ -930,7 +930,7 @@ export default function ProfilePage() {
               <span className="term-dot term-dot--red" />
               <span className="term-dot term-dot--yellow" />
               <span className="term-dot term-dot--green" />
-              <span className="term-title">{subModal?.quest_title ?? "loading…"}</span>
+              <span className="term-title">{subModal?.job_title ?? "loading…"}</span>
               <button
                 onClick={() => { setSubModal(null); setSubModalLoading(false); }}
                 style={{ background: "none", border: "none", color: "var(--color-text-tertiary)", cursor: "pointer", fontSize: "1rem", lineHeight: 1, padding: "0 0.2rem", flexShrink: 0 }}
@@ -945,7 +945,7 @@ export default function ProfilePage() {
             {subModal?.language && (
               <div style={{ padding: "0.6rem 1.4rem", borderBottom: "1px solid var(--color-border-2)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 {(() => {
-                  const diff = DIFF_META[subModal.difficulty] ?? DIFF_META.shallow;
+                  const diff = DIFF_META[subModal.difficulty] ?? DIFF_META.junior;
                   const lang = LANG_CONFIG[subModal.language];
                   return (
                     <>

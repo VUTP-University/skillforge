@@ -72,7 +72,7 @@ export default function ModeratorDashboard() {
   };
 
   const RC = {
-    quest:    { flex: "2 1 0", minWidth: 0 },
+    job:      { flex: "2 1 0", minWidth: 0 },
     reporter: { flex: "1 0 100px" },
     status:   { flex: "1 0 110px", textAlign: "center" },
     date:     { flex: "1 0 90px" },
@@ -123,7 +123,7 @@ export default function ModeratorDashboard() {
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
               <div>
                 <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
-                <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Job #${selected.quest_id}`}</p>
+                <p className="text-white font-semibold text-sm">{selected.job_title ?? `Job #${selected.job_id}`}</p>
                 <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
                   Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                 </p>
@@ -207,7 +207,7 @@ export default function ModeratorDashboard() {
               <button className="sf-btn" style={{ width: "auto", padding: "0.5rem 1.25rem", opacity: saving ? 0.6 : 1 }} onClick={handleSave} disabled={saving}>
                 {saving ? <><div className="sf-spinner" style={{ width: "11px", height: "11px", borderWidth: "2px" }} /> Saving…</> : "Save Changes"}
               </button>
-              <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.5rem 1rem", marginLeft: "auto" }} onClick={() => navigate(`/admin/quests/${selected.quest_id}/edit`)}>
+              <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.5rem 1rem", marginLeft: "auto" }} onClick={() => navigate(`/admin/jobs/${selected.job_id}/edit`)}>
                 Edit Job →
               </button>
             </div>
@@ -223,7 +223,7 @@ export default function ModeratorDashboard() {
         ) : (
           <div className="glass-card overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
             <div style={{ ...rowStyle, paddingTop: "0.65rem", paddingBottom: "0.65rem", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
-              <span style={{ ...RC.quest,    ...headerLabel }}>Job</span>
+              <span style={{ ...RC.job,    ...headerLabel }}>Job</span>
               <span style={{ ...RC.reporter, ...headerLabel }}>Reporter</span>
               <span style={{ ...RC.status,   ...headerLabel }}>Status</span>
               <span style={{ ...RC.date,     ...headerLabel }}>Date</span>
@@ -235,8 +235,8 @@ export default function ModeratorDashboard() {
                 onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                <div style={{ ...RC.quest, minWidth: 0 }}>
-                  <p className="text-white text-sm font-semibold truncate">{report.quest_title ?? `Job #${report.quest_id}`}</p>
+                <div style={{ ...RC.job, minWidth: 0 }}>
+                  <p className="text-white text-sm font-semibold truncate">{report.job_title ?? `Job #${report.job_id}`}</p>
                   {report.assigned_to && <p className="text-dim text-xs mt-0.5">Assigned: {report.assigned_to}</p>}
                 </div>
                 <div style={RC.reporter}><span className="text-sub text-xs">{report.reporter}</span></div>

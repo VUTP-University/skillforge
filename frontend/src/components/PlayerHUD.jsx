@@ -24,7 +24,7 @@ export default function PlayerHUD({ user, variant = "desktop" }) {
             <span className="hud-name">{user.username}</span>
             <span className="level-pill">LV {level}</span>
           </div>
-          <span className="hud-rank" style={{ color: rankStyle.color }}>{user.rank ?? "Novice"}</span>
+          <span className="hud-rank" style={{ color: rankStyle.color }}>{user.rank ?? "Guest"}</span>
           <div className="mt-1.5">
             <ProgressBar value={xpPct} size="xs" />
           </div>
@@ -38,14 +38,17 @@ export default function PlayerHUD({ user, variant = "desktop" }) {
 
   return (
     <>
-      <Avatar src={user.avatar_url} username={user.username} size={30} />
+      <div className="hud-avatar-wrap">
+        <Avatar src={user.avatar_url} username={user.username} size={30} />
+        <span className="hud-status-dot" />
+      </div>
       <div className="hud-meta">
         <div className="hud-name-row">
           <span className="hud-name">{user.username}</span>
           <span className="level-pill">LV {level}</span>
         </div>
         <div className="hud-sub-row">
-          <span className="hud-rank" style={{ color: rankStyle.color }}>{user.rank ?? "Novice"}</span>
+          <span className="hud-rank" style={{ color: rankStyle.color }}>{user.rank ?? "Guest"}</span>
           <span className="hud-dot">·</span>
           <span className="hud-xp-caption">xp</span>
           <ProgressBar value={xpPct} ascii chars={8} variant="blue" className="hud-ascii" />

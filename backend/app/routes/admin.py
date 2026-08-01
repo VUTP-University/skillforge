@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 
 from app import db
-from app.models import Language, Quest, QuestSubmission, RoleName, User, UserRole
+from app.models import Language, Job, JobSubmission, RoleName, User, UserRole
 from app.utils import require_role
 
 admin_bp = Blueprint("admin", __name__)
@@ -70,23 +70,23 @@ def list_submissions():
     passed   = request.args.get("all_passed", None)
 
     query = (
-        db.session.query(QuestSubmission, Quest, User)
-        .join(Quest, QuestSubmission.quest_id == Quest.id)
-        .join(User, QuestSubmission.user_id == User.id)
-        .order_by(QuestSubmission.submitted_at.desc())
+        db.session.query(JobSubmission, Job, User)
+        .join(Job, JobSubmission.job_id == Job.id)
+        .join(User, JobSubmission.user_id == User.id)
+        .order_by(JobSubmission.submitted_at.desc())
     )
 
     if search:
         like = f"%{search}%"
         query = query.filter(
-            db.or_(User.username.ilike(like), Quest.title.ilike(like))
+            db.or_(User.username.ilike(like), Job.title.ilike(like))
         )
     if language and language in [l.value for l in Language]:
-        query = query.filter(Quest.language == Language(language))
+        query = query.filter(Job.language == Language(language))
     if passed == "true":
-        query = query.filter(QuestSubmission.all_passed == True)   # noqa: E712
+        query = query.filter(JobSubmission.all_passed == True)   # noqa: E712
     elif passed == "false":
-        query = query.filter(QuestSubmission.all_passed == False)  # noqa: E712
+        query = query.filter(JobSubmission.all_passed == False)  # noqa: E712
 
     total = query.count()
     rows  = query.offset((page - 1) * per_page).limit(per_page).all()
@@ -96,15 +96,15 @@ def list_submissions():
         "id":           s.id,
         "user_id":      s.user_id,
         "username":     u.username,
-        "quest_id":     s.quest_id,
-        "quest_title":  q.title,
-        "language":     q.language.value,
-        "difficulty":   q.difficulty.value,
+        "job_id":       s.job_id,
+        "job_title":    j.title,
+        "language":     j.language.value,
+        "difficulty":   j.difficulty.value,
         "all_passed":   s.all_passed,
         "passed":       (s.test_results or {}).get("passed"),
         "total":        (s.test_results or {}).get("total"),
         "submitted_at": s.submitted_at.isoformat(),
-    } for s, q, u in rows]
+    } for s, j, u in rows]
 
     return jsonify({"items": items, "total": total, "page": page, "pages": pages, "per_page": per_page})
 
@@ -112,17 +112,17 @@ def list_submissions():
 @admin_bp.route("/submissions/<int:submission_id>", methods=["GET"])
 @require_role("admin", "moderator")
 def get_submission(submission_id):
-    s = db.get_or_404(QuestSubmission, submission_id)
-    q = db.get_or_404(Quest, s.quest_id)
+    s = db.get_or_404(JobSubmission, submission_id)
+    j = db.get_or_404(Job, s.job_id)
     u = db.get_or_404(User, s.user_id)
     return jsonify({
         "id":            s.id,
         "user_id":       s.user_id,
         "username":      u.username,
-        "quest_id":      s.quest_id,
-        "quest_title":   q.title,
-        "language":      q.language.value,
-        "difficulty":    q.difficulty.value,
+        "job_id":        s.job_id,
+        "job_title":     j.title,
+        "language":      j.language.value,
+        "difficulty":    j.difficulty.value,
         "all_passed":    s.all_passed,
         "passed":        (s.test_results or {}).get("passed"),
         "total":         (s.test_results or {}).get("total"),

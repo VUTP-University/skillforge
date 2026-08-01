@@ -6,16 +6,16 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
-import { getQuest, submitQuest, getComments, addComment, deleteComment } from "../services/questService";
+import { getJob, submitJob, getComments, addComment, deleteComment } from "../services/jobService";
 import { createReport } from "../services/reportService";
 import Avatar from "../components/Avatar";
 
 /* ── Config ──────────────────────────────────────────────────────────────── */
 
 const DIFF_META = {
-  shallow: { label: "Junior", color: "var(--color-green)",      border: "var(--color-green-border)", bg: "var(--color-green-dim)" },
-  cryptic: { label: "Mid",    color: "var(--color-amber)",      border: "var(--color-amber-border)", bg: "var(--color-amber-dim)" },
-  abyssal: { label: "Senior", color: "var(--color-red-bright)", border: "var(--color-red-border)",   bg: "var(--color-red-dim)"   },
+  junior: { label: "Junior", color: "var(--color-green)",      border: "var(--color-green-border)", bg: "var(--color-green-dim)" },
+  mid:    { label: "Mid",    color: "var(--color-amber)",      border: "var(--color-amber-border)", bg: "var(--color-amber-dim)" },
+  senior: { label: "Senior", color: "var(--color-red-bright)", border: "var(--color-red-border)",   bg: "var(--color-red-dim)"   },
 };
 
 const LANG_LABEL = {
@@ -72,7 +72,7 @@ class Solution {
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
 function DiffBadge({ difficulty }) {
-  const m = DIFF_META[difficulty] ?? DIFF_META.shallow;
+  const m = DIFF_META[difficulty] ?? DIFF_META.junior;
   return (
     <span
       style={{
@@ -203,7 +203,7 @@ function formatRelative(iso) {
   return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
-function QuestComments({ questId, currentUser }) {
+function JobComments({ jobId, currentUser }) {
   const [comments, setComments]   = useState([]);
   const [loading,  setLoading]    = useState(true);
   const [draft,    setDraft]      = useState("");
@@ -212,17 +212,17 @@ function QuestComments({ questId, currentUser }) {
 
   useEffect(() => {
     setLoading(true);
-    getComments(questId)
+    getComments(jobId)
       .then(setComments)
       .finally(() => setLoading(false));
-  }, [questId]);
+  }, [jobId]);
 
   const handlePost = async () => {
     if (posting || !draft.trim()) return;
     setPosting(true);
     setPostErr(null);
     try {
-      const comment = await addComment(questId, draft.trim());
+      const comment = await addComment(jobId, draft.trim());
       setComments((prev) => [...prev, comment]);
       setDraft("");
     } catch (err) {
@@ -234,7 +234,7 @@ function QuestComments({ questId, currentUser }) {
 
   const handleDelete = async (commentId) => {
     try {
-      await deleteComment(questId, commentId);
+      await deleteComment(jobId, commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch {
       // silently ignore — comment list stays intact
@@ -406,7 +406,7 @@ function QuestComments({ questId, currentUser }) {
 
 /* ── Report Modal ────────────────────────────────────────────────────────── */
 
-function ReportModal({ questId, onClose }) {
+function ReportModal({ jobId, onClose }) {
   const [reason,     setReason]     = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done,       setDone]       = useState(false);
@@ -418,7 +418,7 @@ function ReportModal({ questId, onClose }) {
     setSubmitting(true);
     setError(null);
     try {
-      await createReport(questId, reason.trim());
+      await createReport(jobId, reason.trim());
       setDone(true);
     } catch (err) {
       setError(err?.response?.data?.error ?? "Failed to submit report. Please try again.");
@@ -526,12 +526,12 @@ function ReportModal({ questId, onClose }) {
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
-export default function QuestSolvePage() {
-  const { language, questId } = useParams();
-  const navigate              = useNavigate();
+export default function JobSolvePage() {
+  const { language, jobId } = useParams();
+  const navigate             = useNavigate();
   const { user: currentUser, updateUser } = useAuth();
 
-  const [quest,       setQuest]      = useState(null);
+  const [job,         setJob]        = useState(null);
   const [loading,     setLoading]    = useState(true);
   const [code,        setCode]       = useState(STARTER[language] ?? "");
   const [submitting,  setSubmitting] = useState(false);
@@ -545,14 +545,14 @@ export default function QuestSolvePage() {
     setLoading(true);
     setResults(null);
     setSubmitErr(null);
-    getQuest(questId)
-      .then((q) => {
-        setQuest(q);
-        setCode(STARTER[q.language] ?? "");
+    getJob(jobId)
+      .then((j) => {
+        setJob(j);
+        setCode(STARTER[j.language] ?? "");
       })
       .catch(() => navigate("/", { replace: true }))
       .finally(() => setLoading(false));
-  }, [questId, navigate]);
+  }, [jobId, navigate]);
 
   const handleSubmit = useCallback(async () => {
     if (submitting || !code.trim()) return;
@@ -560,7 +560,7 @@ export default function QuestSolvePage() {
     setResults(null);
     setSubmitErr(null);
     try {
-      const res = await submitQuest(questId, code);
+      const res = await submitJob(jobId, code);
       setResults(res);
       if (res.first_completion) {
         setXpBanner({ xp: res.xp_earned });
@@ -574,7 +574,7 @@ export default function QuestSolvePage() {
     } finally {
       setSubmitting(false);
     }
-  }, [submitting, code, questId]);
+  }, [submitting, code, jobId]);
 
   if (loading) {
     return (
@@ -585,12 +585,12 @@ export default function QuestSolvePage() {
     );
   }
 
-  if (!quest) return null;
+  if (!job) return null;
 
-  const exampleTc  = quest.test_cases?.find((tc) => tc.index === 0);
-  const diff       = DIFF_META[quest.difficulty] ?? DIFF_META.shallow;
-  const langExt    = LANG_EXT[quest.language] ?? (() => []);
-  const langLabel  = LANG_LABEL[quest.language] ?? quest.language;
+  const exampleTc  = job.test_cases?.find((tc) => tc.index === 0);
+  const diff       = DIFF_META[job.difficulty] ?? DIFF_META.junior;
+  const langExt    = LANG_EXT[job.language] ?? (() => []);
+  const langLabel  = LANG_LABEL[job.language] ?? job.language;
 
   const allPassed  = results && results.passed === results.total;
   const nonePassed = results && results.passed === 0;
@@ -602,7 +602,7 @@ export default function QuestSolvePage() {
 
       {/* ── Report modal ── */}
       {reportOpen && (
-        <ReportModal questId={questId} onClose={() => setReportOpen(false)} />
+        <ReportModal jobId={jobId} onClose={() => setReportOpen(false)} />
       )}
 
       {/* ── XP earned banner ── */}
@@ -632,7 +632,7 @@ export default function QuestSolvePage() {
 
       {/* ── Breadcrumb ── */}
       <Link
-        to={`/quests/${quest.language}`}
+        to={`/jobs/${job.language}`}
         className="text-sub text-xs flex items-center gap-1.5 mb-5 w-fit"
         style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", transition: "color 0.15s" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.70)")}
@@ -647,28 +647,28 @@ export default function QuestSolvePage() {
       {/* ── Job header ── */}
       <div style={{ marginBottom: "1.75rem" }}>
         <div className="flex items-center gap-3 flex-wrap mb-2">
-          <DiffBadge difficulty={quest.difficulty} />
+          <DiffBadge difficulty={job.difficulty} />
           <div className="flex items-center gap-1.5">
             <svg style={{ width: 13, height: 13, color: "var(--color-green)" }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
             <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.68rem", fontWeight: 700, color: "var(--color-green)" }}>
-              {quest.xp_reward} XP
+              {job.xp_reward} XP
             </span>
           </div>
-          {quest.author && quest.author_id && (
+          {job.author && job.author_id && (
             <Link
-              to={`/users/${quest.author_id}`}
+              to={`/users/${job.author_id}`}
               style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", fontStyle: "italic", textDecoration: "none", transition: "color 0.12s" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.30)")}
             >
-              by {quest.author}
+              by {job.author}
             </Link>
           )}
         </div>
         <h1 style={{ fontSize: "clamp(1.3rem, 5vw, 1.9rem)", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
-          {quest.title}
+          {job.title}
         </h1>
       </div>
 
@@ -678,7 +678,7 @@ export default function QuestSolvePage() {
         {/* ── LEFT: Problem description ── */}
         <div className="lg:w-2/5" style={{ flexShrink: 0, minWidth: 0 }}>
           <div
-            className="glass-card quest-desc-sticky"
+            className="glass-card job-desc-sticky"
             style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}
           >
             {/* Description */}
@@ -693,7 +693,7 @@ export default function QuestSolvePage() {
                 Problem
               </p>
               <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                {quest.description}
+                {job.description}
               </p>
             </div>
 
@@ -794,7 +794,7 @@ export default function QuestSolvePage() {
 
             {/* Reset */}
             <button
-              onClick={() => setCode(STARTER[quest.language] ?? "")}
+              onClick={() => setCode(STARTER[job.language] ?? "")}
               style={{
                 display: "flex", alignItems: "center", gap: "0.4rem", flexShrink: 0,
                 padding: "0.7rem 1rem", borderRadius: "10px",
@@ -950,7 +950,7 @@ export default function QuestSolvePage() {
 
       {/* ── Comments ── */}
       <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", margin: "2rem 0" }} />
-      <QuestComments questId={questId} currentUser={currentUser} />
+      <JobComments jobId={jobId} currentUser={currentUser} />
 
     </div>
   );

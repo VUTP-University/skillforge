@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Boss, BossChallenge, ChallengeStatus, Quest, QuestCompletion, QuestSubmission, TriviaSession, TriviaSessionStatus, User, xp_progress
+from app.models import Process, ProcessChallenge, ChallengeStatus, Job, JobCompletion, JobSubmission, TestRun, TestRunStatus, User, xp_progress
 
 profile_bp = Blueprint("profile", __name__)
 
@@ -22,37 +22,37 @@ def _allowed_ext(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def _build_boss_challenges(user_id):
+def _build_process_challenges(user_id):
     rows = (
-        db.session.query(BossChallenge, Boss)
-        .join(Boss, BossChallenge.boss_id == Boss.id)
-        .filter(BossChallenge.user_id == user_id)
-        .filter(BossChallenge.status != ChallengeStatus.active)
-        .order_by(BossChallenge.started_at.desc())
+        db.session.query(ProcessChallenge, Process)
+        .join(Process, ProcessChallenge.process_id == Process.id)
+        .filter(ProcessChallenge.user_id == user_id)
+        .filter(ProcessChallenge.status != ChallengeStatus.active)
+        .order_by(ProcessChallenge.started_at.desc())
         .all()
     )
     return [{
-        "id":           c.id,
-        "boss_name":    b.name,
-        "boss_glyph":   b.glyph,
-        "language":     b.language,
-        "difficulty":   b.difficulty.value,
-        "status":       c.status.value,
-        "xp_earned":    c.xp_earned,
-        "score_pct":    c.score_pct,
-        "boss_verdict": c.boss_verdict,
-        "started_at":   c.started_at.isoformat(),
-    } for c, b in rows]
+        "id":              c.id,
+        "process_name":    p.name,
+        "process_glyph":   p.glyph,
+        "language":        p.language,
+        "difficulty":      p.difficulty.value,
+        "status":          c.status.value,
+        "xp_earned":       c.xp_earned,
+        "score_pct":       c.score_pct,
+        "process_verdict": c.process_verdict,
+        "started_at":      c.started_at.isoformat(),
+    } for c, p in rows]
 
 
-def _build_trivia_sessions(user_id):
+def _build_test_runs(user_id):
     rows = (
-        TriviaSession.query
+        TestRun.query
         .filter(
-            TriviaSession.user_id == user_id,
-            TriviaSession.status != TriviaSessionStatus.active,
+            TestRun.user_id == user_id,
+            TestRun.status != TestRunStatus.active,
         )
-        .order_by(TriviaSession.started_at.desc())
+        .order_by(TestRun.started_at.desc())
         .all()
     )
     return [{
@@ -69,20 +69,20 @@ def _build_trivia_sessions(user_id):
 
 def _build_completions(user_id):
     rows = (
-        db.session.query(QuestCompletion, Quest)
-        .join(Quest, QuestCompletion.quest_id == Quest.id)
-        .filter(QuestCompletion.user_id == user_id)
-        .order_by(QuestCompletion.completed_at.desc())
+        db.session.query(JobCompletion, Job)
+        .join(Job, JobCompletion.job_id == Job.id)
+        .filter(JobCompletion.user_id == user_id)
+        .order_by(JobCompletion.completed_at.desc())
         .all()
     )
     return [{
-        "quest_id":     c.quest_id,
-        "quest_title":  q.title,
-        "language":     q.language.value,
-        "difficulty":   q.difficulty.value,
+        "job_id":       c.job_id,
+        "job_title":    j.title,
+        "language":     j.language.value,
+        "difficulty":   j.difficulty.value,
         "xp_earned":    c.xp_earned,
         "completed_at": c.completed_at.isoformat(),
-    } for c, q in rows]
+    } for c, j in rows]
 
 
 # ── Serve avatar files ────────────────────────────────────────────────────────
@@ -99,9 +99,9 @@ def serve_avatar(filename):
 def get_my_profile():
     user = db.get_or_404(User, int(get_jwt_identity()))
     data = user.to_dict()
-    data["completions"]      = _build_completions(user.id)
-    data["boss_challenges"]  = _build_boss_challenges(user.id)
-    data["trivia_sessions"]  = _build_trivia_sessions(user.id)
+    data["completions"]        = _build_completions(user.id)
+    data["process_challenges"] = _build_process_challenges(user.id)
+    data["test_runs"]          = _build_test_runs(user.id)
     return jsonify(data)
 
 
@@ -120,9 +120,9 @@ def get_profile(user_id):
         "rank":                user.rank,
         **xp_progress(user.total_xp or 0),
         "created_at":          user.created_at.isoformat(),
-        "completions":     _build_completions(user_id),
-        "boss_challenges": _build_boss_challenges(user_id),
-        "trivia_sessions": _build_trivia_sessions(user_id),
+        "completions":        _build_completions(user_id),
+        "process_challenges": _build_process_challenges(user_id),
+        "test_runs":          _build_test_runs(user_id),
     })
 
 
@@ -131,25 +131,25 @@ def get_profile(user_id):
 def _build_submission_page(user_id, page, per_page):
     """Shared paginated query for submissions; returns (items_list, total, pages)."""
     query = (
-        db.session.query(QuestSubmission, Quest)
-        .join(Quest, QuestSubmission.quest_id == Quest.id)
-        .filter(QuestSubmission.user_id == user_id)
-        .order_by(QuestSubmission.submitted_at.desc())
+        db.session.query(JobSubmission, Job)
+        .join(Job, JobSubmission.job_id == Job.id)
+        .filter(JobSubmission.user_id == user_id)
+        .order_by(JobSubmission.submitted_at.desc())
     )
     total = query.count()
     rows  = query.offset((page - 1) * per_page).limit(per_page).all()
     pages = max(1, (total + per_page - 1) // per_page)
     items = [{
         "id":           s.id,
-        "quest_id":     s.quest_id,
-        "quest_title":  q.title,
-        "language":     q.language.value,
-        "difficulty":   q.difficulty.value,
+        "job_id":       s.job_id,
+        "job_title":    j.title,
+        "language":     j.language.value,
+        "difficulty":   j.difficulty.value,
         "all_passed":   s.all_passed,
         "passed":       (s.test_results or {}).get("passed"),
         "total":        (s.test_results or {}).get("total"),
         "submitted_at": s.submitted_at.isoformat(),
-    } for s, q in rows]
+    } for s, j in rows]
     return items, total, pages
 
 
@@ -169,14 +169,14 @@ def get_my_submissions():
 def get_submission_detail(submission_id):
     """Full detail including code — only accessible by the owning user."""
     user_id = int(get_jwt_identity())
-    s = QuestSubmission.query.filter_by(id=submission_id, user_id=user_id).first_or_404()
-    q = db.get_or_404(Quest, s.quest_id)
+    s = JobSubmission.query.filter_by(id=submission_id, user_id=user_id).first_or_404()
+    j = db.get_or_404(Job, s.job_id)
     return jsonify({
         "id":            s.id,
-        "quest_id":      s.quest_id,
-        "quest_title":   q.title,
-        "language":      q.language.value,
-        "difficulty":    q.difficulty.value,
+        "job_id":        s.job_id,
+        "job_title":     j.title,
+        "language":      j.language.value,
+        "difficulty":    j.difficulty.value,
         "all_passed":    s.all_passed,
         "solution_code": s.solution_code,
         "test_results":  s.test_results,

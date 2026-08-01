@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getTriviaStatus, startTrivia } from "../services/triviaService";
+import { getTestSuiteStatus, startRun } from "../services/testSuiteService";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -78,10 +78,10 @@ function OrnamentDivider() {
   );
 }
 
-function LangCard({ card, canPlay, activeSession, starting, onStart }) {
+function LangCard({ card, canPlay, activeRun, starting, onStart }) {
   const [hovered, setHovered] = useState(false);
   const isStarting = starting === card.key;
-  const disabled   = !canPlay || !!activeSession || isStarting;
+  const disabled   = !canPlay || !!activeRun || isStarting;
   const active     = hovered && !disabled;
 
   return (
@@ -204,7 +204,7 @@ function LangCard({ card, canPlay, activeSession, starting, onStart }) {
             Starting…
           </>
         ) : !canPlay ? (
-          activeSession ? "Run Active" : "Unavailable"
+          activeRun ? "Run Active" : "Unavailable"
         ) : (
           `${card.cta} →`
         )}
@@ -213,10 +213,10 @@ function LangCard({ card, canPlay, activeSession, starting, onStart }) {
   );
 }
 
-function MixCard({ canPlay, activeSession, starting, onStart }) {
+function MixCard({ canPlay, activeRun, starting, onStart }) {
   const [hovered, setHovered] = useState(false);
   const isStarting = starting === "mix";
-  const disabled   = !canPlay || !!activeSession || isStarting;
+  const disabled   = !canPlay || !!activeRun || isStarting;
   const active     = hovered && !disabled;
   const rgb        = "77,255,143";
   const color      = "var(--color-green)";
@@ -326,7 +326,7 @@ function MixCard({ canPlay, activeSession, starting, onStart }) {
               Starting…
             </>
           ) : !canPlay ? (
-            activeSession ? "Run Active" : "Unavailable"
+            activeRun ? "Run Active" : "Unavailable"
           ) : (
             "Start Mix Run →"
           )}
@@ -338,7 +338,7 @@ function MixCard({ canPlay, activeSession, starting, onStart }) {
 
 /* ── Main Page ──────────────────────────────────────────────────────────── */
 
-export default function TriviaPage() {
+export default function TestSuitePage() {
   const navigate = useNavigate();
 
   const [status,   setStatus]   = useState(null);
@@ -353,9 +353,9 @@ export default function TriviaPage() {
   }, []);
 
   useEffect(() => {
-    getTriviaStatus()
+    getTestSuiteStatus()
       .then(setStatus)
-      .catch(() => setError("Failed to load trivia status."))
+      .catch(() => setError("Failed to load test suite status."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -363,8 +363,8 @@ export default function TriviaPage() {
     setStarting(language);
     setError(null);
     try {
-      const data = await startTrivia(language);
-      navigate("/trivia/play", { state: data });
+      const data = await startRun(language);
+      navigate("/test-suite/run", { state: data });
     } catch (err) {
       setError(err?.response?.data?.error ?? "Failed to start the run.");
     } finally {
@@ -373,13 +373,13 @@ export default function TriviaPage() {
   }
 
   function handleResume() {
-    if (!status?.active_session) return;
-    const { active_session } = status;
-    navigate("/trivia/play", {
+    if (!status?.active_run) return;
+    const { active_run } = status;
+    navigate("/test-suite/run", {
       state: {
-        session_id: active_session.id,
-        expires_at: active_session.expires_at,
-        questions:  active_session.questions,
+        run_id: active_run.id,
+        expires_at: active_run.expires_at,
+        questions:  active_run.questions,
         resumed:    true,
       },
     });
@@ -395,8 +395,8 @@ export default function TriviaPage() {
   }
 
   const canPlay       = status?.can_play ?? false;
-  const activeSession = status?.active_session ?? null;
-  const lastSession   = status?.last_session ?? null;
+  const activeRun = status?.active_run ?? null;
+  const lastRun   = status?.last_run ?? null;
   const nextAt        = status?.next_available_at ?? null;
 
   return (
@@ -448,15 +448,15 @@ export default function TriviaPage() {
         </div>
       )}
 
-      {/* ── Active session resume ── */}
-      {activeSession && (
+      {/* ── Active run resume ── */}
+      {activeRun && (
         <div style={{ marginBottom: "1.75rem", padding: "1.1rem 1.25rem", borderRadius: "6px", background: `rgba(${GR},0.07)`, border: `1px solid rgba(${GR},0.30)`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: G, marginBottom: "0.2rem" }}>
               Run In Progress
             </p>
             <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)" }}>
-              You have an active {LANG_LABEL[activeSession.language] ?? activeSession.language} run. Return before time runs out.
+              You have an active {LANG_LABEL[activeRun.language] ?? activeRun.language} run. Return before time runs out.
             </p>
           </div>
           <button
@@ -477,7 +477,7 @@ export default function TriviaPage() {
       )}
 
       {/* ── Cooldown banner ── */}
-      {!canPlay && !activeSession && nextAt && (
+      {!canPlay && !activeRun && nextAt && (
         <div style={{ marginBottom: "1.75rem", padding: "1.1rem 1.25rem", borderRadius: "6px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border-2)", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
           <svg style={{ width: 20, height: 20, color: "var(--color-text-tertiary)", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -491,13 +491,13 @@ export default function TriviaPage() {
               <strong style={{ color: "var(--color-text)" }}>{formatCountdown(nextAt)}</strong>.
             </p>
           </div>
-          {lastSession && (
+          {lastRun && (
             <div style={{ textAlign: "right", flexShrink: 0 }}>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, color: G }}>
-                {lastSession.score_xp} XP
+                {lastRun.score_xp} XP
               </p>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)" }}>
-                {lastSession.correct_count}/{lastSession.total_questions} correct
+                {lastRun.correct_count}/{lastRun.total_questions} correct
               </p>
             </div>
           )}
@@ -536,7 +536,7 @@ export default function TriviaPage() {
             key={card.key}
             card={card}
             canPlay={canPlay}
-            activeSession={activeSession}
+            activeRun={activeRun}
             starting={starting}
             onStart={handleStart}
           />
@@ -546,7 +546,7 @@ export default function TriviaPage() {
       {/* ── Mix card (full width) ── */}
       <MixCard
         canPlay={canPlay}
-        activeSession={activeSession}
+        activeRun={activeRun}
         starting={starting}
         onStart={handleStart}
       />

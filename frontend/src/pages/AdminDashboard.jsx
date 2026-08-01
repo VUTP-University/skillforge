@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AdminSubmissionsTable from "../components/AdminSubmissionsTable";
-import { deleteQuest, getQuests } from "../services/questService";
+import { deleteJob, getJobs } from "../services/jobService";
 import { deleteAdminUser, getAdminUsers, updateUserRole } from "../services/userService";
 import { getReports, updateReport } from "../services/reportService";
 
@@ -17,9 +17,9 @@ const LANG_LABELS = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Junior", color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
-  cryptic: { label: "Mid",    color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
-  abyssal: { label: "Senior", color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
+  junior: { label: "Junior", color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
+  mid:    { label: "Mid",    color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
+  senior: { label: "Senior", color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
 };
 
 const ROLE_META = {
@@ -56,7 +56,7 @@ function StatCard({ label, value, icon }) {
 }
 
 function DiffBadge({ difficulty }) {
-  const m = DIFF_META[difficulty] ?? DIFF_META.shallow;
+  const m = DIFF_META[difficulty] ?? DIFF_META.junior;
   return <span className="badge" style={{ background: m.bg, borderColor: m.border, color: m.color }}>{m.label}</span>;
 }
 
@@ -211,12 +211,12 @@ export default function AdminDashboard() {
   const { user: self } = useAuth();
   const navigate        = useNavigate();
 
-  /* ── Quest state ── */
-  const [quests, setQuests]           = useState([]);
-  const [questsLoading, setQL]        = useState(true);
-  const [questSearch, setQuestSearch] = useState("");
-  const [questPage, setQuestPage]     = useState(1);
-  const [deleteQuest_, setDeleteQ]    = useState(null);
+  /* ── Job state ── */
+  const [jobs, setJobs]           = useState([]);
+  const [jobsLoading, setQL]        = useState(true);
+  const [jobSearch, setJobSearch] = useState("");
+  const [jobPage, setJobPage]     = useState(1);
+  const [deleteJob_, setDeleteQ]    = useState(null);
   const [deletingQ, setDeletingQ]     = useState(false);
 
   /* ── User state ── */
@@ -230,9 +230,9 @@ export default function AdminDashboard() {
   const [savingRole, setSavingRole] = useState(false);
 
   /* ── Fetch ── */
-  const fetchQuests = useCallback(() => {
+  const fetchJobs = useCallback(() => {
     setQL(true);
-    getQuests().then(setQuests).catch(() => setQuests([])).finally(() => setQL(false));
+    getJobs().then(setJobs).catch(() => setJobs([])).finally(() => setQL(false));
   }, []);
 
   const fetchUsers = useCallback(() => {
@@ -240,21 +240,21 @@ export default function AdminDashboard() {
     getAdminUsers().then(setUsers).catch(() => setUsers([])).finally(() => setUL(false));
   }, []);
 
-  useEffect(() => { fetchQuests(); fetchUsers(); }, [fetchQuests, fetchUsers]);
-  useEffect(() => { setQuestPage(1); }, [questSearch]);
+  useEffect(() => { fetchJobs(); fetchUsers(); }, [fetchJobs, fetchUsers]);
+  useEffect(() => { setJobPage(1); }, [jobSearch]);
   useEffect(() => { setUserPage(1);  }, [userSearch]);
 
-  /* ── Quest filter + pagination ── */
-  const qTerm      = questSearch.trim().toLowerCase();
+  /* ── Job filter + pagination ── */
+  const qTerm      = jobSearch.trim().toLowerCase();
   const filteredQ  = useMemo(() =>
-    !qTerm ? quests : quests.filter(q =>
+    !qTerm ? jobs : jobs.filter(q =>
       q.title.toLowerCase().includes(qTerm) ||
       (LANG_LABELS[q.language] ?? q.language).toLowerCase().includes(qTerm) ||
       (DIFF_META[q.difficulty]?.label ?? q.difficulty).toLowerCase().includes(qTerm) ||
       (q.author ?? "").toLowerCase().includes(qTerm)
-    ), [quests, qTerm]);
+    ), [jobs, qTerm]);
   const qPages   = Math.max(1, Math.ceil(filteredQ.length / PAGE_SIZE));
-  const qSafe    = Math.min(questPage, qPages);
+  const qSafe    = Math.min(jobPage, qPages);
   const qSlice   = filteredQ.slice((qSafe - 1) * PAGE_SIZE, qSafe * PAGE_SIZE);
 
   /* ── User filter + pagination ── */
@@ -269,11 +269,11 @@ export default function AdminDashboard() {
   const uSafe   = Math.min(userPage, uPages);
   const uSlice  = filteredU.slice((uSafe - 1) * PAGE_SIZE, uSafe * PAGE_SIZE);
 
-  /* ── Quest delete ── */
-  async function confirmQuestDelete() {
-    if (!deleteQuest_) return;
+  /* ── Job delete ── */
+  async function confirmJobDelete() {
+    if (!deleteJob_) return;
     setDeletingQ(true);
-    try { await deleteQuest(deleteQuest_.id); setDeleteQ(null); fetchQuests(); }
+    try { await deleteJob(deleteJob_.id); setDeleteQ(null); fetchJobs(); }
     finally { setDeletingQ(false); }
   }
 
@@ -299,11 +299,11 @@ export default function AdminDashboard() {
   }
 
   /* ── Derived counts ── */
-  const langCounts = quests.reduce((a, q) => { a[q.language] = (a[q.language] ?? 0) + 1; return a; }, {});
+  const langCounts = jobs.reduce((a, q) => { a[q.language] = (a[q.language] ?? 0) + 1; return a; }, {});
   const roleCounts = users.reduce((a, u)  => { a[u.role]     = (a[u.role]     ?? 0) + 1; return a; }, {});
 
-  /* ── Quest column widths ── */
-  const QC = { title: { flex: "2 1 0", minWidth: 0 }, language: { flex: "1 0 90px", textAlign: "center" }, difficulty: { flex: "1 0 90px", textAlign: "center" }, xp: { flex: "0 0 52px", textAlign: "center" }, author: { flex: "1 0 90px" }, actions: { flex: "0 0 120px", textAlign: "right" } };
+  /* ── Job column widths ── */
+  const JC = { title: { flex: "2 1 0", minWidth: 0 }, language: { flex: "1 0 90px", textAlign: "center" }, difficulty: { flex: "1 0 90px", textAlign: "center" }, xp: { flex: "0 0 52px", textAlign: "center" }, author: { flex: "1 0 90px" }, actions: { flex: "0 0 120px", textAlign: "right" } };
 
   /* ── User column widths ── */
   const UC = { identity: { flex: "2 1 0", minWidth: 0 }, role: { flex: "1 0 110px", textAlign: "center" }, joined: { flex: "1 0 100px" }, actions: { flex: "0 0 150px", textAlign: "right" } };
@@ -312,11 +312,11 @@ export default function AdminDashboard() {
   return (
     <>
       {/* ── Job delete modal ── */}
-      {deleteQuest_ && (
+      {deleteJob_ && (
         <DeleteModal
           title="Delete Job?"
-          body={<><span className="text-white">"{deleteQuest_.title}"</span> and all its test cases will be permanently removed.</>}
-          onConfirm={confirmQuestDelete} onCancel={() => !deletingQ && setDeleteQ(null)} busy={deletingQ}
+          body={<><span className="text-white">"{deleteJob_.title}"</span> and all its test cases will be permanently removed.</>}
+          onConfirm={confirmJobDelete} onCancel={() => !deletingQ && setDeleteQ(null)} busy={deletingQ}
         />
       )}
 
@@ -358,10 +358,10 @@ export default function AdminDashboard() {
         <div>
           <div className="section-divider"><h2>Overview</h2></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <StatCard label="Total Jobs" value={questsLoading ? "…" : quests.length}
+            <StatCard label="Total Jobs" value={jobsLoading ? "…" : jobs.length}
               icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>} />
             {["python","javascript","java","csharp"].map((lang) => (
-              <StatCard key={lang} label={LANG_LABELS[lang]} value={questsLoading ? "…" : (langCounts[lang] ?? 0)}
+              <StatCard key={lang} label={LANG_LABELS[lang]} value={jobsLoading ? "…" : (langCounts[lang] ?? 0)}
                 icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>} />
             ))}
           </div>
@@ -373,17 +373,17 @@ export default function AdminDashboard() {
         <div>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Job Management</h2></div>
-            <SearchInput value={questSearch} onChange={setQuestSearch} placeholder="Search jobs…" />
-            <button className="sf-btn" style={{ width: "auto", flexShrink: 0 }} onClick={() => navigate("/admin/quests/new")}>
+            <SearchInput value={jobSearch} onChange={setJobSearch} placeholder="Search jobs…" />
+            <button className="sf-btn" style={{ width: "auto", flexShrink: 0 }} onClick={() => navigate("/admin/jobs/new")}>
               + Create Job
             </button>
           </div>
 
-          {questsLoading ? (
+          {jobsLoading ? (
             <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading jobs…</span></div>
           ) : filteredQ.length === 0 ? (
             <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "140px" }}>
-              <p className="text-sub text-sm">{qTerm ? `No jobs match "${questSearch}".` : "No jobs yet."}</p>
+              <p className="text-sub text-sm">{qTerm ? `No jobs match "${jobSearch}".` : "No jobs yet."}</p>
               {!qTerm && <p className="text-dim text-xs mt-1">Click <span className="text-white/40">+ Create Job</span> to publish the first one.</p>}
             </div>
           ) : (
@@ -391,33 +391,33 @@ export default function AdminDashboard() {
               <div className="glass-card overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
                 {/* Header */}
                 <div style={{ ...rowStyle, paddingTop: "0.65rem", paddingBottom: "0.65rem", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
-                  <span style={{ ...QC.title,      ...headerLabel }}>Title</span>
-                  <span style={{ ...QC.language,   ...headerLabel }}>Language</span>
-                  <span style={{ ...QC.difficulty, ...headerLabel }}>Difficulty</span>
-                  <span style={{ ...QC.xp,         ...headerLabel }}>XP</span>
-                  <span style={{ ...QC.author,     ...headerLabel }}>Author</span>
-                  <span style={{ ...QC.actions,    ...headerLabel }}>Actions</span>
+                  <span style={{ ...JC.title,      ...headerLabel }}>Title</span>
+                  <span style={{ ...JC.language,   ...headerLabel }}>Language</span>
+                  <span style={{ ...JC.difficulty, ...headerLabel }}>Difficulty</span>
+                  <span style={{ ...JC.xp,         ...headerLabel }}>XP</span>
+                  <span style={{ ...JC.author,     ...headerLabel }}>Author</span>
+                  <span style={{ ...JC.actions,    ...headerLabel }}>Actions</span>
                 </div>
                 {/* Rows */}
-                {qSlice.map((quest, i) => (
-                  <div key={quest.id} style={{ ...rowStyle, paddingTop: "0.9rem", paddingBottom: "0.9rem", borderBottom: i < qSlice.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
+                {qSlice.map((job, i) => (
+                  <div key={job.id} style={{ ...rowStyle, paddingTop: "0.9rem", paddingBottom: "0.9rem", borderBottom: i < qSlice.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
-                    <div style={{ ...QC.title, minWidth: 0 }}>
-                      <p className="text-white text-sm font-semibold truncate">{quest.title}</p>
-                      <p className="text-dim text-xs mt-0.5">{new Date(quest.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
+                    <div style={{ ...JC.title, minWidth: 0 }}>
+                      <p className="text-white text-sm font-semibold truncate">{job.title}</p>
+                      <p className="text-dim text-xs mt-0.5">{new Date(job.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
                     </div>
-                    <div style={QC.language}>
-                      <span className="text-xs font-medium" style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.05em", color: "rgba(255,255,255,0.60)" }}>{LANG_LABELS[quest.language] ?? quest.language}</span>
+                    <div style={JC.language}>
+                      <span className="text-xs font-medium" style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.05em", color: "rgba(255,255,255,0.60)" }}>{LANG_LABELS[job.language] ?? job.language}</span>
                     </div>
-                    <div style={{ ...QC.difficulty, display: "flex", justifyContent: "center" }}>
-                      <DiffBadge difficulty={quest.difficulty} />
+                    <div style={{ ...JC.difficulty, display: "flex", justifyContent: "center" }}>
+                      <DiffBadge difficulty={job.difficulty} />
                     </div>
-                    <div style={QC.xp}><span className="text-green font-bold text-sm">{quest.xp_reward}</span></div>
-                    <div style={{ ...QC.author, minWidth: 0 }}><span className="text-sub text-xs truncate block">{quest.author ?? "—"}</span></div>
-                    <div style={{ ...QC.actions, display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                      <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem" }} onClick={() => navigate(`/admin/quests/${quest.id}/edit`)}>Edit</button>
-                      <button onClick={() => setDeleteQ({ id: quest.id, title: quest.title })}
+                    <div style={JC.xp}><span className="text-green font-bold text-sm">{job.xp_reward}</span></div>
+                    <div style={{ ...JC.author, minWidth: 0 }}><span className="text-sub text-xs truncate block">{job.author ?? "—"}</span></div>
+                    <div style={{ ...JC.actions, display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                      <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.58rem" }} onClick={() => navigate(`/admin/jobs/${job.id}/edit`)}>Edit</button>
+                      <button onClick={() => setDeleteQ({ id: job.id, title: job.title })}
                         style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.65)", fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s" }}
                         onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-red-bright)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "var(--color-red-dim)"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.borderColor = "var(--color-red-border)"; e.currentTarget.style.background = "transparent"; }}>
@@ -429,10 +429,10 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
                 <p className="text-dim text-xs">
-                  {filteredQ.length === quests.length ? `${quests.length} job${quests.length !== 1 ? "s" : ""} total` : `${filteredQ.length} of ${quests.length} jobs`}
+                  {filteredQ.length === jobs.length ? `${jobs.length} job${jobs.length !== 1 ? "s" : ""} total` : `${filteredQ.length} of ${jobs.length} jobs`}
                   {qPages > 1 && ` · page ${qSafe} of ${qPages}`}
                 </p>
-                <Pagination page={qSafe} totalPages={qPages} onChange={setQuestPage} />
+                <Pagination page={qSafe} totalPages={qPages} onChange={setJobPage} />
               </div>
             </>
           )}
@@ -553,7 +553,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* ── Reports section ── */}
-        <QuestReportsSection users={users} navigate={navigate} />
+        <JobReportsSection users={users} navigate={navigate} />
 
         {/* ── Submissions section ── */}
         <div>
@@ -566,7 +566,7 @@ export default function AdminDashboard() {
 }
 
 /* ═══════════════════════════════════════════════════
-   QUEST REPORTS
+   JOB REPORTS
    ═══════════════════════════════════════════════════ */
 
 const REPORT_STATUS_META = {
@@ -580,7 +580,7 @@ function ReportStatusBadge({ status }) {
   return <span className="badge" style={{ background: m.bg, borderColor: m.border, color: m.color }}>{m.label}</span>;
 }
 
-function QuestReportsSection({ users, navigate }) {
+function JobReportsSection({ users, navigate }) {
   const [reports,   setReports]   = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [filter,    setFilter]    = useState("all");
@@ -620,7 +620,7 @@ function QuestReportsSection({ users, navigate }) {
   };
 
   const RC = {
-    quest:    { flex: "2 1 0", minWidth: 0 },
+    job:      { flex: "2 1 0", minWidth: 0 },
     reporter: { flex: "1 0 100px" },
     status:   { flex: "1 0 110px", textAlign: "center" },
     date:     { flex: "1 0 90px" },
@@ -658,7 +658,7 @@ function QuestReportsSection({ users, navigate }) {
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
             <div>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
-              <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Job #${selected.quest_id}`}</p>
+              <p className="text-white font-semibold text-sm">{selected.job_title ?? `Job #${selected.job_id}`}</p>
               <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
                 Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
               </p>
@@ -755,7 +755,7 @@ function QuestReportsSection({ users, navigate }) {
             <button
               className="sf-btn-ghost"
               style={{ width: "auto", padding: "0.5rem 1rem", marginLeft: "auto" }}
-              onClick={() => navigate(`/admin/quests/${selected.quest_id}/edit`)}
+              onClick={() => navigate(`/admin/jobs/${selected.job_id}/edit`)}
             >
               Edit Job →
             </button>
@@ -773,7 +773,7 @@ function QuestReportsSection({ users, navigate }) {
         <div className="glass-card overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
           {/* Header */}
           <div style={{ ...rowStyle, paddingTop: "0.65rem", paddingBottom: "0.65rem", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
-            <span style={{ ...RC.quest,    ...headerLabel }}>Job</span>
+            <span style={{ ...RC.job,    ...headerLabel }}>Job</span>
             <span style={{ ...RC.reporter, ...headerLabel }}>Reporter</span>
             <span style={{ ...RC.status,   ...headerLabel }}>Status</span>
             <span style={{ ...RC.date,     ...headerLabel }}>Date</span>
@@ -786,8 +786,8 @@ function QuestReportsSection({ users, navigate }) {
               onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
-              <div style={{ ...RC.quest, minWidth: 0 }}>
-                <p className="text-white text-sm font-semibold truncate">{report.quest_title ?? `Job #${report.quest_id}`}</p>
+              <div style={{ ...RC.job, minWidth: 0 }}>
+                <p className="text-white text-sm font-semibold truncate">{report.job_title ?? `Job #${report.job_id}`}</p>
                 {report.assigned_to && (
                   <p className="text-dim text-xs mt-0.5">Assigned: {report.assigned_to}</p>
                 )}

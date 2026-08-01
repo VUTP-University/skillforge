@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* IBM PC DOS bitmap face (ISO9 codepage variant) — single weight only, so
+   bold text below falls back to the browser's synthetic bold. Kept as the
+   primary face everywhere; JetBrains Mono stays in the stack purely
+   for glyph coverage (CP437 doesn't include every symbol the app uses,
+   e.g. λ, ∅). */
+@font-face {
+  font-family: "IBM DOS ISO9";
+  src: url("./assets/fonts/Px437_IBM_DOS_ISO9.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ═══════════════════════════════════════════════════
    SKILLFORGE — DESIGN SYSTEM
    Retro CRT Terminal · Phosphor Green / Blue · Monospace
@@ -35,7 +48,7 @@
   --color-amber-glow:   rgba(255, 204, 102, 0.10);
   --color-amber-border: rgba(255, 204, 102, 0.30);
 
-  /* Red — danger / underworld / traffic-light */
+  /* Red — danger / stack trace / traffic-light */
   --color-red:        #ff5f56;
   --color-red-bright:  #ff8178;
   --color-red-dim:    rgba(255, 95, 86, 0.14);
@@ -52,7 +65,7 @@
      Bumped up a step from the initial pass for stronger reading contrast. */
   --color-text:            rgba(218, 255, 232, 0.98);
   --color-text-secondary:  rgba(196, 240, 214, 0.82);
-  --color-text-tertiary:   rgba(180, 226, 202, 0.64);
+  --color-text-tertiary:   rgba(180, 226, 202, 0.84);
   --color-text-faint:      rgba(180, 226, 202, 0.46);
 
   --color-sub:   var(--color-text-secondary);
@@ -71,11 +84,11 @@
   --color-success-bg:     var(--color-green-dim);
 
   /* ── Monospace typography — JetBrains Mono everywhere ── */
-  --font-brand:   "JetBrains Mono", "SF Mono", monospace;       /* big glowing display moments (extra-bold weight) */
-  --font-heading: "JetBrains Mono", "SF Mono", monospace;       /* headings, labels, buttons, nav */
-  --font-body:    "JetBrains Mono", "SF Mono", monospace;       /* paragraphs, descriptions */
+  --font-brand:   "IBM DOS ISO9", "JetBrains Mono", "SF Mono", monospace;       /* big glowing display moments (extra-bold weight) */
+  --font-heading: "IBM DOS ISO9", "JetBrains Mono", "SF Mono", monospace;       /* headings, labels, buttons, nav */
+  --font-body:    "IBM DOS ISO9", "JetBrains Mono", "SF Mono", monospace;       /* paragraphs, descriptions */
 
-  /* ── Language "gem" tones — quest cards, kept out of green/blue so they read distinctly ── */
+  /* ── Language "gem" tones — job cards, kept out of green/blue so they read distinctly ── */
   --gem-python:     #5ec8ff;
   --gem-javascript: #ffcc66;
   --gem-java:       #ff8fa3;
@@ -764,9 +777,9 @@
     animation: fadeSlideUp 0.3s ease-out both;
   }
 
-  /* Quest solve page — description panel sticky only on large screens */
+  /* Job solve page — description panel sticky only on large screens */
   @media (min-width: 1024px) {
-    .quest-desc-sticky {
+    .job-desc-sticky {
       position: sticky;
       top: 5rem;
     }
@@ -1010,17 +1023,81 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    position: relative;
     border-radius: 4px;
-    background: rgba(93, 255, 163, 0.045);
-    border: 1px solid var(--color-green-border);
+    background: transparent;
+    border: none;
     cursor: pointer;
-    padding: 0.35rem 0.75rem 0.35rem 0.4rem;
-    transition: background 0.15s, box-shadow 0.15s;
+    padding: 0.35rem 0.7rem 0.35rem 0.4rem;
+    transition: background 0.15s;
   }
 
   .hud:hover, .hud--open {
-    background: var(--color-green-dim);
-    box-shadow: 0 0 16px var(--color-green-glow);
+    background: rgba(93, 255, 163, 0.06);
+  }
+
+  /* Targeting-reticle corner brackets — slide in on hover/open instead
+     of a static box border, echoing the "HUD" framing of the widget. */
+  .hud::before,
+  .hud::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    width: 7px;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+  }
+
+  .hud::before {
+    left: -4px;
+    border-top: 2px solid var(--color-green);
+    border-bottom: 2px solid var(--color-green);
+    border-left: 2px solid var(--color-green);
+    transform: translateX(4px);
+  }
+
+  .hud::after {
+    right: -4px;
+    border-top: 2px solid var(--color-green);
+    border-bottom: 2px solid var(--color-green);
+    border-right: 2px solid var(--color-green);
+    transform: translateX(-4px);
+  }
+
+  .hud:hover::before, .hud--open::before,
+  .hud:hover::after, .hud--open::after {
+    opacity: 0.85;
+    transform: translateX(0);
+  }
+
+  .hud-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  .hud-status-dot {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-dot-green);
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 6px rgba(39, 201, 63, 0.85);
+    animation: led-pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes led-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hud-status-dot { animation: none; }
   }
 
   .hud-meta {
@@ -1058,6 +1135,7 @@
     font-size: 0.60rem;
     font-weight: 600;
     white-space: nowrap;
+    color: var(--color-text-tertiary);
   }
 
   .hud-xp-caption {
@@ -1089,11 +1167,11 @@
   }
 
 
-  /* ─── Quest cards — Home dashboard language grid ──
+  /* ─── Job cards — Home dashboard language grid ──
      No background imagery — a big monospace glyph plus
      a per-language accent border/glow instead. */
 
-  .quest-card {
+  .job-card {
     position: relative;
     border-radius: 6px;
     overflow: hidden;
@@ -1104,14 +1182,14 @@
     flex-direction: column;
   }
 
-  .quest-card:hover {
+  .job-card:hover {
     border-color: var(--card-accent);
     box-shadow: 0 10px 32px color-mix(in srgb, var(--card-accent) 25%, transparent);
     transform: translateY(-2px);
   }
 
   /* Mini terminal title bar — per-card, tinted with the language accent */
-  .quest-card-bar {
+  .job-card-bar {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1121,12 +1199,12 @@
     flex-shrink: 0;
   }
 
-  .quest-card-bar .term-title {
+  .job-card-bar .term-title {
     color: var(--card-accent);
     opacity: 0.9;
   }
 
-  .quest-card-body {
+  .job-card-body {
     flex: 1;
     min-height: 150px;
     padding: 1.1rem 1.2rem;
@@ -1135,7 +1213,7 @@
     justify-content: flex-end;
   }
 
-  .quest-card-glyph {
+  .job-card-glyph {
     font-family: var(--font-brand);
     font-size: 2.8rem;
     line-height: 1;
@@ -1145,7 +1223,7 @@
     margin-bottom: 0.35rem;
   }
 
-  .quest-card-cta {
+  .job-card-cta {
     display: flex;
     align-items: center;
     gap: 0.375rem;
@@ -1156,9 +1234,9 @@
     transition: color 0.2s;
   }
 
-  .quest-card:hover .quest-card-cta { color: var(--card-accent); }
-  .quest-card:hover .quest-card-cta svg { transform: translateX(2px); }
-  .quest-card-cta svg { transition: transform 0.2s; }
+  .job-card:hover .job-card-cta { color: var(--card-accent); }
+  .job-card:hover .job-card-cta svg { transform: translateX(2px); }
+  .job-card-cta svg { transition: transform 0.2s; }
 
   /* ─── Explore cards — Home dashboard "Explore" grid ── */
 
@@ -1229,17 +1307,17 @@
   }
 }
 
-/* ─── Underworld realm ─────────────────────────────────────────── */
+/* ─── Stack Trace realm ────────────────────────────────────────── */
 
-/* Landscape boss card — row on ≥500px, column below */
-.uw-boss-card {
+/* Landscape process card — row on ≥500px, column below */
+.st-process-card {
   display: flex;
   flex-direction: column;
   border-radius: 6px;
   overflow: hidden;
 }
 
-.uw-boss-portrait {
+.st-process-portrait {
   position: relative;
   width: 100%;
   height: 140px;
@@ -1248,19 +1326,19 @@
 }
 
 @media (min-width: 500px) {
-  .uw-boss-card { flex-direction: row; }
-  .uw-boss-portrait {
+  .st-process-card { flex-direction: row; }
+  .st-process-portrait {
     width: 150px;
     height: auto;
   }
 }
 
-/* ─── Entity glyph tile — replaces boss portrait art ─────────────
+/* ─── Entity glyph tile — replaces process portrait art ──────────
    A single terminal glyph on a dark, faintly textured panel, tinted
    per severity tier via the --tier-color/--tier-glow custom properties
    set inline on the tile's wrapper. */
 
-.uw-glyph {
+.st-glyph {
   width: 100%;
   height: 100%;
   display: flex;
@@ -1277,9 +1355,9 @@
   user-select: none;
 }
 
-.uw-glyph--lg { font-size: clamp(2.4rem, 6vw, 3.6rem); }
-.uw-glyph--md { font-size: 1.6rem; }
-.uw-glyph--sm { font-size: 0.95rem; }
+.st-glyph--lg { font-size: clamp(2.4rem, 6vw, 3.6rem); }
+.st-glyph--md { font-size: 1.6rem; }
+.st-glyph--sm { font-size: 0.95rem; }
 
 /* ─── FAQ / Docs — terminal man-page style ─────────────────────── */
 

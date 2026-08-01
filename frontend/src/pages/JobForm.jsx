@@ -5,7 +5,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
-import { createQuest, getQuest, updateQuest } from "../services/questService";
+import { createJob, getJob, updateJob } from "../services/jobService";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -17,9 +17,9 @@ const LANGUAGES = [
 ];
 
 const DIFFICULTIES = [
-  { value: "shallow", label: "Junior", xp: 30  },
-  { value: "cryptic", label: "Mid",    xp: 60  },
-  { value: "abyssal", label: "Senior", xp: 100 },
+  { value: "junior", label: "Junior", xp: 30  },
+  { value: "mid",    label: "Mid",    xp: 60  },
+  { value: "senior", label: "Senior", xp: 100 },
 ];
 
 const LANG_EXT = {
@@ -36,7 +36,7 @@ const EMPTY_FORM = {
   description:      "",
   example_solution: "",
   language:         "python",
-  difficulty:       "shallow",
+  difficulty:       "junior",
   test_cases:       EMPTY_TC,
 };
 
@@ -81,7 +81,7 @@ function SelectField({ label, required, value, onChange, options }) {
 
 /* ── Main Component ──────────────────────────────────────────────────────── */
 
-export default function QuestForm() {
+export default function JobForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
@@ -91,21 +91,21 @@ export default function QuestForm() {
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState(null);
 
-  /* Load existing quest when editing */
+  /* Load existing job when editing */
   useEffect(() => {
     if (!isEdit) return;
-    getQuest(id)
-      .then((quest) => {
+    getJob(id)
+      .then((job) => {
         const test_cases = Array.from({ length: 10 }, (_, i) => {
-          const found = quest.test_cases.find((tc) => tc.index === i);
+          const found = job.test_cases.find((tc) => tc.index === i);
           return found ?? { index: i, input: "", output: "" };
         });
         setForm({
-          title:            quest.title,
-          description:      quest.description,
-          example_solution: quest.example_solution ?? "",
-          language:         quest.language,
-          difficulty:       quest.difficulty,
+          title:            job.title,
+          description:      job.description,
+          example_solution: job.example_solution ?? "",
+          language:         job.language,
+          difficulty:       job.difficulty,
           test_cases,
         });
       })
@@ -138,9 +138,9 @@ export default function QuestForm() {
     try {
       const payload = { ...form, test_cases };
       if (isEdit) {
-        await updateQuest(id, payload);
+        await updateJob(id, payload);
       } else {
-        await createQuest(payload);
+        await createJob(payload);
       }
       navigate("/admin");
     } catch (err) {

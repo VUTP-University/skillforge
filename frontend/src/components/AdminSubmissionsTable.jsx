@@ -13,9 +13,9 @@ const LANG_COLORS = {
   python: "var(--color-green)", javascript: "var(--color-amber)", java: "var(--color-red-bright)", csharp: "var(--gem-csharp)",
 };
 const DIFF_META = {
-  shallow: { label: "Junior", color: "var(--color-green)" },
-  cryptic: { label: "Mid",    color: "var(--color-amber)" },
-  abyssal: { label: "Senior", color: "var(--color-red-bright)" },
+  junior: { label: "Junior", color: "var(--color-green)" },
+  mid:    { label: "Mid",    color: "var(--color-amber)" },
+  senior: { label: "Senior", color: "var(--color-red-bright)" },
 };
 
 const LANG_OPTIONS = [
@@ -76,7 +76,7 @@ function SolutionModal({ submissionId, onClose }) {
       .finally(() => setLoading(false));
   }, [submissionId]);
 
-  const diff = detail ? (DIFF_META[detail.difficulty] ?? DIFF_META.shallow) : null;
+  const diff = detail ? (DIFF_META[detail.difficulty] ?? DIFF_META.junior) : null;
   const lang = detail?.language;
 
   return (
@@ -109,11 +109,11 @@ function SolutionModal({ submissionId, onClose }) {
               <span style={{ color: "var(--color-text-faint)", fontSize: "0.8rem", flexShrink: 0 }}>→</span>
               {/* Job link */}
               <Link
-                to={`/quests/${detail.language}/${detail.quest_id}`}
+                to={`/jobs/${detail.language}/${detail.job_id}`}
                 onClick={onClose}
                 style={{ fontFamily: "var(--font-heading)", fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textDecoration: "none", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
               >
-                {detail.quest_title}
+                {detail.job_title}
               </Link>
               {/* Language */}
               <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
@@ -354,7 +354,7 @@ export default function AdminSubmissionsTable() {
           </div>
         ) : items.map((s, i) => {
           const lang       = s.language;
-          const diff       = DIFF_META[s.difficulty] ?? DIFF_META.shallow;
+          const diff       = DIFF_META[s.difficulty] ?? DIFF_META.junior;
           const passed     = s.passed ?? 0;
           const total      = s.total  ?? 0;
           const scoreColor = s.all_passed ? "var(--color-green)" : (passed > 0 ? "#fb923c" : "var(--color-red-bright)");
@@ -386,12 +386,12 @@ export default function AdminSubmissionsTable() {
 
               {/* Job link */}
               <Link
-                to={`/quests/${lang}/${s.quest_id}`}
+                to={`/jobs/${lang}/${s.job_id}`}
                 style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.72)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.95)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.72)")}
               >
-                {s.quest_title}
+                {s.job_title}
               </Link>
 
               {/* Language */}

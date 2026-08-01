@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { getQuests } from "../services/questService";
+import { getJobs } from "../services/jobService";
 
 /* ── Config ─────────────────────────────────────────────────────────────── */
 
@@ -12,19 +12,19 @@ const LANG_CONFIG = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Junior", color: "var(--color-green)",       border: "var(--color-green-border)", bg: "var(--color-green-dim)",  bar: "var(--color-green)" },
-  cryptic: { label: "Mid",    color: "var(--color-amber)",       border: "var(--color-amber-border)", bg: "var(--color-amber-dim)",  bar: "var(--color-amber)" },
-  abyssal: { label: "Senior", color: "var(--color-red-bright)",  border: "var(--color-red-border)",   bg: "var(--color-red-dim)",    bar: "var(--color-red-bright)" },
+  junior: { label: "Junior", color: "var(--color-green)",       border: "var(--color-green-border)", bg: "var(--color-green-dim)",  bar: "var(--color-green)" },
+  mid:    { label: "Mid",    color: "var(--color-amber)",       border: "var(--color-amber-border)", bg: "var(--color-amber-dim)",  bar: "var(--color-amber)" },
+  senior: { label: "Senior", color: "var(--color-red-bright)",  border: "var(--color-red-border)",   bg: "var(--color-red-dim)",    bar: "var(--color-red-bright)" },
 };
 
-const DIFF_ORDER = { shallow: 0, cryptic: 1, abyssal: 2 };
-const FILTERS    = ["all", "shallow", "cryptic", "abyssal"];
+const DIFF_ORDER = { junior: 0, mid: 1, senior: 2 };
+const FILTERS    = ["all", "junior", "mid", "senior"];
 const PAGE_SIZE  = 20;
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
 function DiffBadge({ difficulty }) {
-  const m = DIFF_META[difficulty] ?? DIFF_META.shallow;
+  const m = DIFF_META[difficulty] ?? DIFF_META.junior;
   return (
     <span
       style={{
@@ -96,9 +96,9 @@ function FilterPill({ value, active, count, onClick }) {
   );
 }
 
-function QuestRow({ quest, language, index }) {
-  const m       = DIFF_META[quest.difficulty] ?? DIFF_META.shallow;
-  const tcCount = quest.test_cases?.length ?? 0;
+function JobRow({ job, language, index }) {
+  const m       = DIFF_META[job.difficulty] ?? DIFF_META.junior;
+  const tcCount = job.test_cases?.length ?? 0;
 
   return (
     <div
@@ -117,7 +117,7 @@ function QuestRow({ quest, language, index }) {
     >
       {/* Difficulty badge */}
       <div style={{ flexShrink: 0, width: "80px" }}>
-        <DiffBadge difficulty={quest.difficulty} />
+        <DiffBadge difficulty={job.difficulty} />
       </div>
 
       {/* Title + description */}
@@ -134,7 +134,7 @@ function QuestRow({ quest, language, index }) {
             marginBottom: "0.1rem",
           }}
         >
-          {quest.title}
+          {job.title}
         </p>
         <p
           style={{
@@ -145,7 +145,7 @@ function QuestRow({ quest, language, index }) {
             textOverflow: "ellipsis",
           }}
         >
-          {quest.description}
+          {job.description}
         </p>
       </div>
 
@@ -164,7 +164,7 @@ function QuestRow({ quest, language, index }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
           </svg>
           <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
-            {quest.xp_reward}
+            {job.xp_reward}
           </span>
         </div>
 
@@ -181,7 +181,7 @@ function QuestRow({ quest, language, index }) {
         </span>
 
         {/* Author */}
-        {quest.author && (
+        {job.author && (
           <span
             style={{
               fontSize: "0.65rem",
@@ -192,12 +192,12 @@ function QuestRow({ quest, language, index }) {
             }}
             className="author-col"
           >
-            {quest.author}
+            {job.author}
           </span>
         )}
 
         {/* Action */}
-        <Link to={`/quests/${language}/${quest.id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/jobs/${language}/${job.id}`} style={{ textDecoration: "none" }}>
           <button
             className="sf-btn-ghost"
             style={{
@@ -279,12 +279,12 @@ function Pagination({ page, totalPages, onChange }) {
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
-export default function LanguageQuestsPage() {
+export default function LanguageJobsPage() {
   const { language } = useParams();
   const navigate     = useNavigate();
   const langCfg      = LANG_CONFIG[language];
 
-  const [quests, setQuests]   = useState([]);
+  const [jobs, setJobs]       = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState("all");
   const [search, setSearch]   = useState("");
@@ -297,38 +297,38 @@ export default function LanguageQuestsPage() {
     setFilter("all");
     setSearch("");
     setPage(1);
-    getQuests({ language })
+    getJobs({ language })
       .then((data) =>
-        setQuests(
+        setJobs(
           [...data].sort(
             (a, b) => (DIFF_ORDER[a.difficulty] ?? 9) - (DIFF_ORDER[b.difficulty] ?? 9)
           )
         )
       )
-      .catch(() => setQuests([]))
+      .catch(() => setJobs([]))
       .finally(() => setLoading(false));
   }, [language, langCfg, navigate]);
 
   const countsByDiff = useMemo(
     () =>
-      quests.reduce((acc, q) => {
-        acc[q.difficulty] = (acc[q.difficulty] ?? 0) + 1;
+      jobs.reduce((acc, j) => {
+        acc[j.difficulty] = (acc[j.difficulty] ?? 0) + 1;
         return acc;
       }, {}),
-    [quests]
+    [jobs]
   );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return quests.filter((quest) => {
-      if (filter !== "all" && quest.difficulty !== filter) return false;
+    return jobs.filter((job) => {
+      if (filter !== "all" && job.difficulty !== filter) return false;
       if (!q) return true;
       return (
-        quest.title.toLowerCase().includes(q) ||
-        (quest.description ?? "").toLowerCase().includes(q)
+        job.title.toLowerCase().includes(q) ||
+        (job.description ?? "").toLowerCase().includes(q)
       );
     });
-  }, [quests, filter, search]);
+  }, [jobs, filter, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage   = Math.min(page, totalPages);
@@ -378,7 +378,7 @@ export default function LanguageQuestsPage() {
           {/* Diff summary + total */}
           {!loading && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", flexShrink: 0 }}>
-              {["shallow", "cryptic", "abyssal"].map((d) => {
+              {["junior", "mid", "senior"].map((d) => {
                 const m = DIFF_META[d];
                 const n = countsByDiff[d] ?? 0;
                 if (!n) return null;
@@ -394,7 +394,7 @@ export default function LanguageQuestsPage() {
               })}
               <div style={{ width: "1px", height: "14px", background: "var(--color-border-2)" }} />
               <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
-                {quests.length} total
+                {jobs.length} total
               </span>
             </div>
           )}
@@ -435,14 +435,14 @@ export default function LanguageQuestsPage() {
           </div>
 
           {/* Filter pills */}
-          {quests.length > 0 && (
+          {jobs.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
               {FILTERS.map((f) => (
                 <FilterPill
                   key={f}
                   value={f}
                   active={filter === f}
-                  count={f === "all" ? quests.length : (countsByDiff[f] ?? 0)}
+                  count={f === "all" ? jobs.length : (countsByDiff[f] ?? 0)}
                   onClick={() => handleFilter(f)}
                 />
               ))}
@@ -467,7 +467,7 @@ export default function LanguageQuestsPage() {
           className="glass-card"
           style={{ padding: "3rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "0.5rem" }}
         >
-          {quests.length === 0 ? (
+          {jobs.length === 0 ? (
             <>
               <p className="text-sub text-sm">No jobs available for {langCfg.name} yet.</p>
               <p className="text-dim text-xs">Check back soon — new jobs are being queued.</p>
@@ -509,8 +509,8 @@ export default function LanguageQuestsPage() {
             </div>
 
             <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
-              {pageSlice.map((quest, i) => (
-                <QuestRow key={quest.id} quest={quest} language={language} index={i} />
+              {pageSlice.map((job, i) => (
+                <JobRow key={job.id} job={job} language={language} index={i} />
               ))}
             </div>
           </div>

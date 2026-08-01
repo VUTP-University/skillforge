@@ -5,15 +5,15 @@ import Home from "./pages/Home";
 import Users from "./pages/Users";
 import AdminDashboard from "./pages/AdminDashboard";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
-import QuestForm from "./pages/QuestForm";
-import LanguageQuestsPage from "./pages/LanguageQuestsPage";
-import QuestSolvePage from "./pages/QuestSolvePage";
+import JobForm from "./pages/JobForm";
+import LanguageJobsPage from "./pages/LanguageJobsPage";
+import JobSolvePage from "./pages/JobSolvePage";
 import ProfilePage from "./pages/ProfilePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
-import UnderworldPage from "./pages/UnderworldPage";
-import UnderworldChallengePage from "./pages/UnderworldChallengePage";
-import TriviaPage from "./pages/TriviaPage";
-import TriviaPlayPage from "./pages/TriviaPlayPage";
+import StackTracePage from "./pages/StackTracePage";
+import StackTraceChallengePage from "./pages/StackTraceChallengePage";
+import TestSuitePage from "./pages/TestSuitePage";
+import TestSuitePlayPage from "./pages/TestSuitePlayPage";
 import FAQPage from "./pages/FAQPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -159,34 +159,34 @@ function AppLayout() {
               }
             />
             <Route
-              path="/quests/:language"
+              path="/jobs/:language"
               element={
                 <ProtectedRoute>
-                  <LanguageQuestsPage />
+                  <LanguageJobsPage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/quests/:language/:questId"
+              path="/jobs/:language/:jobId"
               element={
                 <ProtectedRoute>
-                  <QuestSolvePage />
+                  <JobSolvePage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/admin/quests/new"
+              path="/admin/jobs/new"
               element={
                 <RoleRoute roles={["admin", "moderator"]}>
-                  <QuestForm />
+                  <JobForm />
                 </RoleRoute>
               }
             />
             <Route
-              path="/admin/quests/:id/edit"
+              path="/admin/jobs/:id/edit"
               element={
                 <RoleRoute roles={["admin", "moderator"]}>
-                  <QuestForm />
+                  <JobForm />
                 </RoleRoute>
               }
             />
@@ -199,34 +199,34 @@ function AppLayout() {
               }
             />
             <Route
-              path="/underworld"
+              path="/stack-trace"
               element={
                 <ProtectedRoute>
-                  <UnderworldPage />
+                  <StackTracePage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/underworld/challenge/:challengeId"
+              path="/stack-trace/challenge/:challengeId"
               element={
                 <ProtectedRoute>
-                  <UnderworldChallengePage />
+                  <StackTraceChallengePage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/trivia"
+              path="/test-suite"
               element={
                 <ProtectedRoute>
-                  <TriviaPage />
+                  <TestSuitePage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/trivia/play"
+              path="/test-suite/run"
               element={
                 <ProtectedRoute>
-                  <TriviaPlayPage />
+                  <TestSuitePlayPage />
                 </ProtectedRoute>
               }
             />
