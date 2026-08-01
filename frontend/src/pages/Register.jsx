@@ -165,10 +165,10 @@ export default function Register() {
             <h1 className="text-5xl font-bold text-white leading-tight mb-5">
               Initialize your profile.
               <br />
-              <span className="text-green">Ship your first quest.</span>
+              <span className="text-green">Ship your first job.</span>
             </h1>
             <p className="text-sub text-lg leading-relaxed max-w-sm font-body">
-              Create your free account and unlock coding quests, XP tracking, and a leaderboard that grows with you.
+              Create your free account and unlock coding jobs, XP tracking, and a leaderboard that grows with you.
             </p>
           </div>
 
@@ -210,7 +210,7 @@ export default function Register() {
             <div className="auth-card-body">
               <div className="mb-7">
                 <h2 className="text-3xl font-bold text-white mb-1.5">Create account</h2>
-                <p className="text-sub font-body text-lg">Start solving quests and tracking XP.</p>
+                <p className="text-sub font-body text-lg">Start solving jobs and tracking XP.</p>
               </div>
 
               <form className="space-y-4" onSubmit={handleSubmit} noValidate>

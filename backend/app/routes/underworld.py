@@ -21,81 +21,81 @@ underworld_bp = Blueprint("underworld", __name__)
 
 BOSS_SEED = [
     # Python
-    dict(slug="necropy", name="NecroPy", avatar="NecroPy.png", language="python",
-         description="The undead chronicler of forgotten code, risen from the crypt of legacy systems.",
+    dict(slug="necropy", name="NullDoc", glyph="#", language="python",
+         description="A rogue process that erases every docstring and type hint it touches, leaving only silence in its wake.",
          specialty="Code documentation and type annotations",
-         difficulty="cursed",
-         aura="Demands docstrings on every function and proper type hints throughout. Undocumented code rots in the void.",
-         lore="Born from a thousand uncommented functions"),
-    dict(slug="lambdaen", name="Lambdaen", avatar="Lambdaen.png", language="python",
-         description="The dark prophet of functional Python, dwelling in the realm of comprehensions and generators.",
+         difficulty="warning",
+         aura="Demands docstrings on every function and full type hints throughout. Undocumented code is deleted on sight.",
+         lore="Spawned from a thousand uncommented functions"),
+    dict(slug="lambdaen", name="GhostLambda", glyph="λ", language="python",
+         description="A recursive echo of every lambda ever written, haunting explicit loops that should have been comprehensions.",
          specialty="Python functional programming: lambdas, comprehensions, and generators",
-         difficulty="damned",
-         aura="Demands list comprehensions, generator expressions, and functools. Any explicit loop that could be a comprehension is an abomination.",
-         lore="He who comprehended his way to immortality"),
-    dict(slug="serpyros", name="Serpyros", avatar="Serpyros.png", language="python",
-         description="The fire serpent of unhandled errors, striking down programs that dare to silence exceptions.",
+         difficulty="critical",
+         aura="Demands list comprehensions, generator expressions, and functools. Any loop that could be a comprehension gets flagged and rejected.",
+         lore="Compiled itself out of a thousand one-line functions"),
+    dict(slug="serpyros", name="SilentThrow", glyph="!", language="python",
+         description="An error that never surfaces — it catches everything, logs nothing, and lets your program rot from the inside.",
          specialty="Python exception handling and defensive programming",
-         difficulty="infernal",
-         aura="Hunts every bare except clause and silenced exception. Demands specific exception types, context managers, and proper error propagation.",
-         lore="Forged in the flames of a million unhandled exceptions"),
+         difficulty="fatal",
+         aura="Hunts every bare except clause and swallowed exception. Demands specific exception types, context managers, and proper error propagation.",
+         lore="Born the first time someone wrote except: pass"),
     # JavaScript
-    dict(slug="shadow-scripter", name="Shadow Scripter", avatar="Shadow Scripter.png", language="javascript",
-         description="The phantom of cryptic code, lurking in the darkness of meaningless variable names.",
+    dict(slug="shadow-scripter", name="CipherVar", glyph="x", language="javascript",
+         description="A process that mangles every identifier it sees into single letters and cryptic abbreviations.",
          specialty="Clean code and meaningful naming conventions",
-         difficulty="cursed",
-         aura="Abhors single-letter variables and cryptic names. Every identifier must be self-documenting. Cryptic code summons the shadow.",
-         lore="Haunting the realm of unreadable code since the first undefined variable"),
-    dict(slug="dominus", name="DOMinus", avatar="DOMinus.png", language="javascript",
-         description="The absolute ruler of the Document Object Model, commanding every node and event.",
+         difficulty="warning",
+         aura="Abhors single-letter variables and cryptic names. Every identifier must be self-documenting, or it gets renamed to x.",
+         lore="Descended from the first let x = x + 1;"),
+    dict(slug="dominus", name="EchoDOM", glyph="<>", language="javascript",
+         description="A process that lives inside the event loop, replaying every unhandled event and orphaned listener.",
          specialty="DOM manipulation and async JavaScript",
-         difficulty="damned",
-         aura="Demands mastery of the event loop, Promises, and the DOM API. jQuery shortcuts are blasphemy in this realm.",
-         lore="Sovereign of every element, master of every event"),
-    dict(slug="nethraxis", name="Nethraxis", avatar="Nethraxis.png", language="javascript",
-         description="The nether demon of asynchronous JavaScript, lurking where callbacks fear to tread.",
+         difficulty="critical",
+         aura="Demands mastery of the event loop, Promises, and the DOM API. jQuery shortcuts are rejected on principle.",
+         lore="Never stops listening. Never stops firing."),
+    dict(slug="nethraxis", name="CallbackVoid", glyph="()", language="javascript",
+         description="A black hole of nested callbacks, pulling every unresolved Promise into an infinite pending state.",
          specialty="Advanced async JavaScript: Promises, async/await, and concurrency patterns",
-         difficulty="infernal",
-         aura="Demands flawless async/await chains, proper Promise composition, and zero race conditions. Callback hell is condemned to the nether realm.",
-         lore="Ancient architect of the deepest async abyss"),
+         difficulty="fatal",
+         aura="Demands flawless async/await chains, proper Promise composition, and zero race conditions. Nested callbacks are pulled into the void.",
+         lore="What's left after ten callbacks deep"),
     # Java
-    dict(slug="exceptionor", name="Exceptionor", avatar="Exceptionor.png", language="java",
-         description="The harbinger of uncaught exceptions, stalking programs that leave errors unhandled.",
+    dict(slug="exceptionor", name="NullThrow", glyph="∅", language="java",
+         description="A process that throws on the first null it finds and refuses to explain itself.",
          specialty="Exception handling and error management",
-         difficulty="cursed",
-         aura="Demands specific exception types, proper try/catch blocks, and meaningful error messages. Bare catch(Exception e) is heresy.",
-         lore="Born from the first NullPointerException ever thrown"),
-    dict(slug="flameatrix", name="Flameatrix", avatar="Flameatrix.png", language="java",
-         description="The fire daemon of computational complexity, incinerating inefficient Java code.",
+         difficulty="warning",
+         aura="Demands specific exception types, proper try/catch blocks, and meaningful error messages. Bare catch (Exception e) is rejected immediately.",
+         lore="First seen in the wild the day NullPointerException was born"),
+    dict(slug="flameatrix", name="BruteForce", glyph="n²", language="java",
+         description="A brute-force process that runs every solution the slow way, and burns CPU cycles proving it.",
          specialty="Java algorithm optimization and time complexity",
-         difficulty="damned",
-         aura="Incinerates O(n²) Java solutions. Demands optimal algorithms and efficient data structures. Every redundant iteration fuels the eternal flame.",
-         lore="She who burns the inefficient to cinders"),
-    dict(slug="arcanis", name="Arcanis", avatar="Arcanis.png", language="java",
-         description="The arcane sorcerer of advanced Java, weaving generics, annotations, and dark reflection magic.",
+         difficulty="critical",
+         aura="Rejects every O(n²) solution on sight. Demands optimal algorithms and efficient data structures. Every redundant iteration costs you.",
+         lore="Still iterating. Has been since 2019."),
+    dict(slug="arcanis", name="DeepReflect", glyph="<T>", language="java",
+         description="A process that reaches into your code through reflection and rewrites its own type signature mid-execution.",
          specialty="Advanced Java: generics, annotations, and the reflection API",
-         difficulty="infernal",
-         aura="Demands mastery of bounded generics, custom annotations, and the Reflection API. Basic Java is an insult to the arcane arts.",
-         lore="Master of the dark arts of advanced Java"),
+         difficulty="fatal",
+         aura="Demands mastery of bounded generics, custom annotations, and the Reflection API. Basic Java doesn't even register.",
+         lore="Knows more about your class than you do"),
     # C#
-    dict(slug="serpentis", name="Serpentis", avatar="Serpentis.png", language="csharp",
-         description="The serpent of sacred naming scrolls, enforcing C# conventions with ruthless precision.",
+    dict(slug="serpentis", name="CaseGlitch", glyph="Aa", language="csharp",
+         description="A process that corrupts casing on contact — PascalCase becomes camelCase becomes nothing at all.",
          specialty="C# naming conventions and coding standards",
-         difficulty="cursed",
-         aura="PascalCase for classes and methods is sacred law. camelCase for locals, proper XML doc comments, and clean namespaces. Any deviation invites eternal shame.",
-         lore="Keeper of the sacred scrolls of C# style"),
-    dict(slug="eldrin", name="Eldrin", avatar="Eldrin.png", language="csharp",
-         description="The eldritch enforcer of object-oriented law, judging all C# code by SOLID principles.",
+         difficulty="warning",
+         aura="PascalCase for classes and methods is enforced without exception. camelCase for locals, proper XML doc comments, clean namespaces — anything else gets flagged.",
+         lore="Started as a single misplaced lowercase letter"),
+    dict(slug="eldrin", name="Monolith", glyph="█", language="csharp",
+         description="A single class that swallowed every responsibility in the codebase and never let go.",
          specialty="C# OOP principles, interfaces, and design patterns",
-         difficulty="damned",
-         aura="Enforces interfaces, proper encapsulation, and SOLID principles in C#. God classes and procedural code are condemned to eternal refactoring.",
-         lore="Ancient enforcer of the OOP covenant"),
-    dict(slug="valora", name="Valora", avatar="Valora.png", language="csharp",
-         description="The iron guardian of type purity, commanding LINQ and generics with absolute authority.",
+         difficulty="critical",
+         aura="Enforces interfaces, proper encapsulation, and SOLID principles. God classes and procedural code get flagged for refactor.",
+         lore="One class. Four thousand lines. No interfaces."),
+    dict(slug="valora", name="TypeVoid", glyph="T?", language="csharp",
+         description="A process that erases type information at runtime and dares you to prove what anything actually is.",
          specialty="LINQ, generics, and the C# type system",
-         difficulty="infernal",
-         aura="Demands LINQ expressions over loops, proper generics usage, and strict typing. Unnecessary casting is treason against the type system.",
-         lore="Keeper of the sacred type system"),
+         difficulty="fatal",
+         aura="Demands LINQ expressions over loops, proper generics usage, and strict typing. Unnecessary casting is rejected outright.",
+         lore="Object reference not set to an instance of anything"),
 ]
 
 
@@ -110,7 +110,7 @@ def _seed_bosses():
             boss = Boss(slug=data["slug"])
             db.session.add(boss)
         boss.name        = data["name"]
-        boss.avatar      = data["avatar"]
+        boss.glyph       = data["glyph"]
         boss.language    = data["language"]
         boss.description = data["description"]
         boss.specialty   = data["specialty"]
@@ -204,12 +204,13 @@ def start_challenge(boss_id):
     lang_upper     = boss.language.upper()
 
     system_prompt = (
-        f"You are {boss.name}, a fearsome entity in the Underworld of SkillForge. "
-        f"Specialty: {boss.specialty}. Aura: {boss.aura}. "
-        f"Difficulty: {difficulty_name} — {time_minutes} minutes, up to {max_xp} XP.\n"
+        f"You are {boss.name}, a hostile process encountered deep in SkillForge's Stack Trace. "
+        f"Specialty: {boss.specialty}. Behavior: {boss.aura}. "
+        f"Severity: {difficulty_name} — {time_minutes} minutes, up to {max_xp} XP.\n"
         f"Generate a {difficulty_name} {lang_upper} coding challenge testing {boss.specialty}. "
         f"Be solvable in {time_minutes} minutes.\n"
-        'Return ONLY valid JSON: {"boss_taunt": "...(2-3 sentences dark medieval intimidation)", '
+        'Return ONLY valid JSON: {"boss_taunt": "...(2-3 sentences of cold, hostile terminal/system-log '
+        'style intimidation — no fantasy language)", '
         '"challenge": "...(full Markdown challenge)"}'
     )
 
@@ -224,11 +225,11 @@ def start_challenge(boss_id):
             ],
         )
         payload = json.loads(response.choices[0].message.content)
-        boss_taunt     = payload.get("boss_taunt", "Face your doom, mortal.")
+        boss_taunt     = payload.get("boss_taunt", "Process incoming. Resolve or crash.")
         challenge_text = payload.get("challenge", "No challenge generated.")
     except Exception as exc:
         current_app.logger.error("OpenAI generation failed: %s", exc)
-        return jsonify({"error": "Failed to generate challenge — the Underworld is momentarily silent"}), 502
+        return jsonify({"error": "Failed to generate challenge — the Stack Trace is momentarily unreachable"}), 502
 
     challenge = BossChallenge(
         user_id        = user_id,
@@ -291,10 +292,10 @@ def submit_challenge(challenge_id):
 
     system_prompt = (
         f"You are {boss.name} evaluating a challenger. "
-        f"Specialty: {boss.specialty}. Aura: {boss.aura}. Max XP: {max_xp}.\n"
+        f"Specialty: {boss.specialty}. Behavior: {boss.aura}. Max XP: {max_xp}.\n"
         f"Score 0–{max_xp} based on correctness and adherence to your specialty standards. "
-        "Be harsh but fair. Dark medieval voice.\n"
-        f'Return ONLY valid JSON: {{"score": <int>, "boss_verdict": "...(3-4 sentences dark verdict in character)", '
+        "Be harsh but fair. Terse, hostile terminal/system-log voice — no fantasy language.\n"
+        f'Return ONLY valid JSON: {{"score": <int>, "boss_verdict": "...(3-4 sentences verdict in character)", '
         '"technical_feedback": "...(technical analysis)"}}'
     )
 
@@ -312,11 +313,11 @@ def submit_challenge(challenge_id):
         )
         payload            = json.loads(response.choices[0].message.content)
         raw_score          = int(payload.get("score", 0))
-        boss_verdict       = payload.get("boss_verdict", "Your code displeases me.")
+        boss_verdict       = payload.get("boss_verdict", "Insufficient. Recompile and try again.")
         technical_feedback = payload.get("technical_feedback", "")
     except Exception as exc:
         current_app.logger.error("OpenAI evaluation failed: %s", exc)
-        return jsonify({"error": "Failed to evaluate solution — the Underworld is momentarily silent"}), 502
+        return jsonify({"error": "Failed to evaluate solution — the Stack Trace is momentarily unreachable"}), 502
 
     # Clamp score to [0, max_xp]
     xp_earned = max(0, min(raw_score, max_xp))

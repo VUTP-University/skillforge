@@ -11,9 +11,9 @@ import profileMd     from "../content/faq/profile.md?raw";
 
 const VOLUMES = [
   { id: "welcome",     glyph: "~",  title: "Welcome",          file: "welcome.md",     content: welcomeMd     },
-  { id: "quests",      glyph: ">_", title: "The Quest System", file: "quests.md",      content: questsMd      },
+  { id: "quests",      glyph: ">_", title: "The Job Board",    file: "quests.md",      content: questsMd      },
   { id: "xp",          glyph: "^",  title: "XP & Ranks",       file: "xp-ranks.md",    content: xpMd          },
-  { id: "underworld",  glyph: "!",  title: "The Underworld",   file: "underworld.md",  content: underworldMd  },
+  { id: "underworld",  glyph: "!",  title: "The Stack Trace",  file: "underworld.md",  content: underworldMd  },
   { id: "leaderboard", glyph: "#",  title: "Leaderboard",      file: "leaderboard.md", content: leaderboardMd },
   { id: "profile",     glyph: "@",  title: "Your Profile",     file: "profile.md",     content: profileMd     },
 ];

@@ -1,43 +1,43 @@
-# The Underworld Chronicles
+# The Stack Trace
 
-*Beyond the veil of daylight lies a darker realm — one that does not suffer the unprepared.*
+*Somewhere below the surface of every working program, a process is waiting to fail.*
 
-The Underworld is SkillForge's most fearsome domain. It is a collection of advanced challenges that push beyond the boundaries of ordinary quests. If the standard quests are battles, the Underworld is war.
+The Stack Trace is SkillForge's most hostile arena — a collection of advanced challenges that push past the edges of ordinary jobs. If a standard job is a bug report, the Stack Trace is a production incident.
 
 ---
 
-## What Is the Underworld?
+## What Is the Stack Trace?
 
-The Underworld contains challenges designed to test adventurers who have already proven themselves in the light. Here, the problems demand deeper thinking, more elegant solutions, and a willingness to sit with difficulty before the way forward reveals itself.
+The Stack Trace holds challenges built for coders who have already proven themselves on the surface. Down here, a set of hostile processes — each obsessed with a single discipline, from documentation to type systems to async control flow — wait for a submission that satisfies them. They do not compromise, and they do not explain themselves twice.
 
-Entering the Underworld is not a mark of mastery — it is a mark of courage.
+Entering the Stack Trace isn't a sign that you've mastered anything. It's a sign you're willing to find out what you haven't.
 
-## Who Should Enter?
+## Who Should Debug Here?
 
-The Underworld is open to all who dare walk its paths. However, it is most rewarding for those who:
+The Stack Trace is open to anyone. It rewards, in particular, coders who:
 
-- Have completed several quests in their chosen language
-- Feel comfortable with their foundational programming skills
-- Seek to stretch their abilities beyond what is comfortable
+- Have cleared a handful of jobs in their chosen language
+- Feel steady on their fundamentals
+- Want to see where their code actually breaks
 
-You need not wait for permission. If the call of the Underworld reaches you — answer it.
+You don't need permission to start a trace. If you're curious whether your code holds up under pressure — run it.
 
-## The Challenges Within
+## The Processes Within
 
-Each Underworld challenge follows the same structure as a quest: a description of the problem, a code editor, and test cases to satisfy. The same XP rules apply — victory on your first successful submission claims the reward.
+Each entry works like a job: a problem, an editor, a set of conditions to satisfy. The same XP rules apply — a clean first submission claims the full reward. Miss the time limit or the standard, and the process logs you as unresolved.
 
-The difference lies in the nature of the problems themselves. They ask more of you. But so do you.
+The difference is what's being tested. These processes don't just want working code. They want code that meets their one obsession, exactly.
 
 ## Returning Stronger
 
-> *The forge does not ask whether the iron is ready. It simply burns. And in the burning, something new is made.*
+> A process that crashes once will crash again, until something about the code actually changes.
 
-Not every attempt at the Underworld ends in victory. That is expected. That is the point. Each failed attempt reveals something — a gap in understanding, a blind spot in reasoning, an approach worth reconsidering.
+Not every trace resolves cleanly. That's expected — it's the point. Every failed run leaves a trace of its own: a gap in reasoning, an edge case missed, a pattern worth reconsidering next time.
 
-Return after each defeat. The Underworld holds no grudges. It only waits.
+Come back after every crash. The Stack Trace doesn't hold grudges. It just logs the next attempt.
 
 ---
 
-## Your Chronicle
+## Your Log
 
-Your Underworld conquests are recorded in your **Profile** alongside your regular quest completions. They stand as a testament to the challenges you were willing to face — a private chronicle that others may read and respect.
+Every trace you run — resolved or not — is recorded on your **Profile** under the Stack Trace Log, alongside your regular job history. It's a record of exactly which processes you've gone up against, and how it went.

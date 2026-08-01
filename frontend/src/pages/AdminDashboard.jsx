@@ -17,9 +17,9 @@ const LANG_LABELS = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
-  cryptic: { label: "Cryptic", color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
-  abyssal: { label: "Abyssal", color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
+  shallow: { label: "Junior", color: "var(--color-green)", border: "var(--color-green-border)",  bg: "var(--color-green-dim)"  },
+  cryptic: { label: "Mid",    color: "var(--color-amber)", border: "var(--color-amber-border)",  bg: "var(--color-amber-dim)"  },
+  abyssal: { label: "Senior", color: "var(--color-red-bright)", border: "var(--color-red-border)", bg: "var(--color-red-dim)" },
 };
 
 const ROLE_META = {
@@ -311,10 +311,10 @@ export default function AdminDashboard() {
   /* ═══════════ RENDER ═══════════ */
   return (
     <>
-      {/* ── Quest delete modal ── */}
+      {/* ── Job delete modal ── */}
       {deleteQuest_ && (
         <DeleteModal
-          title="Delete Quest?"
+          title="Delete Job?"
           body={<><span className="text-white">"{deleteQuest_.title}"</span> and all its test cases will be permanently removed.</>}
           onConfirm={confirmQuestDelete} onCancel={() => !deletingQ && setDeleteQ(null)} busy={deletingQ}
         />
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
         <div>
           <div className="section-divider"><h2>Overview</h2></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <StatCard label="Total Quests" value={questsLoading ? "…" : quests.length}
+            <StatCard label="Total Jobs" value={questsLoading ? "…" : quests.length}
               icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>} />
             {["python","javascript","java","csharp"].map((lang) => (
               <StatCard key={lang} label={LANG_LABELS[lang]} value={questsLoading ? "…" : (langCounts[lang] ?? 0)}
@@ -368,23 +368,23 @@ export default function AdminDashboard() {
         </div>
 
         {/* ═══════════════════════════════════════════════
-            QUEST MANAGEMENT
+            JOB MANAGEMENT
             ═══════════════════════════════════════════════ */}
         <div>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Quest Management</h2></div>
-            <SearchInput value={questSearch} onChange={setQuestSearch} placeholder="Search quests…" />
+            <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Job Management</h2></div>
+            <SearchInput value={questSearch} onChange={setQuestSearch} placeholder="Search jobs…" />
             <button className="sf-btn" style={{ width: "auto", flexShrink: 0 }} onClick={() => navigate("/admin/quests/new")}>
-              + Create Quest
+              + Create Job
             </button>
           </div>
 
           {questsLoading ? (
-            <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading quests…</span></div>
+            <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading jobs…</span></div>
           ) : filteredQ.length === 0 ? (
             <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "140px" }}>
-              <p className="text-sub text-sm">{qTerm ? `No quests match "${questSearch}".` : "No quests yet."}</p>
-              {!qTerm && <p className="text-dim text-xs mt-1">Click <span className="text-white/40">+ Create Quest</span> to publish the first one.</p>}
+              <p className="text-sub text-sm">{qTerm ? `No jobs match "${questSearch}".` : "No jobs yet."}</p>
+              {!qTerm && <p className="text-dim text-xs mt-1">Click <span className="text-white/40">+ Create Job</span> to publish the first one.</p>}
             </div>
           ) : (
             <>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
                 <p className="text-dim text-xs">
-                  {filteredQ.length === quests.length ? `${quests.length} quest${quests.length !== 1 ? "s" : ""} total` : `${filteredQ.length} of ${quests.length} quests`}
+                  {filteredQ.length === quests.length ? `${quests.length} job${quests.length !== 1 ? "s" : ""} total` : `${filteredQ.length} of ${quests.length} jobs`}
                   {qPages > 1 && ` · page ${qSafe} of ${qPages}`}
                 </p>
                 <Pagination page={qSafe} totalPages={qPages} onChange={setQuestPage} />
@@ -631,7 +631,7 @@ function QuestReportsSection({ users, navigate }) {
     <div>
       {/* Toolbar */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Quest Reports</h2></div>
+        <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Job Reports</h2></div>
         <div style={{ display: "flex", gap: "0.35rem" }}>
           {["all", "reported", "in_progress", "solved"].map((f) => (
             <button
@@ -657,8 +657,8 @@ function QuestReportsSection({ users, navigate }) {
         <div className="glass-card p-5 mb-4" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
             <div>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Quest</p>
-              <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Quest #${selected.quest_id}`}</p>
+              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
+              <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Job #${selected.quest_id}`}</p>
               <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
                 Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
               </p>
@@ -757,7 +757,7 @@ function QuestReportsSection({ users, navigate }) {
               style={{ width: "auto", padding: "0.5rem 1rem", marginLeft: "auto" }}
               onClick={() => navigate(`/admin/quests/${selected.quest_id}/edit`)}
             >
-              Edit Quest →
+              Edit Job →
             </button>
           </div>
         </div>
@@ -767,13 +767,13 @@ function QuestReportsSection({ users, navigate }) {
         <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading reports…</span></div>
       ) : filtered.length === 0 ? (
         <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "120px" }}>
-          <p className="text-sub text-sm">{filter === "all" ? "No quest reports yet." : `No ${REPORT_STATUS_META[filter]?.label.toLowerCase()} reports.`}</p>
+          <p className="text-sub text-sm">{filter === "all" ? "No job reports yet." : `No ${REPORT_STATUS_META[filter]?.label.toLowerCase()} reports.`}</p>
         </div>
       ) : (
         <div className="glass-card overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
           {/* Header */}
           <div style={{ ...rowStyle, paddingTop: "0.65rem", paddingBottom: "0.65rem", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
-            <span style={{ ...RC.quest,    ...headerLabel }}>Quest</span>
+            <span style={{ ...RC.quest,    ...headerLabel }}>Job</span>
             <span style={{ ...RC.reporter, ...headerLabel }}>Reporter</span>
             <span style={{ ...RC.status,   ...headerLabel }}>Status</span>
             <span style={{ ...RC.date,     ...headerLabel }}>Date</span>
@@ -787,7 +787,7 @@ function QuestReportsSection({ users, navigate }) {
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               <div style={{ ...RC.quest, minWidth: 0 }}>
-                <p className="text-white text-sm font-semibold truncate">{report.quest_title ?? `Quest #${report.quest_id}`}</p>
+                <p className="text-white text-sm font-semibold truncate">{report.quest_title ?? `Job #${report.quest_id}`}</p>
                 {report.assigned_to && (
                   <p className="text-dim text-xs mt-0.5">Assigned: {report.assigned_to}</p>
                 )}

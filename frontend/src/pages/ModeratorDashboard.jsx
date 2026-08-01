@@ -91,15 +91,15 @@ export default function ModeratorDashboard() {
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">Moderator Panel</h1>
         <p className="text-sub text-sm max-w-lg">
-          Review reported content, manage quest submissions, and support users.
+          Review reported content, manage job submissions, and support users.
           Logged in as <span className="text-green">{user?.username}</span>.
         </p>
       </div>
 
-      {/* ── Quest Reports ── */}
+      {/* ── Job Reports ── */}
       <div>
         <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Quest Reports</h2></div>
+          <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Job Reports</h2></div>
           <div style={{ display: "flex", gap: "0.35rem" }}>
             {["all", "reported", "in_progress", "solved"].map((f) => (
               <button key={f} onClick={() => setFilter(f)}
@@ -122,8 +122,8 @@ export default function ModeratorDashboard() {
           <div className="glass-card p-5 mb-4" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
               <div>
-                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Quest</p>
-                <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Quest #${selected.quest_id}`}</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "0.35rem" }}>Job</p>
+                <p className="text-white font-semibold text-sm">{selected.quest_title ?? `Job #${selected.quest_id}`}</p>
                 <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", marginTop: "0.15rem" }}>
                   Reported by <span style={{ color: "rgba(255,255,255,0.60)" }}>{selected.reporter}</span> · {new Date(selected.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                 </p>
@@ -208,7 +208,7 @@ export default function ModeratorDashboard() {
                 {saving ? <><div className="sf-spinner" style={{ width: "11px", height: "11px", borderWidth: "2px" }} /> Saving…</> : "Save Changes"}
               </button>
               <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.5rem 1rem", marginLeft: "auto" }} onClick={() => navigate(`/admin/quests/${selected.quest_id}/edit`)}>
-                Edit Quest →
+                Edit Job →
               </button>
             </div>
           </div>
@@ -218,12 +218,12 @@ export default function ModeratorDashboard() {
           <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading reports…</span></div>
         ) : filtered.length === 0 ? (
           <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "120px" }}>
-            <p className="text-sub text-sm">{filter === "all" ? "No quest reports yet." : `No ${REPORT_STATUS_META[filter]?.label.toLowerCase()} reports.`}</p>
+            <p className="text-sub text-sm">{filter === "all" ? "No job reports yet." : `No ${REPORT_STATUS_META[filter]?.label.toLowerCase()} reports.`}</p>
           </div>
         ) : (
           <div className="glass-card overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
             <div style={{ ...rowStyle, paddingTop: "0.65rem", paddingBottom: "0.65rem", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
-              <span style={{ ...RC.quest,    ...headerLabel }}>Quest</span>
+              <span style={{ ...RC.quest,    ...headerLabel }}>Job</span>
               <span style={{ ...RC.reporter, ...headerLabel }}>Reporter</span>
               <span style={{ ...RC.status,   ...headerLabel }}>Status</span>
               <span style={{ ...RC.date,     ...headerLabel }}>Date</span>
@@ -236,7 +236,7 @@ export default function ModeratorDashboard() {
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 <div style={{ ...RC.quest, minWidth: 0 }}>
-                  <p className="text-white text-sm font-semibold truncate">{report.quest_title ?? `Quest #${report.quest_id}`}</p>
+                  <p className="text-white text-sm font-semibold truncate">{report.quest_title ?? `Job #${report.quest_id}`}</p>
                   {report.assigned_to && <p className="text-dim text-xs mt-0.5">Assigned: {report.assigned_to}</p>}
                 </div>
                 <div style={RC.reporter}><span className="text-sub text-xs">{report.reporter}</span></div>

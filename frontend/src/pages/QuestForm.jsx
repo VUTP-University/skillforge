@@ -17,9 +17,9 @@ const LANGUAGES = [
 ];
 
 const DIFFICULTIES = [
-  { value: "shallow", label: "Shallow", xp: 30  },
-  { value: "cryptic", label: "Cryptic", xp: 60  },
-  { value: "abyssal", label: "Abyssal", xp: 100 },
+  { value: "shallow", label: "Junior", xp: 30  },
+  { value: "cryptic", label: "Mid",    xp: 60  },
+  { value: "abyssal", label: "Senior", xp: 100 },
 ];
 
 const LANG_EXT = {
@@ -109,7 +109,7 @@ export default function QuestForm() {
           test_cases,
         });
       })
-      .catch(() => setError("Failed to load quest data."))
+      .catch(() => setError("Failed to load job data."))
       .finally(() => setLoading(false));
   }, [id, isEdit]);
 
@@ -158,7 +158,7 @@ export default function QuestForm() {
     return (
       <div className="flex items-center justify-center py-24 gap-3">
         <div className="sf-spinner" />
-        <span className="text-sub text-sm">Loading quest…</span>
+        <span className="text-sub text-sm">Loading job…</span>
       </div>
     );
   }
@@ -170,10 +170,10 @@ export default function QuestForm() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl font-bold text-white mb-1">
-            {isEdit ? "Edit Quest" : "Create Quest"}
+            {isEdit ? "Edit Job" : "Create Job"}
           </h1>
           <p className="text-sub text-sm">
-            {isEdit ? "Update the quest details below." : "Fill in the details to publish a new quest."}
+            {isEdit ? "Update the job details below." : "Fill in the details to publish a new job."}
           </p>
         </div>
         <button
@@ -195,9 +195,9 @@ export default function QuestForm() {
         </div>
       )}
 
-      {/* ── Section 1: Quest Setup ── */}
+      {/* ── Section 1: Job Setup ── */}
       <div>
-        <SectionDivider title="Quest Setup" />
+        <SectionDivider title="Job Setup" />
         <div className="grid md:grid-cols-3 gap-4 mb-4">
           <SelectField
             label="Language"
@@ -431,7 +431,7 @@ export default function QuestForm() {
               Saving…
             </>
           ) : (
-            isEdit ? "Save Changes" : "Publish Quest"
+            isEdit ? "Save Changes" : "Publish Job"
           )}
         </button>
       </div>

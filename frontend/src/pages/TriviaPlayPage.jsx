@@ -153,7 +153,7 @@ function ResultsScreen({ data, timedOut }) {
       </div>
 
       <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "1.9rem", fontWeight: 700, color: timedOut ? "var(--color-red-bright)" : "var(--color-amber)", marginBottom: "0.4rem", textShadow: `0 0 30px ${timedOut ? "var(--color-red-border)" : "var(--color-amber)"}` }}>
-        {timedOut ? "Time Expired" : "Trial Complete"}
+        {timedOut ? "Time Expired" : "Run Complete"}
       </h1>
       <p style={{ fontSize: "0.88rem", color: "var(--color-text-secondary)", marginBottom: "2rem" }}>
         {timedOut ? "You ran out of time." : "Nice work — results are in."}
@@ -168,7 +168,7 @@ function ResultsScreen({ data, timedOut }) {
           +{animXP}
         </p>
         <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", letterSpacing: "0.08em", color: "var(--color-text-secondary)", marginTop: "0.4rem" }}>
-          {data.correct_count} of {data.total} correct · {accuracy}% accuracy
+          {data.correct_count} of {data.total} passed · {accuracy}% accuracy
         </p>
       </div>
 
@@ -235,7 +235,7 @@ function ResultsScreen({ data, timedOut }) {
         onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-amber-border)")}
         onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-amber-dim)")}
       >
-        Back to Trivia
+        Back to Test Suite
       </Link>
     </div>
   );
@@ -249,7 +249,7 @@ export default function TriviaPlayPage() {
 
   const sessionData = location.state;
 
-  // Redirect to sanctum if arrived without state
+  // Redirect back if arrived without state
   useEffect(() => {
     if (!sessionData?.session_id || !sessionData?.questions) {
       navigate("/trivia", { replace: true });

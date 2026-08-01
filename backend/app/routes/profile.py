@@ -34,7 +34,7 @@ def _build_boss_challenges(user_id):
     return [{
         "id":           c.id,
         "boss_name":    b.name,
-        "boss_avatar":  b.avatar,
+        "boss_glyph":   b.glyph,
         "language":     b.language,
         "difficulty":   b.difficulty.value,
         "status":       c.status.value,

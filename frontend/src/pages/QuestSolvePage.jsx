@@ -13,9 +13,9 @@ import Avatar from "../components/Avatar";
 /* ── Config ──────────────────────────────────────────────────────────────── */
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "var(--color-green)",      border: "var(--color-green-border)", bg: "var(--color-green-dim)" },
-  cryptic: { label: "Cryptic", color: "var(--color-amber)",      border: "var(--color-amber-border)", bg: "var(--color-amber-dim)" },
-  abyssal: { label: "Abyssal", color: "var(--color-red-bright)", border: "var(--color-red-border)",   bg: "var(--color-red-dim)"   },
+  shallow: { label: "Junior", color: "var(--color-green)",      border: "var(--color-green-border)", bg: "var(--color-green-dim)" },
+  cryptic: { label: "Mid",    color: "var(--color-amber)",      border: "var(--color-amber-border)", bg: "var(--color-amber-dim)" },
+  abyssal: { label: "Senior", color: "var(--color-red-bright)", border: "var(--color-red-border)",   bg: "var(--color-red-dim)"   },
 };
 
 const LANG_LABEL = {
@@ -450,7 +450,7 @@ function ReportModal({ questId, onClose }) {
             </svg>
           </div>
           <div>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", margin: 0 }}>Report Quest</h3>
+            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", margin: 0 }}>Report Job</h3>
             <p style={{ fontSize: "0.72rem", color: "var(--color-text-secondary)", margin: 0 }}>Help us improve by flagging issues</p>
           </div>
           <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", fontSize: "1.25rem", lineHeight: 1, padding: "0.1rem" }}
@@ -465,7 +465,7 @@ function ReportModal({ questId, onClose }) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.80rem", fontWeight: 700, color: "var(--color-green)", marginBottom: "0.35rem" }}>Report submitted</p>
-            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.40)", marginBottom: "1.25rem" }}>Our moderators will review this quest shortly.</p>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.40)", marginBottom: "1.25rem" }}>Our moderators will review this job shortly.</p>
             <button className="sf-btn-ghost" onClick={onClose} style={{ width: "auto", padding: "0.5rem 1.5rem" }}>Close</button>
           </div>
         ) : (
@@ -580,7 +580,7 @@ export default function QuestSolvePage() {
     return (
       <div className="flex items-center justify-center gap-3 py-32">
         <div className="sf-spinner" style={{ width: "22px", height: "22px" }} />
-        <span className="text-sub text-sm">Loading quest…</span>
+        <span className="text-sub text-sm">Loading job…</span>
       </div>
     );
   }
@@ -619,7 +619,7 @@ export default function QuestSolvePage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
           </svg>
           <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em" }}>
-            +{xpBanner.xp} XP earned — quest complete!
+            +{xpBanner.xp} XP earned — job complete!
           </span>
           <button
             onClick={() => setXpBanner(null)}
@@ -641,10 +641,10 @@ export default function QuestSolvePage() {
         <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
-        {langLabel} Quests
+        {langLabel} Jobs
       </Link>
 
-      {/* ── Quest header ── */}
+      {/* ── Job header ── */}
       <div style={{ marginBottom: "1.75rem" }}>
         <div className="flex items-center gap-3 flex-wrap mb-2">
           <DiffBadge difficulty={quest.difficulty} />
@@ -905,7 +905,7 @@ export default function QuestSolvePage() {
                 </div>
                 {allPassed && (
                   <p style={{ marginTop: "0.65rem", fontSize: "0.75rem", color: "var(--color-green)", fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}>
-                    All tests passed — quest complete!
+                    All tests passed — job complete!
                   </p>
                 )}
               </div>

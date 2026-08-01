@@ -420,9 +420,9 @@ class TriviaSession(db.Model):
 
 
 class BossDifficulty(enum.Enum):
-    cursed   = "cursed"
-    damned   = "damned"
-    infernal = "infernal"
+    warning  = "warning"
+    critical = "critical"
+    fatal    = "fatal"
 
 
 class ChallengeStatus(enum.Enum):
@@ -432,9 +432,9 @@ class ChallengeStatus(enum.Enum):
 
 
 BOSS_DIFFICULTY_CONFIG = {
-    BossDifficulty.cursed:   {"minutes": 5,  "max_xp": 30},
-    BossDifficulty.damned:   {"minutes": 10, "max_xp": 60},
-    BossDifficulty.infernal: {"minutes": 15, "max_xp": 100},
+    BossDifficulty.warning:  {"minutes": 5,  "max_xp": 30},
+    BossDifficulty.critical: {"minutes": 10, "max_xp": 60},
+    BossDifficulty.fatal:    {"minutes": 15, "max_xp": 100},
 }
 
 
@@ -444,7 +444,7 @@ class Boss(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     slug        = db.Column(db.String(80),  unique=True, nullable=False)
     name        = db.Column(db.String(120), nullable=False)
-    avatar      = db.Column(db.String(200), nullable=False)
+    glyph       = db.Column(db.String(200), nullable=False)   # short text/symbol rendered in a CSS terminal tile — no portrait art
     language    = db.Column(db.String(20),  nullable=False)   # plain string: python / javascript / java / csharp
     description = db.Column(db.Text, nullable=False)
     specialty   = db.Column(db.String(200), nullable=False)
@@ -460,7 +460,7 @@ class Boss(db.Model):
             "id":          self.id,
             "slug":        self.slug,
             "name":        self.name,
-            "avatar":      self.avatar,
+            "glyph":       self.glyph,
             "language":    self.language,
             "description": self.description,
             "specialty":   self.specialty,

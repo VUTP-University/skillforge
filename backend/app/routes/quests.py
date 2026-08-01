@@ -183,7 +183,7 @@ def submit_quest(quest_id):
         return jsonify({"error": f"Code execution for '{lang}' is not configured"}), 422
 
     if not quest.test_cases:
-        return jsonify({"error": "This quest has no test cases"}), 422
+        return jsonify({"error": "This job has no test cases"}), 422
 
     try:
         result = run_tests(code, quest.test_cases, lang)
@@ -231,7 +231,7 @@ def delete_quest(quest_id):
     quest = db.get_or_404(Quest, quest_id)
     db.session.delete(quest)
     db.session.commit()
-    return jsonify({"message": "Quest deleted"}), 200
+    return jsonify({"message": "Job deleted"}), 200
 
 
 # ── Comments ──────────────────────────────────────────────────────────────────
@@ -271,7 +271,7 @@ def add_comment(quest_id):
 def delete_comment(quest_id, comment_id):
     comment = db.get_or_404(QuestComment, comment_id)
     if comment.quest_id != quest_id:
-        return jsonify({"error": "Comment does not belong to this quest"}), 404
+        return jsonify({"error": "Comment does not belong to this job"}), 404
 
     caller_id   = int(get_jwt_identity())
     caller_role = get_jwt().get("role")

@@ -696,6 +696,35 @@
   .ascii-bar--red { color: var(--color-red-bright); text-shadow: 0 0 6px var(--color-red-dim); }
   .ascii-bar--red .ascii-bar-off { color: rgba(255, 95, 86, 0.16); }
 
+  /* Filling state — shimmering sweep across the lit blocks + a blinking cursor at the edge */
+  .ascii-bar--loading .ascii-bar-fill {
+    background: linear-gradient(90deg, currentColor 0%, rgba(255, 255, 255, 0.95) 50%, currentColor 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: ascii-shimmer 0.85s linear infinite;
+  }
+
+  .ascii-bar-cursor {
+    animation: ascii-cursor-blink 0.45s steps(1) infinite;
+  }
+
+  @keyframes ascii-shimmer {
+    0%   { background-position: 220% 0; }
+    100% { background-position: -220% 0; }
+  }
+
+  @keyframes ascii-cursor-blink {
+    0%, 49%   { opacity: 1; }
+    50%, 100% { opacity: 0.15; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ascii-bar--loading .ascii-bar-fill { animation: none; background: none; -webkit-background-clip: unset; background-clip: unset; color: inherit; }
+    .ascii-bar-cursor { animation: none; }
+  }
+
 
   /* ─── Badge ────────────────────────────────────── */
 
@@ -1202,26 +1231,6 @@
 
 /* ─── Underworld realm ─────────────────────────────────────────── */
 
-body.underworld-active {
-  background: #030101;
-}
-
-body.underworld-active .page-wrapper {
-  background: transparent;
-}
-
-body.underworld-active .page-inner {
-  position: relative;
-  z-index: 2; /* sit above portalled sky (z:0) and meteors (z:1) */
-}
-
-@keyframes uw-meteor-fall {
-  0%   { transform: translate(var(--uw-sx, 0px), var(--uw-sy, -200px)); opacity: 0; }
-  8%   { opacity: 1; }
-  84%  { opacity: 1; }
-  100% { transform: translate(var(--uw-ex, -300px), var(--uw-ey, 1300px)); opacity: 0; }
-}
-
 /* Landscape boss card — row on ≥500px, column below */
 .uw-boss-card {
   display: flex;
@@ -1233,7 +1242,7 @@ body.underworld-active .page-inner {
 .uw-boss-portrait {
   position: relative;
   width: 100%;
-  height: 280px;
+  height: 140px;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -1241,11 +1250,36 @@ body.underworld-active .page-inner {
 @media (min-width: 500px) {
   .uw-boss-card { flex-direction: row; }
   .uw-boss-portrait {
-    width: 230px;
+    width: 150px;
     height: auto;
-    min-height: 300px;
   }
 }
+
+/* ─── Entity glyph tile — replaces boss portrait art ─────────────
+   A single terminal glyph on a dark, faintly textured panel, tinted
+   per severity tier via the --tier-color/--tier-glow custom properties
+   set inline on the tile's wrapper. */
+
+.uw-glyph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 2px, transparent 2px, transparent 8px),
+    rgba(0, 0, 0, 0.45);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--tier-color, var(--color-red-bright));
+  text-shadow: 0 0 18px var(--tier-glow, var(--color-red-glow)), 0 0 46px var(--tier-glow, var(--color-red-glow));
+  user-select: none;
+}
+
+.uw-glyph--lg { font-size: clamp(2.4rem, 6vw, 3.6rem); }
+.uw-glyph--md { font-size: 1.6rem; }
+.uw-glyph--sm { font-size: 0.95rem; }
 
 /* ─── FAQ / Docs — terminal man-page style ─────────────────────── */
 

@@ -1,8 +1,8 @@
 # XP, Levels & Ranks
 
-*Power is not bestowed — it is earned, one trial at a time.*
+*Every completed job leaves a number behind. That number is the whole system.*
 
-Experience Points — **XP** — are the measure of your growth in SkillForge. Every quest you conquer, every Underworld boss you vanquish, and every Oracle's Trial you complete adds to your legend. As your XP grows, so too does your **Level** (1–100) and your **Rank** — the title by which you are known throughout the realm.
+Experience Points — **XP** — measure your growth in SkillForge. Every job you ship, every Stack Trace process you resolve, and every Test Suite run you complete adds to your total. As XP grows, so does your **Level** (1–100) and your **Rank** — the title shown next to your name.
 
 ---
 
@@ -10,23 +10,23 @@ Experience Points — **XP** — are the measure of your growth in SkillForge. E
 
 | Activity | XP Awarded |
 |----------|-----------|
-| Shallow quest (first completion) | 30 XP |
-| Cryptic quest (first completion) | 60 XP |
-| Abyssal quest (first completion) | 100 XP |
-| Underworld — Cursed boss | Up to 30 XP |
-| Underworld — Damned boss | Up to 60 XP |
-| Underworld — Infernal boss | Up to 100 XP |
-| Oracle's Trial — Easy question | 10 XP |
-| Oracle's Trial — Medium question | 20 XP |
-| Oracle's Trial — Hard question | 30 XP |
+| Junior job (first completion) | 30 XP |
+| Mid job (first completion) | 60 XP |
+| Senior job (first completion) | 100 XP |
+| Stack Trace — Warning process | Up to 30 XP |
+| Stack Trace — Critical process | Up to 60 XP |
+| Stack Trace — Fatal process | Up to 100 XP |
+| Test Suite — Easy question | 10 XP |
+| Test Suite — Medium question | 20 XP |
+| Test Suite — Hard question | 30 XP |
 
-Quest and Underworld XP is awarded **only on first completion**. Oracle's Trial awards XP once per weekly session.
+Job and Stack Trace XP is awarded **only on first completion**. Test Suite awards XP once per weekly session.
 
 ---
 
 ## Levels
 
-SkillForge has **100 levels**. The XP required to reach each level follows a rising curve — early levels are fast to gain, while mastery demands true dedication.
+SkillForge has **100 levels**. The XP curve rises as you climb — early levels move fast, later ones take real work.
 
 | Milestone | Min. Total XP |
 |-----------|--------------|
@@ -42,9 +42,9 @@ Your current level and XP progress are always visible on the **Dashboard** and y
 
 ---
 
-## The Hierarchy of Ranks
+## Ranks
 
-Every 5 levels your **Rank** changes, marking a new chapter in your journey. Ranks are purely cosmetic — a badge of honour displayed on your profile and on the Leaderboard.
+Every 5 levels, your rank changes. Ranks are cosmetic — a label shown on your profile and the leaderboard, nothing more.
 
 | Levels | Rank |
 |--------|------|
@@ -71,15 +71,15 @@ Every 5 levels your **Rank** changes, marking a new chapter in your journey. Ran
 
 ---
 
-## Viewing Your Progress
+## Tracking Progress
 
-Your progress is displayed on the **Dashboard**, where two sacred measures track your growth:
+Your **Dashboard** shows two live numbers:
 
-- **XP Progress** — How far you are within your current level, and how close you stand to the next
-- **Completion Rate** — The share of all available quests that you have conquered
+- **XP Progress** — how far you are into your current level
+- **Completion Rate** — the share of all available jobs you've cleared
 
-Your **Profile** page also displays your level, rank, total XP, and the full chronicle of your completions for any who wish to witness your journey.
+Your **Profile** shows the same stats, plus a full log of every job, Stack Trace process, and Test Suite run you've completed.
 
 ---
 
-> *Every Grand Master was once a Novice. The journey of a thousand quests begins with one.*
+> *Every Grand Master was once a Novice. The only difference is the number of jobs in between.*

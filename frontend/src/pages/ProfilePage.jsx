@@ -16,41 +16,12 @@ import {
   uploadAvatar,
 } from "../services/profileService";
 
-// Boss portraits (Underworld Chronicles)
-import imgArcanis        from "../assets/img/underworld_realm/Arcanis.png";
-import imgDOMinus        from "../assets/img/underworld_realm/DOMinus.png";
-import imgEldrin         from "../assets/img/underworld_realm/Eldrin.png";
-import imgExceptionor    from "../assets/img/underworld_realm/Exceptionor.png";
-import imgFlameatrix     from "../assets/img/underworld_realm/Flameatrix.png";
-import imgLambdaen       from "../assets/img/underworld_realm/Lambdaen.png";
-import imgNecroPy        from "../assets/img/underworld_realm/NecroPy.png";
-import imgNethraxis      from "../assets/img/underworld_realm/Nethraxis.png";
-import imgSerpentis      from "../assets/img/underworld_realm/Serpentis.png";
-import imgSerpyros       from "../assets/img/underworld_realm/Serpyros.png";
-import imgShadowScripter from "../assets/img/underworld_realm/Shadow Scripter.png";
-import imgValora         from "../assets/img/underworld_realm/Valora.png";
-
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
-const BOSS_IMAGES = {
-  "Arcanis.png":         imgArcanis,
-  "DOMinus.png":         imgDOMinus,
-  "Eldrin.png":          imgEldrin,
-  "Exceptionor.png":     imgExceptionor,
-  "Flameatrix.png":      imgFlameatrix,
-  "Lambdaen.png":        imgLambdaen,
-  "NecroPy.png":         imgNecroPy,
-  "Nethraxis.png":       imgNethraxis,
-  "Serpentis.png":       imgSerpentis,
-  "Serpyros.png":        imgSerpyros,
-  "Shadow Scripter.png": imgShadowScripter,
-  "Valora.png":          imgValora,
-};
-
 const UW_DIFF_META = {
-  cursed:   { label: "Cursed",   color: "var(--color-red-bright)" },
-  damned:   { label: "Damned",   color: "var(--color-amber)" },
-  infernal: { label: "Infernal", color: "var(--color-blue)" },
+  warning:  { label: "Warning",  color: "var(--color-amber)" },
+  critical: { label: "Critical", color: "#ff8a5c" },
+  fatal:    { label: "Fatal",    color: "var(--color-red-bright)" },
 };
 
 const LANG_CONFIG = {
@@ -61,9 +32,9 @@ const LANG_CONFIG = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "var(--color-green)" },
-  cryptic: { label: "Cryptic", color: "var(--color-amber)" },
-  abyssal: { label: "Abyssal", color: "var(--color-red-bright)" },
+  shallow: { label: "Junior", color: "var(--color-green)" },
+  cryptic: { label: "Mid",    color: "var(--color-amber)" },
+  abyssal: { label: "Senior", color: "var(--color-red-bright)" },
 };
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
@@ -355,7 +326,7 @@ export default function ProfilePage() {
                     </svg>
                   }
                   value={comps.length}
-                  label={comps.length === 1 ? "Quest" : "Quests"}
+                  label={comps.length === 1 ? "Job" : "Jobs"}
                 />
                 {bossChallenges.length > 0 && (
                   <StatChip
@@ -366,7 +337,7 @@ export default function ProfilePage() {
                       </svg>
                     }
                     value={vanquishedCount}
-                    label={vanquishedCount === 1 ? "Boss" : "Bosses"}
+                    label={vanquishedCount === 1 ? "Process" : "Processes"}
                     valueColor="var(--color-red-bright)"
                   />
                 )}
@@ -378,7 +349,7 @@ export default function ProfilePage() {
                       </svg>
                     }
                     value={triviaCompleted}
-                    label={triviaCompleted === 1 ? "Trial" : "Trials"}
+                    label={triviaCompleted === 1 ? "Run" : "Runs"}
                     valueColor="var(--color-amber)"
                   />
                 )}
@@ -491,7 +462,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* ── Quest progress ── */}
+      {/* ── Job progress ── */}
       <div className="space-y-4">
           <SectionDivider title="Progress" />
 
@@ -522,7 +493,7 @@ export default function ProfilePage() {
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingLeft: "0.25rem" }}>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-text-tertiary)", flex: 1 }}>
-                {isOwnProfile ? "// submission_history" : "// quest_submissions"}
+                {isOwnProfile ? "// submission_history" : "// job_submissions"}
                 {subs ? ` (${subs.total.toLocaleString()} run${subs.total !== 1 ? "s" : ""})` : ""}
               </p>
               {!isOwnProfile && (
@@ -546,7 +517,7 @@ export default function ProfilePage() {
                 borderBottom: "1px solid var(--color-border-2)",
                 background: "rgba(77,255,143,0.02)",
               }}>
-                {["Quest", "Language", "Score", "Status", "Date"].map(h => (
+                {["Job", "Language", "Score", "Status", "Date"].map(h => (
                   <span key={h} style={{ fontFamily: "var(--font-heading)", fontSize: "0.52rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
                     {h}
                   </span>
@@ -565,8 +536,8 @@ export default function ProfilePage() {
                   </p>
                   <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)" }}>
                     {isOwnProfile
-                      ? "Start solving quests to earn XP and build your history."
-                      : "This user hasn't submitted any quests yet."}
+                      ? "Start solving jobs to earn XP and build your history."
+                      : "This user hasn't submitted any jobs yet."}
                   </p>
                 </div>
               ) : (subs?.items ?? []).map((s, i) => {
@@ -674,14 +645,14 @@ export default function ProfilePage() {
           </>
         </div>
 
-      {/* ── Underworld Chronicles ── */}
+      {/* ── Stack Trace Log ── */}
       {bossChallenges.length > 0 ? (
         <div className="space-y-4">
-          {/* Section label — red, matches Underworld */}
+          {/* Section label — red, matches The Stack Trace */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ height: "1px", flex: 1, background: "var(--color-red-dim)" }} />
             <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-red-bright)", flexShrink: 0 }}>
-              // underworld_chronicles
+              // stack_trace_log
             </span>
             <div style={{ height: "1px", flex: 1, background: "var(--color-red-dim)" }} />
           </div>
@@ -698,7 +669,6 @@ export default function ProfilePage() {
             {bossChallenges.map((c, i) => {
               const uwDiff  = UW_DIFF_META[c.difficulty] ?? { label: c.difficulty, color: "var(--color-red-bright)" };
               const lang    = LANG_CONFIG[c.language];
-              const imgSrc  = BOSS_IMAGES[c.boss_avatar];
               const verdict = c.boss_verdict ?? "";
 
               return (
@@ -714,19 +684,13 @@ export default function ProfilePage() {
                   onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,95,86,0.05)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
-                  {/* Boss portrait */}
+                  {/* Entity glyph */}
                   <div style={{
                     width: 38, height: 38, borderRadius: "4px", overflow: "hidden", flexShrink: 0,
                     border: `2px solid ${uwDiff.color}`,
-                    background: "rgba(0,0,0,0.35)",
+                    "--tier-color": uwDiff.color,
                   }}>
-                    {imgSrc && (
-                      <img
-                        src={imgSrc}
-                        alt={c.boss_name}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
-                      />
-                    )}
+                    <div className="uw-glyph uw-glyph--sm">{c.boss_glyph}</div>
                   </div>
 
                   {/* Boss name + truncated verdict */}
@@ -770,7 +734,7 @@ export default function ProfilePage() {
                     color: c.status === "completed" ? "var(--color-green)" : "var(--color-red-bright)",
                     fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700,
                   }}>
-                    {c.status === "completed" ? "VANQUISHED" : "FALLEN"}
+                    {c.status === "completed" ? "PATCHED" : "UNRESOLVED"}
                   </span>
 
                   {/* Score bar + XP — completed only */}
@@ -807,29 +771,29 @@ export default function ProfilePage() {
           }}
         >
           <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
-            No Underworld battles yet
+            No stack traces yet
           </p>
           <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
-            Dare to challenge the ancient lords of code.
+            Take on a hostile process and see if your code holds up.
           </p>
           <Link
             to="/underworld"
             className="sf-btn-ghost"
             style={{ display: "inline-flex", color: "var(--color-red-bright)", borderColor: "var(--color-red-border)", background: "var(--color-red-dim)" }}
           >
-            Enter the Underworld
+            Trace the Stack
           </Link>
         </div>
       ) : null}
 
-      {/* ── Oracle's Trials ── */}
+      {/* ── Test Suite Log ── */}
       {triviaSessions.length > 0 ? (
         <div className="space-y-4">
-          {/* Section label — amber, matches Trivia */}
+          {/* Section label — amber, matches The Test Suite */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ height: "1px", flex: 1, background: "var(--color-amber-dim)" }} />
             <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.62rem", fontWeight: 700, color: "var(--color-amber)", flexShrink: 0 }}>
-              // oracles_trials
+              // test_suite_log
             </span>
             <div style={{ height: "1px", flex: 1, background: "var(--color-amber-dim)" }} />
           </div>
@@ -837,7 +801,7 @@ export default function ProfilePage() {
           {/* Summary chips */}
           <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
             {[
-              [`${triviaSessions.length}`, "Trials played"],
+              [`${triviaSessions.length}`, "Runs played"],
               [`${triviaCompleted}`, "Completed"],
               [`+${triviaXP} XP`, "Total earned"],
             ].map(([val, lbl]) => (
@@ -931,17 +895,17 @@ export default function ProfilePage() {
       ) : isOwnProfile ? (
         <div style={{ borderRadius: "6px", padding: "2rem", textAlign: "center", border: "1px dashed var(--color-amber-border)", background: "rgba(255,204,102,0.03)" }}>
           <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
-            No trials completed yet
+            No runs completed yet
           </p>
           <p style={{ fontSize: "0.72rem", color: "var(--color-text-tertiary)", marginBottom: "1rem" }}>
-            Face the Oracle's weekly trial and prove your knowledge.
+            Clear the weekly test suite and prove your knowledge.
           </p>
           <Link
             to="/trivia"
             className="sf-btn-ghost"
             style={{ display: "inline-flex", color: "var(--color-amber)", borderColor: "var(--color-amber-border)", background: "var(--color-amber-dim)" }}
           >
-            Enter the Sanctum
+            Run the Suite
           </Link>
         </div>
       ) : null}

@@ -1,45 +1,43 @@
 # Your Profile & Avatar
 
-*Every legend has a face. Every face tells a story.*
+*Your XP, your history, your face — all in one place.*
 
-Your Profile is your identity in SkillForge — a record of your journey, your triumphs, and your standing in the realm. It is both a personal sanctuary and a public testament to what you have achieved.
+Your Profile is your record on SkillForge: level, rank, total XP, and a full log of everything you've completed. It's yours to edit, and public for others to view.
 
 ---
 
 ## Accessing Your Profile
 
-Your Profile is always within reach. In the **top navigation bar**, click on your username or avatar to open the user menu. Select **View Profile** to enter your personal scroll.
+Click your username or avatar in the **top navigation bar** to open the user menu, then select **View Profile**.
 
-## What Your Profile Contains
+## What's On It
 
-Upon your Profile you will find:
-
-- **Your Avatar** — The face you present to the realm
-- **Your Name and Title** — Username alongside your current rank
-- **Level & Total XP** — Your current level and experience accumulated
-- **Quest Completions** — A full chronicle of every challenge you have conquered, with the XP each one earned you
+- **Avatar** — the image shown next to your name across the app
+- **Username & Rank** — your handle and current title
+- **Level & Total XP** — where you stand right now
+- **Job Completions** — every job you've cleared, with the XP each one earned
 
 ## Setting Your Avatar
 
-To place a face upon your legend:
-
-1. Navigate to **Your Profile** from the user menu
-2. Click upon your current avatar, or the placeholder where your avatar would appear
+1. Open **Your Profile** from the user menu
+2. Click your current avatar, or the placeholder if you don't have one yet
 3. Select an image from your device
-4. Your new avatar shall appear at once — in your profile, in the Hall of Legends, and wherever your name is shown throughout the realm
+4. It updates immediately — on your profile, the leaderboard, and anywhere else your name appears
 
-Common image formats are accepted. Your avatar is displayed as a circle. Choose wisely — this is the face your fellow adventurers will come to know.
+JPEG and PNG are accepted, up to 2 MB. Avatars render as a circle.
 
 ## Changing Your Email
 
-Your email address can be updated from your Profile page. Look for the **edit** icon beside your email address, enter your new address, and confirm the change. Your email is used only for account matters and is never shown publicly.
+Your email can be updated from your Profile page. Click the **edit** icon beside your email address, enter the new one, and confirm. It's used only for account purposes and is never shown publicly.
 
 ---
 
-## Viewing Other Adventurers
+## Viewing Other Profiles
 
-Every member of SkillForge has a public profile. Visit the **Guild** — the roster of all adventurers — and select any name to view their chronicle. You may see their level, rank, total XP, and the quests they have completed.
+Every SkillForge user has a public profile. Visit **Users** — the full list of everyone on the platform — and click any name to view their stats: level, rank, total XP, and the jobs they've completed.
 
-Use the Guild to find inspiration, to measure your own progress, or simply to learn the names of those who walk the same halls as you.
+Use it to see how others are approaching the same problems, or just to see who's climbing the leaderboard.
 
-> *A profile is more than a record. It is the story of every moment you chose to sit with a difficult problem and work through it. That story belongs to you alone — and all who read it will know what you are made of.*
+---
+
+> *A profile is a log, not a highlight reel. Every entry — pass or fail — is part of the record. That's the point.*

@@ -12,9 +12,9 @@ const LANG_CONFIG = {
 };
 
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "var(--color-green)",       border: "var(--color-green-border)", bg: "var(--color-green-dim)",  bar: "var(--color-green)" },
-  cryptic: { label: "Cryptic", color: "var(--color-amber)",       border: "var(--color-amber-border)", bg: "var(--color-amber-dim)",  bar: "var(--color-amber)" },
-  abyssal: { label: "Abyssal", color: "var(--color-red-bright)",  border: "var(--color-red-border)",   bg: "var(--color-red-dim)",    bar: "var(--color-red-bright)" },
+  shallow: { label: "Junior", color: "var(--color-green)",       border: "var(--color-green-border)", bg: "var(--color-green-dim)",  bar: "var(--color-green)" },
+  cryptic: { label: "Mid",    color: "var(--color-amber)",       border: "var(--color-amber-border)", bg: "var(--color-amber-dim)",  bar: "var(--color-amber)" },
+  abyssal: { label: "Senior", color: "var(--color-red-bright)",  border: "var(--color-red-border)",   bg: "var(--color-red-dim)",    bar: "var(--color-red-bright)" },
 };
 
 const DIFF_ORDER = { shallow: 0, cryptic: 1, abyssal: 2 };
@@ -359,7 +359,7 @@ export default function LanguageQuestsPage() {
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="hero-eyebrow">ls ./quests --lang={language}</p>
+            <p className="hero-eyebrow">ls ./jobs --lang={language}</p>
             <h1
               style={{
                 fontFamily: "var(--font-heading)",
@@ -414,7 +414,7 @@ export default function LanguageQuestsPage() {
             </svg>
             <input
               type="text"
-              placeholder="grep quests…"
+              placeholder="grep jobs…"
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
               className="sf-input"
@@ -456,11 +456,11 @@ export default function LanguageQuestsPage() {
         </div>
       )}
 
-      {/* ── Quest list ── */}
+      {/* ── Job list ── */}
       {loading ? (
         <div className="flex items-center justify-center gap-3 py-20">
           <div className="sf-spinner" style={{ width: "20px", height: "20px" }} />
-          <span className="text-sub text-sm">Loading quests…</span>
+          <span className="text-sub text-sm">Loading jobs…</span>
         </div>
       ) : filtered.length === 0 ? (
         <div
@@ -469,12 +469,12 @@ export default function LanguageQuestsPage() {
         >
           {quests.length === 0 ? (
             <>
-              <p className="text-sub text-sm">No quests available for {langCfg.name} yet.</p>
-              <p className="text-dim text-xs">Check back soon — new quests are being forged.</p>
+              <p className="text-sub text-sm">No jobs available for {langCfg.name} yet.</p>
+              <p className="text-dim text-xs">Check back soon — new jobs are being queued.</p>
             </>
           ) : (
             <>
-              <p className="text-sub text-sm">No quests match your search.</p>
+              <p className="text-sub text-sm">No jobs match your search.</p>
               <button
                 onClick={() => { handleSearch(""); handleFilter("all"); }}
                 style={{ marginTop: "0.5rem", fontSize: "0.65rem", color: "var(--color-green)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)" }}
@@ -501,7 +501,7 @@ export default function LanguageQuestsPage() {
                 Difficulty
               </span>
               <span style={{ flex: 1, fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)" }}>
-                Quest
+                Job
               </span>
               <span style={{ flexShrink: 0, width: "auto", fontFamily: "var(--font-heading)", fontSize: "0.55rem", fontWeight: 700, color: "var(--color-text-faint)", paddingRight: "calc(70px + 1rem)" }}>
                 Reward
@@ -519,7 +519,7 @@ export default function LanguageQuestsPage() {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
             <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
             <span style={{ fontSize: "0.62rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
-              {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} quests
+              {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} jobs
             </span>
           </div>
         </>

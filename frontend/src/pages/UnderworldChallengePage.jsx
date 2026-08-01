@@ -13,39 +13,10 @@ import {
   submitChallenge,
 } from "../services/underworldService";
 
-// Boss portrait imports
-import imgArcanis        from "../assets/img/underworld_realm/Arcanis.png";
-import imgDOMinus        from "../assets/img/underworld_realm/DOMinus.png";
-import imgEldrin         from "../assets/img/underworld_realm/Eldrin.png";
-import imgExceptionor    from "../assets/img/underworld_realm/Exceptionor.png";
-import imgFlameatrix     from "../assets/img/underworld_realm/Flameatrix.png";
-import imgLambdaen       from "../assets/img/underworld_realm/Lambdaen.png";
-import imgNecroPy        from "../assets/img/underworld_realm/NecroPy.png";
-import imgNethraxis      from "../assets/img/underworld_realm/Nethraxis.png";
-import imgSerpentis      from "../assets/img/underworld_realm/Serpentis.png";
-import imgSerpyros       from "../assets/img/underworld_realm/Serpyros.png";
-import imgShadowScripter from "../assets/img/underworld_realm/Shadow Scripter.png";
-import imgValora         from "../assets/img/underworld_realm/Valora.png";
-
-const BOSS_IMAGES = {
-  "Arcanis.png":         imgArcanis,
-  "DOMinus.png":         imgDOMinus,
-  "Eldrin.png":          imgEldrin,
-  "Exceptionor.png":     imgExceptionor,
-  "Flameatrix.png":      imgFlameatrix,
-  "Lambdaen.png":        imgLambdaen,
-  "NecroPy.png":         imgNecroPy,
-  "Nethraxis.png":       imgNethraxis,
-  "Serpentis.png":       imgSerpentis,
-  "Serpyros.png":        imgSerpyros,
-  "Shadow Scripter.png": imgShadowScripter,
-  "Valora.png":          imgValora,
-};
-
 const DIFF_META = {
-  cursed:   { label: "Cursed",   color: "#ef4444" },
-  damned:   { label: "Damned",   color: "#f97316" },
-  infernal: { label: "Infernal", color: "#a855f7" },
+  warning:  { label: "Warning",  color: "var(--color-amber)" },
+  critical: { label: "Critical", color: "#ff8a5c" },
+  fatal:    { label: "Fatal",    color: "var(--color-red-bright)" },
 };
 
 const LANG_LABELS = {
@@ -228,8 +199,7 @@ function useCountUp(target, duration = 900) {
 
 function ResultScreen({ result, boss }) {
   const [showFeedback, setShowFeedback] = useState(false);
-  const diff     = DIFF_META[boss.difficulty] ?? { label: boss.difficulty, color: "#ef4444" };
-  const imgSrc   = BOSS_IMAGES[boss.avatar];
+  const diff     = DIFF_META[boss.difficulty] ?? { label: boss.difficulty, color: "var(--color-red-bright)" };
   const isFailed = result.status === "failed";
   const xp       = result.xp_earned ?? 0;
   const maxXp    = boss.max_xp ?? 0;
@@ -260,7 +230,7 @@ function ResultScreen({ result, boss }) {
         textAlign: "center",
       }}
     >
-      {/* Boss portrait */}
+      {/* Entity glyph */}
       <div
         style={{
           width: "160px",
@@ -271,15 +241,11 @@ function ResultScreen({ result, boss }) {
           boxShadow: `0 0 32px ${glowColor}`,
           marginBottom: "1.25rem",
           flexShrink: 0,
+          "--tier-color": diff.color,
+          "--tier-glow": glowColor,
         }}
       >
-        {imgSrc && (
-          <img
-            src={imgSrc}
-            alt={boss.name}
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
-          />
-        )}
+        <div className="uw-glyph uw-glyph--lg">{boss.glyph}</div>
       </div>
 
       <h2
@@ -455,7 +421,7 @@ function ResultScreen({ result, boss }) {
           transition: "background 0.18s",
         }}
       >
-        ← Return to Underworld
+        ← Return to Stack Trace
       </Link>
     </div>
   );
@@ -637,7 +603,7 @@ export default function UnderworldChallengePage() {
           {error}
         </p>
         <Link to="/underworld" style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textDecoration: "none", fontFamily: "var(--font-heading)", letterSpacing: "0.10em" }}>
-          ← Return to Underworld
+          ← Return to Stack Trace
         </Link>
       </div>
     );
@@ -645,8 +611,7 @@ export default function UnderworldChallengePage() {
 
   if (!challenge || !boss) return null;
 
-  const diff   = DIFF_META[boss.difficulty] ?? { label: boss.difficulty, color: "#ef4444" };
-  const imgSrc = BOSS_IMAGES[boss.avatar];
+  const diff   = DIFF_META[boss.difficulty] ?? { label: boss.difficulty, color: "var(--color-red-bright)" };
 
   // Show result screen
   if (result !== null) {
@@ -695,15 +660,10 @@ export default function UnderworldChallengePage() {
                 overflow: "hidden",
                 border: `2px solid ${diff.color}`,
                 flexShrink: 0,
+                "--tier-color": diff.color,
               }}
             >
-              {imgSrc && (
-                <img
-                  src={imgSrc}
-                  alt={boss.name}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
-                />
-              )}
+              <div className="uw-glyph uw-glyph--md">{boss.glyph}</div>
             </div>
             <div>
               <h2
@@ -905,10 +865,10 @@ export default function UnderworldChallengePage() {
                       animation: "spin 0.7s linear infinite",
                     }}
                   />
-                  Judging…
+                  Evaluating…
                 </>
               ) : (
-                "Submit to the Underworld"
+                "Submit to the Stack Trace"
               )}
             </button>
 

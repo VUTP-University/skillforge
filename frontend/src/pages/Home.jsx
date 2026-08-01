@@ -36,8 +36,8 @@ const LANGUAGES = [
 
 const SECTIONS = [
   { name: "Leaderboard", path: "/leaderboard", glyph: "#", proc: "leaderboard.sh", description: "Compete with the best coders" },
-  { name: "Underworld",  path: "/underworld",  glyph: "!", proc: "underworld.sh",  description: "Face the darkest challenges"  },
-  { name: "Trivia",      path: "/trivia",      glyph: "?", proc: "trivia.sh",      description: "Weekly knowledge trials"      },
+  { name: "Stack Trace", path: "/underworld",  glyph: "!", proc: "stack_trace.sh", description: "Debug hostile processes for big XP" },
+  { name: "Test Suite",  path: "/trivia",      glyph: "?", proc: "test_suite.sh",  description: "Pass the weekly knowledge run" },
 ];
 
 function ArrowIcon({ className = "" }) {
@@ -131,11 +131,11 @@ export default function Home() {
             Welcome back, {displayName}<span aria-hidden="true">_</span>
           </h1>
           <p className="leading-relaxed max-w-[560px]" style={{ fontSize: "0.95rem", color: "var(--color-text-secondary)", marginBottom: "1.75rem" }}>
-            Your quest continues. Run <code style={{ color: "var(--color-blue)" }}>quest --list</code> to see what's next.
+            Your job queue awaits. Run <code style={{ color: "var(--color-blue)" }}>job --list</code> to see what's next.
           </p>
 
           {/* Stat panels */}
-          <div className="grid sm:grid-cols-3 gap-4 mb-7">
+          <div className="grid sm:grid-cols-[2fr_2fr_1fr] gap-4 mb-7">
 
             {/* XP */}
             <div className="glass-card p-5">
@@ -145,7 +145,7 @@ export default function Home() {
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: "var(--color-green)", lineHeight: 1, marginBottom: "0.6rem" }}>
                 {animatedXP.toLocaleString()} XP
               </p>
-              <ProgressBar value={xpPct} ascii chars={9} />
+              <ProgressBar value={xpPct} ascii chars={26} />
               <p style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
                 {xpPct}% to LV{nextLevel}
               </p>
@@ -154,12 +154,12 @@ export default function Home() {
             {/* Quest chronicle */}
             <div className="glass-card p-5">
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.6rem", fontWeight: 700, color: "var(--color-blue)", marginBottom: "0.5rem" }}>
-                // quest_chronicle
+                // job_log
               </p>
               <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 700, color: "var(--color-green)", lineHeight: 1, marginBottom: "0.6rem" }}>
                 {animatedCompleted} / {totalLive !== null ? totalLive : "—"}
               </p>
-              <ProgressBar value={completedPct} ascii chars={9} />
+              <ProgressBar value={completedPct} ascii chars={26} />
               <p style={{ fontSize: "0.68rem", color: "var(--color-text-tertiary)", marginTop: "0.4rem" }}>
                 {completedPct}% complete
               </p>
@@ -189,8 +189,8 @@ export default function Home() {
 
           {/* Quick actions */}
           <div className="flex flex-wrap gap-3">
-            <a href="#quests" className="sf-btn" style={{ width: "auto", minWidth: "160px" }}>
-              Run Quest
+            <a href="#jobs" className="sf-btn" style={{ width: "auto", minWidth: "160px" }}>
+              Run Job
             </a>
             <Link to="/profile" className="sf-btn-secondary" style={{ width: "auto", minWidth: "160px" }}>
               View Profile
@@ -202,9 +202,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── Language Quest Cards — per-card terminal chrome, no imagery ── */}
-      <div id="quests">
-        <SectionDivider title="Choose Your Quest" />
+      {/* ── Language Job Cards — per-card terminal chrome, no imagery ── */}
+      <div id="jobs">
+        <SectionDivider title="Choose Your Job" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {LANGUAGES.map((lang) => (
             <Link key={lang.slug} to={`/quests/${lang.slug}`} style={{ textDecoration: "none" }}>
@@ -216,7 +216,7 @@ export default function Home() {
                 <div className="quest-card-body">
                   <div className="flex items-start justify-between">
                     <div className="quest-card-glyph">{lang.glyph}</div>
-                    <Badge variant="blue">{questCounts[lang.slug] ?? "—"} quests</Badge>
+                    <Badge variant="blue">{questCounts[lang.slug] ?? "—"} jobs</Badge>
                   </div>
 
                   <h3
@@ -229,7 +229,7 @@ export default function Home() {
                     {lang.description}
                   </p>
                   <div className="quest-card-cta">
-                    <span>./begin_quest</span>
+                    <span>./begin_job</span>
                     <ArrowIcon />
                   </div>
                 </div>

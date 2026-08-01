@@ -13,9 +13,9 @@ const LANG_COLORS = {
   python: "var(--color-green)", javascript: "var(--color-amber)", java: "var(--color-red-bright)", csharp: "var(--gem-csharp)",
 };
 const DIFF_META = {
-  shallow: { label: "Shallow", color: "var(--color-green)" },
-  cryptic: { label: "Cryptic", color: "var(--color-amber)" },
-  abyssal: { label: "Abyssal", color: "var(--color-red-bright)" },
+  shallow: { label: "Junior", color: "var(--color-green)" },
+  cryptic: { label: "Mid",    color: "var(--color-amber)" },
+  abyssal: { label: "Senior", color: "var(--color-red-bright)" },
 };
 
 const LANG_OPTIONS = [
@@ -107,7 +107,7 @@ function SolutionModal({ submissionId, onClose }) {
                 {detail.username}
               </Link>
               <span style={{ color: "var(--color-text-faint)", fontSize: "0.8rem", flexShrink: 0 }}>→</span>
-              {/* Quest link */}
+              {/* Job link */}
               <Link
                 to={`/quests/${detail.language}/${detail.quest_id}`}
                 onClick={onClose}
@@ -279,7 +279,7 @@ export default function AdminSubmissionsTable() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
           <input
-            type="text" className="sf-input" placeholder="Search user or quest…"
+            type="text" className="sf-input" placeholder="Search user or job…"
             defaultValue={search}
             onChange={(e) => applySearch(e.target.value)}
             style={{ paddingLeft: "2.25rem", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
@@ -335,7 +335,7 @@ export default function AdminSubmissionsTable() {
           borderBottom: "1px solid rgba(255,255,255,0.06)",
           background: "rgba(255,255,255,0.02)",
         }}>
-          {["User", "Quest", "Language", "Score", "Status", "Date", ""].map((h, i) => (
+          {["User", "Job", "Language", "Score", "Status", "Date", ""].map((h, i) => (
             <span key={i} style={{ fontFamily: "var(--font-heading)", fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.10em", textTransform: "uppercase", color: "var(--color-text-faint)" }}>
               {h}
             </span>
@@ -384,7 +384,7 @@ export default function AdminSubmissionsTable() {
                 {s.username}
               </Link>
 
-              {/* Quest link */}
+              {/* Job link */}
               <Link
                 to={`/quests/${lang}/${s.quest_id}`}
                 style={{ fontFamily: "var(--font-heading)", fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.72)", textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}

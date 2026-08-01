@@ -155,7 +155,7 @@ def start_trivia():
     if used:
         next_at = used.started_at.replace(tzinfo=timezone.utc) + timedelta(days=COOLDOWN_DAYS)
         return jsonify({
-            "error":            "You have already completed your weekly trial.",
+            "error":            "You have already completed your weekly run.",
             "next_available_at": next_at.isoformat(),
         }), 429
 

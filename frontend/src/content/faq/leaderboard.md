@@ -1,41 +1,37 @@
-# The Hall of Legends
+# Leaderboard
 
-*Where the greatest among us are remembered across all ages.*
+*One number, sorted: total XP.*
 
-The Hall of Legends — known in lesser realms as the Leaderboard — is where the mightiest adventurers of SkillForge are ranked for all to witness. Your place in the Hall is determined by one measure alone: your total XP.
-
----
-
-## How the Hall Works
-
-The Hall of Legends is simple in its design: **more XP means a higher place**. Every quest completed, every Underworld challenge conquered, brings you one step closer to the summit.
-
-There are no tricks and no shortcuts. Only the long road of accumulated experience.
-
-## The Podium of Champions
-
-At the very top of the Hall stands the **Podium of Champions** — a place of special distinction reserved for the three greatest adventurers in the realm. These names are displayed above all others, honored with recognition befitting their achievement.
-
-If your name rests upon the Podium, you have reached the highest tier of SkillForge glory.
-
-## The Ranked List
-
-Beneath the Podium, every adventurer in SkillForge is listed in order of their accumulated XP. Your position within this list is your standing in the realm — a living reflection of everything you have accomplished.
-
-## How to Rise
-
-To ascend in the Hall of Legends, there is only one path: **complete more challenges**.
-
-- Every quest you conquer adds to your XP total
-- The Underworld offers equally valuable rewards for those brave enough to enter
-- Consistent effort over time is the surest route to legendary standing
+The Leaderboard ranks every user on SkillForge by total XP — no other factor involved. Your place on it is determined by exactly one thing: how much you've shipped.
 
 ---
 
-## On the Nature of Competition
+## How Ranking Works
 
-> *No name was born at the top of the Hall. Each one was written there, one quest at a time.*
+The rule is simple: **more XP, higher position**. Every completed job and every resolved Stack Trace process moves you up.
 
-The Hall of Legends is not designed to discourage. It is designed to inspire. The names above your own are not your enemies — they are proof of what dedication makes possible.
+No tie-breakers, no shortcuts — just accumulated XP.
 
-Study your position. Note the distance between where you stand and where you wish to be. Then return to the quests.
+## The Top 3
+
+The top three users get their own podium above the main list, the highest-visibility spot on the page. Reaching it means you're outperforming everyone else currently on SkillForge.
+
+## The Full List
+
+Below the top 3, every user is ranked in order of total XP. Your position is a live snapshot of where you stand against everyone else on the platform.
+
+## Moving Up
+
+There's exactly one way to climb: **complete more work**.
+
+- Every job adds to your XP total
+- Stack Trace processes pay out just as well for those who take them on
+- Consistency beats bursts — steady completions add up faster than occasional binges
+
+---
+
+## On Competition
+
+> *No one starts at the top. Every position on this list was earned one job at a time.*
+
+The Leaderboard isn't here to discourage — it's a scoreboard, not a judgment. Everyone above you got there the same way you can: by shipping.

@@ -1,41 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBosses, startChallenge } from "../services/underworldService";
 
-import imgMeteorGif      from "../assets/img/underworld_realm/Underworld_Meteor.gif";
-import imgArcanis        from "../assets/img/underworld_realm/Arcanis.png";
-import imgDOMinus        from "../assets/img/underworld_realm/DOMinus.png";
-import imgEldrin         from "../assets/img/underworld_realm/Eldrin.png";
-import imgExceptionor    from "../assets/img/underworld_realm/Exceptionor.png";
-import imgFlameatrix     from "../assets/img/underworld_realm/Flameatrix.png";
-import imgLambdaen       from "../assets/img/underworld_realm/Lambdaen.png";
-import imgNecroPy        from "../assets/img/underworld_realm/NecroPy.png";
-import imgNethraxis      from "../assets/img/underworld_realm/Nethraxis.png";
-import imgSerpentis      from "../assets/img/underworld_realm/Serpentis.png";
-import imgSerpyros       from "../assets/img/underworld_realm/Serpyros.png";
-import imgShadowScripter from "../assets/img/underworld_realm/Shadow Scripter.png";
-import imgValora         from "../assets/img/underworld_realm/Valora.png";
-
-const BOSS_IMAGES = {
-  "Arcanis.png":         imgArcanis,
-  "DOMinus.png":         imgDOMinus,
-  "Eldrin.png":          imgEldrin,
-  "Exceptionor.png":     imgExceptionor,
-  "Flameatrix.png":      imgFlameatrix,
-  "Lambdaen.png":        imgLambdaen,
-  "NecroPy.png":         imgNecroPy,
-  "Nethraxis.png":       imgNethraxis,
-  "Serpentis.png":       imgSerpentis,
-  "Serpyros.png":        imgSerpyros,
-  "Shadow Scripter.png": imgShadowScripter,
-  "Valora.png":          imgValora,
-};
-
 const DIFF_META = {
-  cursed:   { label: "Cursed",   color: "#f87171", dimBorder: "rgba(248,113,113,0.20)", hotBorder: "rgba(248,113,113,0.65)", glow: "rgba(248,113,113,0.25)", bg: "rgba(248,113,113,0.10)" },
-  damned:   { label: "Damned",   color: "#fb923c", dimBorder: "rgba(251,146,60,0.20)",  hotBorder: "rgba(251,146,60,0.65)",  glow: "rgba(251,146,60,0.25)",  bg: "rgba(251,146,60,0.10)"  },
-  infernal: { label: "Infernal", color: "#c084fc", dimBorder: "rgba(192,132,252,0.20)", hotBorder: "rgba(192,132,252,0.65)", glow: "rgba(192,132,252,0.25)", bg: "rgba(192,132,252,0.09)" },
+  warning:  { label: "Warning",  color: "var(--color-amber)",      dimBorder: "rgba(255,204,102,0.20)", hotBorder: "rgba(255,204,102,0.65)", glow: "rgba(255,204,102,0.25)", bg: "rgba(255,204,102,0.10)" },
+  critical: { label: "Critical", color: "#ff8a5c",                 dimBorder: "rgba(255,138,92,0.20)",  hotBorder: "rgba(255,138,92,0.65)",  glow: "rgba(255,138,92,0.25)",  bg: "rgba(255,138,92,0.10)"  },
+  fatal:    { label: "Fatal",    color: "var(--color-red-bright)", dimBorder: "rgba(255,95,86,0.20)",   hotBorder: "rgba(255,95,86,0.65)",   glow: "rgba(255,95,86,0.25)",   bg: "rgba(255,95,86,0.10)"   },
 };
 
 const LANG_LABELS = { python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#" };
@@ -46,94 +16,20 @@ function formatReset(iso) {
   return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-/* ── Meteor shower ───────────────────────────────────────────── */
-
-function MeteorShower() {
-  const meteors = useMemo(() =>
-    Array.from({ length: 18 }, (_, i) => {
-      const rotation = 93 + Math.random() * 32;            // 93–125° from horizontal
-      const rotRad   = rotation * Math.PI / 180;
-      const duration = 1.4 + Math.random() * 3.2;
-
-      // Physics: for every travelY pixels down, drift travelY × cot(rotation) pixels sideways.
-      // cot(90°) = 0 (straight down), cot(120°) ≈ -0.577 (30° diagonal left).
-      const travelY = 1500;
-      const travelX = travelY * (Math.cos(rotRad) / Math.sin(rotRad));
-
-      const sy = -(130 + Math.random() * 120);             // start above viewport
-
-      return {
-        id:       i,
-        left:     10 + Math.random() * 78,
-        duration,
-        delay:    -(Math.random() * duration),             // negative = already mid-fall on load
-        width:    55 + Math.random() * 185,
-        rotation,
-        opacity:  0.45 + Math.random() * 0.55,
-        sx:       0,
-        sy,
-        ex:       travelX,
-        ey:       sy + travelY,
-      };
-    }),
-  []);
-
-  return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-      {meteors.map((m) => (
-        <div
-          key={m.id}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: `${m.left}%`,
-            "--uw-sx": `${m.sx}px`,
-            "--uw-sy": `${m.sy}px`,
-            "--uw-ex": `${m.ex.toFixed(1)}px`,
-            "--uw-ey": `${m.ey}px`,
-            animationName: "uw-meteor-fall",
-            animationDuration: `${m.duration}s`,
-            animationDelay: `${m.delay}s`,
-            animationTimingFunction: "linear",
-            animationIterationCount: "infinite",
-          }}
-        >
-          <img
-            src={imgMeteorGif}
-            alt=""
-            draggable={false}
-            style={{
-              width: `${m.width}px`,
-              height: "auto",
-              display: "block",
-              opacity: m.opacity,
-              transform: `rotate(${m.rotation}deg)`,
-              mixBlendMode: "screen",
-              pointerEvents: "none",
-              userSelect: "none",
-            }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* ── Icons ──────────────────────────────────────────────────── */
 
-function IconFlame({ size = 14, color = "currentColor" }) {
+function IconChevron({ size = 13, color = "currentColor" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
-      <path d="M12 2c0 0-4.5 5-4.5 9.5 0 2 .9 3.9 2.4 5.1C9 15.9 7.5 13 8 10.5 6 12.5 5 15.5 5 18c0 3.9 3.1 7 7 7s7-3.1 7-7c0-7-7-16-7-16z"/>
-      <path d="M12 10c0 0-1.5 3-1.5 5.5A1.5 1.5 0 0012 17a1.5 1.5 0 001.5-1.5C13.5 13 12 10 12 10z" fill="#fde68a" opacity="0.85"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
     </svg>
   );
 }
 
-function IconSkull({ size = 14, color = "rgba(255,255,255,0.45)" }) {
+function IconCheck({ size = 13, color = "currentColor" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
-      <path d="M12 3a8 8 0 00-8 8c0 2.8 1.4 5.3 3.6 6.8L8 20h8l.4-2.2A8 8 0 0020 11a8 8 0 00-8-8zm-2 11H9v-2h1v2zm4 0h-1v-2h1v2zm1.5-4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-5 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
     </svg>
   );
 }
@@ -142,8 +38,7 @@ function IconSkull({ size = 14, color = "rgba(255,255,255,0.45)" }) {
 
 function BossCard({ boss, onChallenge, isStarting }) {
   const [hovered, setHovered] = useState(false);
-  const diff   = DIFF_META[boss.difficulty] ?? DIFF_META.cursed;
-  const imgSrc = BOSS_IMAGES[boss.avatar];
+  const diff = DIFF_META[boss.difficulty] ?? DIFF_META.warning;
 
   return (
     <div
@@ -160,47 +55,15 @@ function BossCard({ boss, onChallenge, isStarting }) {
         cursor: "default",
       }}
     >
-      {/* ── Portrait panel ── */}
-      <div className="uw-boss-portrait">
-        {imgSrc && (
-          <img
-            src={imgSrc}
-            alt={boss.name}
-            style={{
-              width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: "top center",
-              display: "block",
-              transition: "transform 0.55s ease, filter 0.35s ease",
-              transform: hovered ? "scale(1.08)" : "scale(1.02)",
-              filter: hovered
-                ? "brightness(0.88) saturate(1.20) contrast(1.06)"
-                : "brightness(0.65) saturate(0.78)",
-            }}
-          />
-        )}
-
-        {/* Fades portrait into the dark card body */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: `
-            linear-gradient(to right,  rgba(8,0,0,0.0) 0%, rgba(8,0,0,0.60) 100%),
-            linear-gradient(to bottom, rgba(0,0,0,0.03) 0%, rgba(6,0,0,0.82) 92%)
-          `,
-        }}/>
-
-        {/* Ember glow on hover */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: `radial-gradient(ellipse at 50% 120%, ${diff.glow} 0%, transparent 60%)`,
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.30s",
-        }}/>
+      {/* ── Glyph panel ── */}
+      <div className="uw-boss-portrait" style={{ "--tier-color": diff.color, "--tier-glow": diff.glow }}>
+        <div className="uw-glyph uw-glyph--lg">{boss.glyph}</div>
 
         {/* Difficulty badge */}
         <div style={{
           position: "absolute", top: "0.6rem", left: "0.6rem",
           padding: "0.20rem 0.60rem", borderRadius: "3px",
-          background: "rgba(0,0,0,0.85)", backdropFilter: "blur(6px)",
+          background: "rgba(0,0,0,0.85)",
           border: `1px solid ${diff.dimBorder}`,
           color: diff.color,
           fontFamily: "var(--font-heading)", fontSize: "0.54rem",
@@ -288,13 +151,13 @@ function BossCard({ boss, onChallenge, isStarting }) {
               padding: "0.52rem 1rem", borderRadius: "8px",
               background: "rgba(0,0,0,0.45)", border: "1px solid rgba(255,255,255,0.05)",
             }}>
-              <IconSkull size={13}/>
+              <IconCheck size={13} color="rgba(255,255,255,0.48)" />
               <span style={{
                 fontFamily: "var(--font-heading)", fontSize: "0.59rem",
                 letterSpacing: "0.10em", textTransform: "uppercase",
                 color: "rgba(255,255,255,0.48)",
               }}>
-                Slain · Resets {formatReset(boss.cooldown_resets_at)}
+                Resolved · Resets {formatReset(boss.cooldown_resets_at)}
               </span>
             </div>
           ) : (
@@ -321,12 +184,12 @@ function BossCard({ boss, onChallenge, isStarting }) {
                     border: "2px solid rgba(252,165,165,0.20)", borderTopColor: "#fca5a5",
                     animation: "spin 0.7s linear infinite",
                   }}/>
-                  Entering…
+                  Connecting…
                 </>
               ) : (
                 <>
-                  <IconFlame size={13} color={hovered ? diff.color : "rgba(252,165,165,0.60)"}/>
-                  Challenge
+                  <IconChevron size={13} color={hovered ? diff.color : "rgba(252,165,165,0.60)"}/>
+                  Debug
                 </>
               )}
             </button>
@@ -348,16 +211,10 @@ export default function UnderworldPage() {
   const [langFilter, setLangFilter] = useState("all");
   const [starting,   setStarting]   = useState(null);
 
-  /* Override the blue page-wrapper background for this page only */
-  useEffect(() => {
-    document.body.classList.add("underworld-active");
-    return () => document.body.classList.remove("underworld-active");
-  }, []);
-
   useEffect(() => {
     getBosses()
       .then((data) => setBosses(data.bosses))
-      .catch((err)  => setError(err?.response?.data?.error ?? "Failed to summon the Underworld"))
+      .catch((err)  => setError(err?.response?.data?.error ?? "Failed to load the Stack Trace"))
       .finally(()   => setLoading(false));
   }, []);
 
@@ -378,57 +235,19 @@ export default function UnderworldPage() {
   const filtered = langFilter === "all" ? bosses : bosses.filter((b) => b.language === langFilter);
 
   return (
-    <>
-      {createPortal(
-        <>
-          {/* Ambient sky — portalled to body so fixed positioning is truly viewport-relative */}
-          <div style={{
-            position: "fixed", inset: 0, zIndex: 0,
-            pointerEvents: "none", overflow: "hidden",
-            /* Dark red sky, no background image — glow rises from the bottom edge */
-            background: `
-              radial-gradient(ellipse 90% 55% at 50% 100%, rgba(175,14,0,0.58) 0%, transparent 65%),
-              radial-gradient(ellipse 50% 28% at 50% 100%, rgba(220,30,0,0.38) 0%, transparent 45%),
-              linear-gradient(180deg, #060000 0%, #0c0101 55%, #150202 100%)
-            `,
-          }}>
-            {/* Subtle top vignette for navbar area */}
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "linear-gradient(to bottom, rgba(4,0,0,0.65) 0%, rgba(4,0,0,0.20) 12%, transparent 30%)",
-            }} />
-            {/* Side vignette */}
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "radial-gradient(ellipse 95% 100% at 50% 50%, transparent 55%, rgba(2,0,0,0.55) 100%)",
-            }} />
-          </div>
-
-          {/* Meteor shower */}
-          <div style={{
-            position: "fixed", inset: 0, zIndex: 1,
-            pointerEvents: "none", overflow: "hidden",
-          }}>
-            <MeteorShower />
-          </div>
-        </>,
-        document.body
-      )}
-
-      {/* Page content — .page-inner z-index: 2 (via CSS) keeps this above the portalled layers */}
-      <div>
+    <div>
 
       {/* ── HERO ── */}
       <div style={{ textAlign: "center", paddingBottom: "3rem", paddingTop: "0.5rem" }}>
 
         <h1 style={{
-          fontFamily: "var(--font-brand)",
+          fontFamily: "var(--font-brand)", fontWeight: 800,
           fontSize: "clamp(2.4rem, 6vw, 4rem)",
           color: "#fff", lineHeight: 1.1, margin: 0, marginBottom: "0.6rem",
           textShadow: "0 0 120px rgba(220,38,38,0.90), 0 0 50px rgba(249,115,22,0.55), 0 0 15px rgba(239,68,68,0.45)",
           letterSpacing: "0.04em",
         }}>
-          The Underworld
+          The Stack Trace
         </h1>
 
         <p style={{
@@ -436,7 +255,7 @@ export default function UnderworldPage() {
           letterSpacing: "0.22em", textTransform: "uppercase",
           color: "rgba(252,165,165,0.58)", marginBottom: "1.8rem",
         }}>
-          Dare to face the ancient lords of code
+          Debug the hostile processes lurking in the deepest frames
         </p>
 
         {/* Red ornate divider */}
@@ -456,12 +275,11 @@ export default function UnderworldPage() {
             color: "rgba(252,165,165,0.58)",
             fontFamily: "var(--font-heading)", fontSize: "0.63rem",
             letterSpacing: "0.10em", textTransform: "uppercase",
-            backdropFilter: "blur(6px)",
           }}>
             <svg style={{ width: 13, height: 13, color: "#ef4444", flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
             </svg>
-            {bosses.length} ancient lords await · One challenge per lord per day
+            {bosses.length} hostile processes detected · one trace per process per day
           </div>
         )}
       </div>
@@ -485,7 +303,7 @@ export default function UnderworldPage() {
                 boxShadow: active ? "0 0 16px rgba(220,38,38,0.22)" : "none",
               }}
             >
-              {tab === "all" ? "All Lords" : LANG_LABELS[tab] ?? tab}
+              {tab === "all" ? "All Processes" : LANG_LABELS[tab] ?? tab}
             </button>
           );
         })}
@@ -520,7 +338,7 @@ export default function UnderworldPage() {
           color: "rgba(252,165,165,0.52)", fontFamily: "var(--font-heading)",
           fontSize: "0.75rem", letterSpacing: "0.10em",
         }}>
-          No lords match this realm.
+          No processes match this filter.
         </div>
       )}
 
@@ -543,6 +361,5 @@ export default function UnderworldPage() {
       )}
 
       </div>
-    </>
   );
 }

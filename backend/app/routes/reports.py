@@ -26,7 +26,7 @@ def create_report():
 
     quest = Quest.query.get(quest_id)
     if not quest:
-        return jsonify({"error": "Quest not found"}), 404
+        return jsonify({"error": "Job not found"}), 404
 
     report = QuestReport(
         quest_id=quest_id,

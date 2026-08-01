@@ -52,7 +52,7 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
       </svg>
     ),
-    text: "Challenging quests across Python, JavaScript, Java and more",
+    text: "Challenging jobs across Python, JavaScript, Java and more",
   },
   {
     icon: (
@@ -121,7 +121,7 @@ export default function Login() {
               <span className="text-green">Deploy your future.</span>
             </h1>
             <p className="text-sub text-lg leading-relaxed max-w-sm font-body">
-              Solve coding quests, get real-time feedback, and track your progress. Join a community of builders and level up with SkillForge.
+              Solve coding jobs, get real-time feedback, and track your progress. Join a community of builders and level up with SkillForge.
             </p>
           </div>
 

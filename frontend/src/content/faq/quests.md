@@ -1,49 +1,59 @@
-# The Quest System
+# The Job Board
 
-*Every great hero is tested. Here, your test is code.*
+*Every program starts as a problem nobody's solved yet.*
 
-Quests are the heartbeat of SkillForge. Each quest presents a programming challenge — a riddle of logic that demands a solution written in code. Conquer quests, earn Experience Points, and forge your legend.
+The Job Board is the core of SkillForge — a queue of programming problems waiting to be picked up, solved, and shipped. Each job is a self-contained challenge: a spec, an editor, and a set of checks your solution has to pass.
 
 ---
 
 ## Choosing Your Language
 
-From the **Dashboard**, four great language kingdoms await:
+From the **Dashboard**, four language queues are open:
 
-- **The Python Realm** — Swift, elegant, and beloved by scholars of data and automation
-- **The JavaScript Kingdom** — Rulers of the modern web and interactive experience
-- **The Java Dominion** — Ancient and powerful, favored by builders of great systems
-- **The C# Citadel** — Masters of games, applications, and cloud dominions
+- **Python** — data, automation, and scripting fundamentals
+- **JavaScript** — the DOM, async patterns, and the modern web
+- **Java** — OOP, enterprise patterns, and the JVM
+- **C#** — games, desktop apps, and systems programming
 
-Select a realm, and the list of available quests within that kingdom shall unfold before you.
+Pick a language, and its full job list unfolds before you.
 
-## Entering a Quest
+## Opening a Job
 
-Upon choosing a quest, you will find three things awaiting you:
+Every job gives you three things:
 
-- **The Challenge** — A description of what must be accomplished, written in plain language
-- **The Codex** — A powerful editor where you shall write your solution
-- **The Trials** — Test cases that your code must satisfy to claim victory
+- **The Spec** — a plain-language description of what your solution needs to do
+- **The Editor** — a language-aware code editor for writing your solution
+- **The Checks** — test cases your code must satisfy before the job is marked done
 
-Read the challenge with care. Some quests are straightforward; others carry hidden subtleties. Do not rush.
+Read the spec closely. Some jobs are straightforward; others hide an edge case or two. Take your time.
 
 ## Writing Your Solution
 
-Use **The Codex** — the code editor within each quest — to craft your solution. The editor is prepared for the language of whichever kingdom you have entered. Write your code, think through your approach, and when ready — submit.
+Use the editor to write your solution — it's pre-configured for whichever language you picked. Think through your approach, write your code, and submit when you're ready.
 
 ## Submitting Your Solution
 
-When your solution is written, press the **Submit** button. The oracle shall evaluate your code against all trials.
+Press **Submit** and your code runs against every check.
 
-- **All trials passed?** Victory is yours. XP is awarded, and your completion recorded for all time.
-- **Some trials failed?** The oracle will show you which cases did not succeed. Read, reflect, and try again.
+- **All checks passed?** Job complete. XP is awarded and the completion is logged to your profile.
+- **Some checks failed?** You'll see exactly which cases didn't pass. Read the output, fix the gap, and resubmit.
 
-There is **no penalty** for multiple attempts. A quest may be tried as many times as you need. However, XP is granted **only upon your first successful completion** of each quest.
+There's **no penalty** for multiple attempts — a job can be retried as many times as you need. XP is only awarded on your **first successful submission** of each job.
 
 ---
 
-## Wisdom for the Road
+## Difficulty Tiers
 
-> *A true adventurer does not fear failure. Failure is merely the forge. The blade it produces is worth every scar.*
+Jobs are tagged by tier so you can gauge what you're walking into:
 
-Do not abandon a quest merely because it resists you. Each failed attempt is a lesson in disguise. The answer is always within reach — sometimes it simply requires more patience to find.
+- **Junior** — fundamentals, warm-up problems
+- **Mid** — real logic, a few moving parts
+- **Senior** — the hard stuff, where edge cases live
+
+---
+
+## A Word on Failure
+
+> *Code that fails once will fail again, until something about it actually changes.*
+
+Don't drop a job just because it's resisting you. Every failed run is data — a gap in the logic, an edge case you didn't consider. The fix is almost always closer than it feels.

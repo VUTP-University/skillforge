@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTriviaStatus, startTrivia } from "../services/triviaService";
-import oracleImg from "../assets/img/Oracle.jpg";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -14,42 +13,42 @@ const LANG_CARDS = [
   {
     key:      "python",
     glyph:    "py",
-    title:    "Python Trial",
+    title:    "Python Run",
     label:    "Python",
     desc:     "Data structures, algorithms, and language internals",
     color:    "var(--gem-python)",
     colorRgb: "94,200,255",
-    cta:      "Start Trial",
+    cta:      "Start Run",
   },
   {
     key:      "javascript",
     glyph:    "js",
-    title:    "JavaScript Trial",
+    title:    "JavaScript Run",
     label:    "JavaScript",
     desc:     "DOM, async patterns, and modern web fundamentals",
     color:    "var(--gem-javascript)",
     colorRgb: "255,204,102",
-    cta:      "Start Trial",
+    cta:      "Start Run",
   },
   {
     key:      "java",
     glyph:    "jv",
-    title:    "Java Trial",
+    title:    "Java Run",
     label:    "Java",
     desc:     "OOP, enterprise patterns, and the JVM ecosystem",
     color:    "var(--gem-java)",
     colorRgb: "255,143,163",
-    cta:      "Start Trial",
+    cta:      "Start Run",
   },
   {
     key:      "csharp",
     glyph:    "c#",
-    title:    "C# Trial",
+    title:    "C# Run",
     label:    "C#",
     desc:     "Games, desktop apps, and systems programming",
     color:    "var(--gem-csharp)",
     colorRgb: "177,140,255",
-    cta:      "Start Trial",
+    cta:      "Start Run",
   },
 ];
 
@@ -205,7 +204,7 @@ function LangCard({ card, canPlay, activeSession, starting, onStart }) {
             Starting…
           </>
         ) : !canPlay ? (
-          activeSession ? "Trial Active" : "Unavailable"
+          activeSession ? "Run Active" : "Unavailable"
         ) : (
           `${card.cta} →`
         )}
@@ -291,7 +290,7 @@ function MixCard({ canPlay, activeSession, starting, onStart }) {
         </h3>
         <p style={{ fontSize: "0.73rem", color: "var(--color-text-tertiary)", lineHeight: 1.5 }}>
           Questions drawn from all four languages — Python, JavaScript, Java, and C#.
-          The ultimate all-rounder trial.
+          The ultimate all-rounder run.
         </p>
       </div>
 
@@ -327,9 +326,9 @@ function MixCard({ canPlay, activeSession, starting, onStart }) {
               Starting…
             </>
           ) : !canPlay ? (
-            activeSession ? "Trial Active" : "Unavailable"
+            activeSession ? "Run Active" : "Unavailable"
           ) : (
-            "Start Mix Trial →"
+            "Start Mix Run →"
           )}
         </button>
       </div>
@@ -367,7 +366,7 @@ export default function TriviaPage() {
       const data = await startTrivia(language);
       navigate("/trivia/play", { state: data });
     } catch (err) {
-      setError(err?.response?.data?.error ?? "Failed to start the trial.");
+      setError(err?.response?.data?.error ?? "Failed to start the run.");
     } finally {
       setStarting(null);
     }
@@ -390,7 +389,7 @@ export default function TriviaPage() {
     return (
       <div className="flex items-center justify-center gap-3 py-32">
         <div className="sf-spinner" style={{ width: 22, height: 22 }} />
-        <span className="text-sub text-sm">Loading trivia…</span>
+        <span className="text-sub text-sm">Loading test suite…</span>
       </div>
     );
   }
@@ -404,52 +403,41 @@ export default function TriviaPage() {
     <div style={{ maxWidth: "860px", margin: "0 auto" }}>
 
       {/* ── Hero ── */}
-      <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-
-        <div style={{ position: "relative", display: "inline-block", marginBottom: "1.5rem" }}>
-          <div style={{
-            position: "absolute", inset: -8, borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(${GR},0.20) 0%, transparent 70%)`,
-            pointerEvents: "none",
-          }} />
-          <div style={{
-            width: 96, height: 96, borderRadius: "8px", overflow: "hidden",
-            border: `2px solid rgba(${GR},0.50)`,
-            boxShadow: `0 0 0 4px rgba(${GR},0.10), 0 0 40px rgba(${GR},0.25)`,
-          }}>
-            <img
-              src={oracleImg}
-              alt="Trivia"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
-          </div>
+      <div className="term-window page-enter" style={{ marginBottom: "2.5rem" }}>
+        <div className="term-bar">
+          <span className="term-dot term-dot--red" />
+          <span className="term-dot term-dot--yellow" />
+          <span className="term-dot term-dot--green" />
+          <span className="term-title">test_suite.sh --status</span>
         </div>
+        <div className="term-body" style={{ textAlign: "center" }}>
+          <p className="hero-eyebrow" style={{ justifyContent: "center" }}>$ run test_suite --weekly</p>
+          <h1 className="glow-pulse" style={{
+            fontFamily: "var(--font-brand)", fontWeight: 800, fontSize: "clamp(2rem, 4.5vw, 2.6rem)", lineHeight: 1,
+            color: GL, marginBottom: "0.6rem",
+            textShadow: `0 0 50px rgba(${GR},0.35)`,
+          }}>
+            The Test Suite
+          </h1>
+          <p style={{ fontSize: "0.92rem", color: "var(--color-text-secondary)", maxWidth: "480px", margin: "0 auto", lineHeight: 1.65 }}>
+            Once per week, a 20-question run unlocks. Pick your language and answer fast — 5 minutes is all you get.
+          </p>
 
-        <h1 style={{
-          fontFamily: "var(--font-heading)", fontSize: "2rem", fontWeight: 700,
-          color: GL, marginBottom: "0.5rem",
-          textShadow: `0 0 50px rgba(${GR},0.35)`,
-        }}>
-          Weekly Trivia
-        </h1>
-        <p style={{ fontSize: "0.92rem", color: "var(--color-text-secondary)", maxWidth: "480px", margin: "0 auto", lineHeight: 1.65 }}>
-          Once per week, a 20-question trial unlocks. Pick your language and answer fast — 5 minutes is all you get.
-        </p>
+          <OrnamentDivider />
 
-        <OrnamentDivider />
-
-        <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", flexWrap: "wrap" }}>
-          {[
-            ["20",           "Questions"],
-            ["5 min",        "Time Limit"],
-            [`${MAX_XP} XP`, "Max Reward"],
-            ["Weekly",       "Reset"],
-          ].map(([val, lbl]) => (
-            <div key={lbl} style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", fontWeight: 700, color: G, lineHeight: 1 }}>{val}</p>
-              <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)", marginTop: "0.25rem" }}>{lbl}</p>
-            </div>
-          ))}
+          <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", flexWrap: "wrap" }}>
+            {[
+              ["20",           "Questions"],
+              ["5 min",        "Time Limit"],
+              [`${MAX_XP} XP`, "Max Reward"],
+              ["Weekly",       "Reset"],
+            ].map(([val, lbl]) => (
+              <div key={lbl} style={{ textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", fontWeight: 700, color: G, lineHeight: 1 }}>{val}</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.55rem", color: "var(--color-text-tertiary)", marginTop: "0.25rem" }}>{lbl}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -465,10 +453,10 @@ export default function TriviaPage() {
         <div style={{ marginBottom: "1.75rem", padding: "1.1rem 1.25rem", borderRadius: "6px", background: `rgba(${GR},0.07)`, border: `1px solid rgba(${GR},0.30)`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: G, marginBottom: "0.2rem" }}>
-              Trial In Progress
+              Run In Progress
             </p>
             <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)" }}>
-              You have an active {LANG_LABEL[activeSession.language] ?? activeSession.language} trial. Return before time runs out.
+              You have an active {LANG_LABEL[activeSession.language] ?? activeSession.language} run. Return before time runs out.
             </p>
           </div>
           <button
@@ -483,7 +471,7 @@ export default function TriviaPage() {
             onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${GR},0.22)`)}
             onMouseLeave={(e) => (e.currentTarget.style.background = `rgba(${GR},0.12)`)}
           >
-            Resume Trial →
+            Resume Run →
           </button>
         </div>
       )}
@@ -496,10 +484,10 @@ export default function TriviaPage() {
           </svg>
           <div style={{ flex: 1 }}>
             <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.65rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.15rem" }}>
-              Weekly Trial Complete
+              Weekly Run Complete
             </p>
             <p style={{ fontSize: "0.82rem", color: "var(--color-text-secondary)" }}>
-              Next trial available in{" "}
+              Next run available in{" "}
               <strong style={{ color: "var(--color-text)" }}>{formatCountdown(nextAt)}</strong>.
             </p>
           </div>
