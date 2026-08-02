@@ -1,6 +1,8 @@
+import json
+import types
 from datetime import datetime, timezone
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
     get_jwt,
     get_jwt_identity,
@@ -166,6 +168,151 @@ def update_job(job_id):
 
     db.session.commit()
     return jsonify(job.to_dict(include_solution=True))
+
+
+# ── AI Assistant ─────────────────────────────────────────────────────────────
+
+_AI_LANG_ENTRY_HINTS = {
+    "python":     "Read input via input(). Plain script, no class wrapper needed.",
+    "javascript": "Read all of stdin (e.g. via require('readline') or process.stdin), split on newlines. Plain Node.js script, no class needed.",
+    "java":       "MUST be a single top-level `public class Main` with `public static void main(String[] args)`. Read input via `new Scanner(System.in)` or a BufferedReader.",
+    "csharp":     "MUST be a single `public class Program` with `public static void Main(string[] args)`. Read input via `Console.ReadLine()`.",
+}
+
+
+def _get_openai_client():
+    from openai import OpenAI
+    return OpenAI(api_key=current_app.config["OPENAI_API_KEY"])
+
+
+def _ai_system_prompt(language, difficulty):
+    return (
+        "You are an expert coding-challenge author for SkillForge, a developer training platform. "
+        f"Generate a complete, original {difficulty} {language} coding job.\n"
+        f"Language-specific requirement: {_AI_LANG_ENTRY_HINTS.get(language, '')}\n"
+        "Return ONLY valid JSON with this exact shape:\n"
+        '{"title": "...", "description": "...(full Markdown problem statement: context, constraints, '
+        'input format, output format)", "example_solution": "...(a correct, working solution in the '
+        'requested language, following the language-specific requirement above)", '
+        '"test_cases": [{"index": 0, "input": "...", "output": "..."}, ... exactly 10 entries, indices 0-9]}\n'
+        "Rules for test_cases:\n"
+        "- Exactly 10 entries, indices 0 through 9, each unique.\n"
+        "- index 0 must be the simplest, example-like case; indices 1-9 should get progressively more "
+        "varied and cover edge cases (e.g. empty input, negative numbers, large values, boundary conditions) "
+        "as appropriate for the problem.\n"
+        "- `input` is fed to the program as stdin. If the program reads multiple values, put ONE value per "
+        "line (matching multiple input()/Scanner/Console.ReadLine() calls).\n"
+        "- `output` is the exact expected stdout the example_solution produces for that input — it must be "
+        "correct and consistent with example_solution.\n"
+        "- NEVER use a literally empty string (\"\") for `input` or `output`, even for an edge case like an "
+        "empty-string argument — the platform cannot store a blank field. Instead pick a different edge case "
+        "(e.g. a single character, whitespace, a very short value, a boundary number like 0 or -1) that still "
+        "stresses the same behavior but is non-empty.\n"
+        "- Do not include any commentary outside the JSON object."
+    )
+
+
+def _ai_user_prompt(description):
+    if description:
+        return f"Topic/theme hint from the admin: {description}"
+    return "No specific topic given — invent an original, interesting problem appropriate for the language and difficulty."
+
+
+@jobs_bp.route("/ai-generate", methods=["POST"])
+@require_role("admin")
+def ai_generate_job():
+    data = request.get_json(silent=True) or {}
+    language   = (data.get("language") or "").strip().lower()
+    difficulty = (data.get("difficulty") or "").strip().lower()
+    description = (data.get("description") or "").strip()
+
+    if language not in [l.value for l in Language]:
+        return jsonify({"error": f"Invalid language '{language}'"}), 400
+    if difficulty not in [d.value for d in JobDifficulty]:
+        return jsonify({"error": f"Invalid difficulty '{difficulty}'"}), 400
+
+    try:
+        client   = _get_openai_client()
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            response_format={"type": "json_object"},
+            max_tokens=4000,
+            messages=[
+                {"role": "system", "content": _ai_system_prompt(language, difficulty)},
+                {"role": "user",   "content": _ai_user_prompt(description)},
+            ],
+        )
+        payload = json.loads(response.choices[0].message.content)
+    except Exception as exc:
+        current_app.logger.error("AI job generation failed: %s", exc)
+        return jsonify({"error": "Failed to generate job — the AI Assistant is momentarily unreachable"}), 502
+
+    # Clamp the raw model output into a well-formed shape before validating it.
+    title            = (payload.get("title") or "").strip()[:200]
+    out_description  = (payload.get("description") or "").strip()
+    example_solution = (payload.get("example_solution") or "").strip()
+
+    raw_tcs = payload.get("test_cases", [])
+    if not isinstance(raw_tcs, list):
+        raw_tcs = []
+    clamped_tcs = []
+    for tc in raw_tcs[:MAX_TEST_CASES]:
+        if not isinstance(tc, dict):
+            continue
+        idx = tc.get("index")
+        if not isinstance(idx, int) or not (0 <= idx <= 9):
+            continue
+        tc_input  = str(tc.get("input") or "").strip()
+        tc_output = str(tc.get("output") or "").strip()
+        # Same rule the manual JobForm submit applies: index 0 is always kept, but a
+        # blank field on any other index means "skip this slot" — the model sometimes
+        # reaches for a literally-empty edge case (e.g. reversing ""), which this
+        # platform's test-case fields can't represent, so drop it rather than fail.
+        if idx != 0 and not (tc_input and tc_output):
+            continue
+        clamped_tcs.append({"index": idx, "input": tc_input, "output": tc_output})
+
+    err = _validate({
+        "title":       title,
+        "description": out_description,
+        "language":    language,
+        "difficulty":  difficulty,
+        "test_cases":  clamped_tcs,
+    })
+    if err:
+        current_app.logger.error("AI job generation produced an invalid payload: %s", err)
+        return jsonify({"error": "The AI Assistant produced an invalid job — please try again"}), 502
+
+    # Verify the example solution actually produces the stated outputs via Piston.
+    verification = {"verified": False, "passed": 0, "total": len(clamped_tcs), "compile_error": None}
+    if example_solution and language in PISTON_RUNTIMES:
+        wrapped_tcs = [
+            types.SimpleNamespace(index=tc["index"], input=tc["input"], output=tc["output"])
+            for tc in clamped_tcs
+        ]
+        try:
+            result = run_tests(example_solution, wrapped_tcs, language)
+            verification["compile_error"] = result.get("compile_error")
+            verification["passed"] = result.get("passed", 0)
+            verification["total"]  = result.get("total", len(clamped_tcs))
+            verification["verified"] = (
+                result["compile_error"] is None
+                and verification["passed"] == verification["total"]
+                and verification["total"] > 0
+            )
+        except Exception as exc:
+            current_app.logger.error("AI job verification failed: %s", exc)
+            verification["compile_error"] = "Verification engine error — could not run generated tests"
+
+    return jsonify({
+        "title":            title,
+        "description":      out_description,
+        "example_solution": example_solution,
+        "language":         language,
+        "difficulty":       difficulty,
+        "test_cases":       clamped_tcs,
+        "verification":     verification,
+    }), 200
 
 
 # ── Submit ───────────────────────────────────────────────────────────────────

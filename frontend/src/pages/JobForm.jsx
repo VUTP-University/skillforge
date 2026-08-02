@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
-import { createJob, getJob, updateJob } from "../services/jobService";
+import { createJob, generateJobWithAI, getJob, updateJob } from "../services/jobService";
+import { useAuth } from "../context/AuthContext";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -84,12 +86,15 @@ function SelectField({ label, required, value, onChange, options }) {
 export default function JobForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isEdit = Boolean(id);
 
   const [form, setForm]       = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState(null);
+
+  const [aiOpen, setAiOpen] = useState(false);
 
   /* Load existing job when editing */
   useEffect(() => {
@@ -164,6 +169,7 @@ export default function JobForm() {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-10 w-full">
 
       {/* ── Header ── */}
@@ -176,14 +182,26 @@ export default function JobForm() {
             {isEdit ? "Update the job details below." : "Fill in the details to publish a new job."}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate("/admin")}
-          className="sf-btn-ghost"
-          style={{ width: "auto" }}
-        >
-          ← Back to Admin
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {!isEdit && user?.role === "admin" && (
+            <button
+              type="button"
+              onClick={() => setAiOpen(true)}
+              className="sf-btn-secondary"
+              style={{ width: "auto" }}
+            >
+              ✦ AI Assistant
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => navigate("/admin")}
+            className="sf-btn-ghost"
+            style={{ width: "auto" }}
+          >
+            ← Back to Admin
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -437,5 +455,179 @@ export default function JobForm() {
       </div>
 
     </form>
+
+    {aiOpen && (
+      <AiAssistantModal
+        initialLanguage={form.language}
+        initialDifficulty={form.difficulty}
+        onClose={() => setAiOpen(false)}
+        onApply={(generated) => {
+          setForm((f) => ({
+            ...f,
+            title:            generated.title,
+            description:      generated.description,
+            example_solution: generated.example_solution,
+            language:         generated.language,
+            difficulty:       generated.difficulty,
+            test_cases:       Array.from({ length: 10 }, (_, i) => {
+              const found = generated.test_cases.find((tc) => tc.index === i);
+              return found ?? { index: i, input: "", output: "" };
+            }),
+          }));
+        }}
+      />
+    )}
+    </>
+  );
+}
+
+/* ── AI Assistant modal ──────────────────────────────────────────────────── */
+
+function AiAssistantModal({ initialLanguage, initialDifficulty, onClose, onApply }) {
+  const [language, setLanguage]     = useState(initialLanguage);
+  const [difficulty, setDifficulty] = useState(initialDifficulty);
+  const [description, setDescription] = useState("");
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState(null);
+  const [result, setResult]         = useState(null);
+
+  async function handleGenerate() {
+    setLoading(true);
+    setError(null);
+    try {
+      const generated = await generateJobWithAI({ language, difficulty, description });
+      onApply(generated);
+      setResult(generated.verification ?? null);
+    } catch (err) {
+      setError(err.response?.data?.error ?? "Something went wrong. Please try again.");
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return createPortal(
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 9000,
+        background: "rgba(0,0,0,0.75)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "1rem",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="term-window term-window--blue"
+        style={{ width: "100%", maxWidth: "560px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="term-bar">
+          <span className="term-dot term-dot--red" />
+          <span className="term-dot term-dot--yellow" />
+          <span className="term-dot term-dot--green" />
+          <span className="term-title">AI Assistant</span>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ background: "none", border: "none", color: "var(--color-text-tertiary)", cursor: "pointer", fontSize: "1rem", lineHeight: 1, padding: "0 0.2rem", flexShrink: 0 }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ padding: "1.2rem 1.4rem", overflowY: "auto", flex: 1 }} className="space-y-4">
+          <p className="text-sub text-xs" style={{ fontFamily: "var(--font-body)" }}>
+            Generates a full job — title, description, example solution, and 10 test cases — from a
+            language, difficulty, and optional topic hint. Review everything before publishing.
+          </p>
+
+          <SelectField
+            label="Language"
+            required
+            value={language}
+            onChange={setLanguage}
+            options={LANGUAGES}
+          />
+
+          <div>
+            <FieldLabel required>Difficulty</FieldLabel>
+            <div className="flex gap-2">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d.value}
+                  type="button"
+                  onClick={() => setDifficulty(d.value)}
+                  style={{
+                    flex: 1,
+                    padding: "0.5rem",
+                    borderRadius: "0.5rem",
+                    border: difficulty === d.value
+                      ? "1px solid var(--color-green-border)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                    background: difficulty === d.value
+                      ? "var(--color-green-dim)"
+                      : "rgba(255,255,255,0.03)",
+                    color: difficulty === d.value ? "var(--color-green)" : "rgba(255,255,255,0.50)",
+                    fontFamily: "var(--font-heading)",
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <FieldLabel>Topic / short description (optional)</FieldLabel>
+            <textarea
+              className="sf-input"
+              placeholder="e.g. reversing a string, working with a stack, basic recursion…"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              style={{ resize: "vertical" }}
+            />
+          </div>
+
+          {error && <div className="sf-error">{error}</div>}
+
+          {result && !error && (
+            result.verified ? (
+              <div className="sf-success">
+                Generated ✓ — {result.passed}/{result.total} tests verified against the example solution.
+              </div>
+            ) : (
+              <div className="sf-error">
+                {result.compile_error
+                  ? `Generated, but the example solution failed to run: ${result.compile_error}`
+                  : `Generated, but only ${result.passed}/${result.total} tests verified — review before publishing.`}
+              </div>
+            )
+          )}
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            className="sf-btn"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="sf-spinner" />
+                Compiling job spec…
+              </>
+            ) : (
+              result ? "Regenerate" : "Generate"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
