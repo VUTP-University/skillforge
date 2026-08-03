@@ -28,6 +28,14 @@ class Config:
     # OpenAI — used for Stack Trace process challenge generation & evaluation
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
+    # Mail (SMTP via Namecheap Private Email) — welcome email on registration
+    MAIL_SERVER    = os.environ.get("MAIL_SERVER", "mail.privateemail.com")
+    MAIL_PORT      = int(os.environ.get("MAIL_PORT", "587"))
+    MAIL_USERNAME  = os.environ.get("MAIL_USERNAME", "")
+    MAIL_PASSWORD  = os.environ.get("MAIL_PASSWORD", "")
+    MAIL_FROM      = os.environ.get("MAIL_FROM", MAIL_USERNAME)
+    MAIL_FROM_NAME = os.environ.get("MAIL_FROM_NAME", "SkillForge")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

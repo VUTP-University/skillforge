@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
+from app.mailer import send_welcome_email
 from app.models import User, UserRole, RoleName
 
 auth_bp = Blueprint("auth", __name__)
@@ -45,6 +46,8 @@ def register():
     role_record = UserRole(user_id=user.id, role=RoleName.user)
     db.session.add(role_record)
     db.session.commit()
+
+    send_welcome_email(user.email, user.username)
 
     claims = {"role": RoleName.user.value}
     response = jsonify({"user": user.to_dict()})
