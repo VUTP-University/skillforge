@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 
@@ -40,6 +42,33 @@ def update_user_role(user_id):
         user.user_role.role = RoleName(new_role)
     else:
         db.session.add(UserRole(user_id=user.id, role=RoleName(new_role)))
+
+    db.session.commit()
+    return jsonify(user.to_dict())
+
+
+@admin_bp.route("/users/<int:user_id>/ban", methods=["PATCH"])
+@require_role("admin")
+def update_user_ban(user_id):
+    caller_id = int(get_jwt_identity())
+    if caller_id == user_id:
+        return jsonify({"error": "You cannot ban yourself"}), 400
+
+    data   = request.get_json(silent=True) or {}
+    banned = bool(data.get("banned"))
+    user   = db.get_or_404(User, user_id)
+
+    if banned:
+        reason = (data.get("reason") or "").strip()
+        if not reason:
+            return jsonify({"error": "A ban reason is required"}), 400
+        user.is_banned  = True
+        user.ban_reason = reason
+        user.banned_at  = datetime.now(timezone.utc)
+    else:
+        user.is_banned  = False
+        user.ban_reason = None
+        user.banned_at  = None
 
     db.session.commit()
     return jsonify(user.to_dict())

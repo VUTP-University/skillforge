@@ -69,6 +69,11 @@ def login():
     if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid credentials"}), 401
 
+    if user.is_banned:
+        return jsonify({
+            "error": f"Your account has been suspended. Reason: {user.ban_reason}. Please contact the support team for assistance.",
+        }), 403
+
     role = user.user_role.role.value if user.user_role else "user"
     claims = {"role": role}
     response = jsonify({"user": user.to_dict()})

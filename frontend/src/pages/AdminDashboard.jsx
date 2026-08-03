@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AdminSubmissionsTable from "../components/AdminSubmissionsTable";
 import { deleteJob, getJobs } from "../services/jobService";
-import { deleteAdminUser, getAdminUsers, updateUserRole } from "../services/userService";
+import { banUser, deleteAdminUser, getAdminUsers, unbanUser, updateUserRole } from "../services/userService";
 import { getReports, updateReport } from "../services/reportService";
 
 /* ═══════════════════════════════════════════════════
@@ -196,6 +196,47 @@ function RoleModal({ target, selectedRole, onRoleSelect, onConfirm, onCancel, bu
   );
 }
 
+function BanModal({ target, reason, onReasonChange, onConfirm, onCancel, busy }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}
+      onClick={onCancel}>
+      <div className="glass-card p-6" style={{ maxWidth: "420px", width: "100%", border: "1px solid var(--color-red-border)" }}
+        onClick={(e) => e.stopPropagation()}>
+
+        {/* User info */}
+        <div className="flex items-center gap-3 mb-5">
+          <div className="avatar-initials">{target.username[0].toUpperCase()}</div>
+          <div>
+            <p className="text-white font-semibold text-sm">{target.username}</p>
+            <p className="text-sub text-xs">{target.email}</p>
+          </div>
+        </div>
+
+        <p className="sf-label mb-2">Ban Reason</p>
+        <p className="text-sub text-xs mb-3">
+          The user will see this reason next time they try to sign in, along with a note to contact support.
+        </p>
+        <textarea
+          className="sf-input"
+          style={{ minHeight: "90px", resize: "vertical" }}
+          placeholder="e.g. Repeated abusive comments on job discussions"
+          value={reason}
+          onChange={(e) => onReasonChange(e.target.value)}
+          autoFocus
+        />
+
+        <div className="flex gap-3 mt-5">
+          <button className="sf-btn-ghost" style={{ flex: 1 }} onClick={onCancel} disabled={busy}>Cancel</button>
+          <button disabled={busy || !reason.trim()} onClick={onConfirm}
+            style={{ flex: 1, padding: "0.6rem 1rem", borderRadius: "0.5rem", cursor: (busy || !reason.trim()) ? "not-allowed" : "pointer", border: "1px solid var(--color-red-border)", background: "var(--color-red-dim)", color: "var(--color-red-bright)", opacity: (busy || !reason.trim()) ? 0.6 : 1, fontFamily: "var(--font-heading)", fontSize: "0.738rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s" }}>
+            {busy ? "Banning…" : "Ban User"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════
    TABLE LAYOUT HELPERS
    ═══════════════════════════════════════════════════ */
@@ -228,6 +269,10 @@ export default function AdminDashboard() {
   const [deletingU, setDeletingU]   = useState(false);
   const [roleTarget, setRoleTarget] = useState(null);  // { user, selectedRole }
   const [savingRole, setSavingRole] = useState(false);
+  const [banTarget, setBanTarget]   = useState(null);  // user pending ban
+  const [banReason, setBanReason]   = useState("");
+  const [banningU, setBanningU]     = useState(false);
+  const [unbanningId, setUnbanningId] = useState(null);
 
   /* ── Fetch ── */
   const fetchJobs = useCallback(() => {
@@ -298,6 +343,30 @@ export default function AdminDashboard() {
     }
   }
 
+  /* ── Ban / unban ── */
+  async function confirmBan() {
+    if (!banTarget || !banReason.trim()) return;
+    setBanningU(true);
+    try {
+      await banUser(banTarget.id, banReason.trim());
+      setBanTarget(null);
+      setBanReason("");
+      fetchUsers();
+    } finally {
+      setBanningU(false);
+    }
+  }
+
+  async function handleUnban(userId) {
+    setUnbanningId(userId);
+    try {
+      await unbanUser(userId);
+      fetchUsers();
+    } finally {
+      setUnbanningId(null);
+    }
+  }
+
   /* ── Derived counts ── */
   const langCounts = jobs.reduce((a, q) => { a[q.language] = (a[q.language] ?? 0) + 1; return a; }, {});
   const roleCounts = users.reduce((a, u)  => { a[u.role]     = (a[u.role]     ?? 0) + 1; return a; }, {});
@@ -306,7 +375,7 @@ export default function AdminDashboard() {
   const JC = { title: { flex: "2 1 0", minWidth: 0 }, language: { flex: "1 0 90px", textAlign: "center" }, difficulty: { flex: "1 0 90px", textAlign: "center" }, xp: { flex: "0 0 52px", textAlign: "center" }, author: { flex: "1 0 90px" }, actions: { flex: "0 0 120px", textAlign: "right" } };
 
   /* ── User column widths ── */
-  const UC = { identity: { flex: "2 1 0", minWidth: 0 }, role: { flex: "1 0 110px", textAlign: "center" }, joined: { flex: "1 0 100px" }, actions: { flex: "0 0 150px", textAlign: "right" } };
+  const UC = { identity: { flex: "2 1 0", minWidth: 0 }, role: { flex: "1 0 110px", textAlign: "center" }, joined: { flex: "1 0 100px" }, actions: { flex: "0 0 230px", textAlign: "right" } };
 
   /* ═══════════ RENDER ═══════════ */
   return (
@@ -326,6 +395,18 @@ export default function AdminDashboard() {
           title="Delete User?"
           body={<>Account <span className="text-white">{deleteUser_.username}</span> will be permanently removed. This cannot be undone.</>}
           onConfirm={confirmUserDelete} onCancel={() => !deletingU && setDeleteU(null)} busy={deletingU}
+        />
+      )}
+
+      {/* ── Ban modal ── */}
+      {banTarget && (
+        <BanModal
+          target={banTarget}
+          reason={banReason}
+          onReasonChange={setBanReason}
+          onConfirm={confirmBan}
+          onCancel={() => { if (!banningU) { setBanTarget(null); setBanReason(""); } }}
+          busy={banningU}
         />
       )}
 
@@ -500,6 +581,11 @@ export default function AdminDashboard() {
                           <p className="text-white text-sm font-semibold truncate">
                             {u.username}
                             {isSelf && <span className="ml-2 text-green" style={{ fontSize: "0.738rem", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}>(you)</span>}
+                            {u.is_banned && (
+                              <span className="badge ml-2" style={{ background: "var(--color-red-dim)", borderColor: "var(--color-red-border)", color: "var(--color-red-bright)" }}>
+                                Banned
+                              </span>
+                            )}
                           </p>
                           <p className="text-dim text-xs truncate">{u.email}</p>
                         </div>
@@ -526,6 +612,22 @@ export default function AdminDashboard() {
                           style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem", opacity: isSelf ? 0.3 : 1, cursor: isSelf ? "not-allowed" : "pointer" }}>
                           Change Role
                         </button>
+                        {u.is_banned ? (
+                          <button
+                            disabled={isSelf || unbanningId === u.id}
+                            onClick={() => !isSelf && handleUnban(u.id)}
+                            className="sf-btn-ghost"
+                            style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem", opacity: (isSelf || unbanningId === u.id) ? 0.3 : 1, cursor: (isSelf || unbanningId === u.id) ? "not-allowed" : "pointer" }}>
+                            {unbanningId === u.id ? "Unbanning…" : "Unban"}
+                          </button>
+                        ) : (
+                          <button
+                            disabled={isSelf}
+                            onClick={() => !isSelf && setBanTarget(u)}
+                            style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-amber-border)", background: "transparent", color: "var(--color-amber)", fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: isSelf ? "not-allowed" : "pointer", opacity: isSelf ? 0.3 : 1, transition: "all 0.15s" }}>
+                            Ban
+                          </button>
+                        )}
                         <button
                           disabled={isSelf}
                           onClick={() => !isSelf && setDeleteU({ id: u.id, username: u.username })}

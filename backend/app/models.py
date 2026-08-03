@@ -99,6 +99,9 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False, default="")
     avatar        = db.Column(db.String(100), nullable=True)
     total_xp      = db.Column(db.Integer, default=0, nullable=False)
+    is_banned     = db.Column(db.Boolean, default=False, nullable=False)
+    ban_reason    = db.Column(db.Text, nullable=True)
+    banned_at     = db.Column(db.DateTime, nullable=True)
     created_at    = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -144,6 +147,9 @@ class User(db.Model):
             "xp_into_level":       progress["xp_into_level"],
             "xp_level_range":      progress["xp_level_range"],
             "level_progress_pct":  progress["level_progress_pct"],
+            "is_banned":           self.is_banned,
+            "ban_reason":          self.ban_reason,
+            "banned_at":           self.banned_at.isoformat() if self.banned_at else None,
             "created_at":          self.created_at.isoformat(),
         }
 
