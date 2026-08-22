@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 
 from app import db
-from app.models import Language, Job, JobSubmission, RoleName, User, UserRole
+from app.models import Job, JobSubmission, Language, RoleName, User, UserRole
 from app.utils import require_role
 
 admin_bp = Blueprint("admin", __name__)
@@ -113,9 +113,9 @@ def list_submissions():
     if language and language in [l.value for l in Language]:
         query = query.filter(Job.language == Language(language))
     if passed == "true":
-        query = query.filter(JobSubmission.all_passed == True)   # noqa: E712
+        query = query.filter(JobSubmission.all_passed == True)
     elif passed == "false":
-        query = query.filter(JobSubmission.all_passed == False)  # noqa: E712
+        query = query.filter(JobSubmission.all_passed == False)
 
     total = query.count()
     rows  = query.offset((page - 1) * per_page).limit(per_page).all()

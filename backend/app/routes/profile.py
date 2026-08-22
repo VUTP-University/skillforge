@@ -5,8 +5,22 @@ from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
-from app.models import Achievement, AchievementCategory, Process, ProcessChallenge, ChallengeStatus, Job, JobCompletion, JobSubmission, TestRun, TestRunStatus, User, UserAchievement, xp_progress
 from app.achievements import check_achievements
+from app.models import (
+    Achievement,
+    AchievementCategory,
+    ChallengeStatus,
+    Job,
+    JobCompletion,
+    JobSubmission,
+    Process,
+    ProcessChallenge,
+    TestRun,
+    TestRunStatus,
+    User,
+    UserAchievement,
+    xp_progress,
+)
 
 profile_bp = Blueprint("profile", __name__)
 

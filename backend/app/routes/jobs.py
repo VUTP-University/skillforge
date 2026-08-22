@@ -11,9 +11,20 @@ from flask_jwt_extended import (
 )
 
 from app import db
-from app.models import AchievementCategory, JobDifficulty, Language, Job, JobComment, JobCompletion, JobSubmission, TestCase, User, XP_BY_JOB_DIFFICULTY
-from app.utils import PISTON_RUNTIMES, require_role, run_tests
 from app.achievements import award_xp, check_achievements
+from app.models import (
+    XP_BY_JOB_DIFFICULTY,
+    AchievementCategory,
+    Job,
+    JobComment,
+    JobCompletion,
+    JobDifficulty,
+    JobSubmission,
+    Language,
+    TestCase,
+    User,
+)
+from app.utils import PISTON_RUNTIMES, require_role, run_tests
 
 jobs_bp = Blueprint("jobs", __name__)
 
@@ -25,7 +36,7 @@ def _caller_role():
     try:
         verify_jwt_in_request(optional=True)
         return get_jwt().get("role")
-    except Exception:
+    except Exception:  # noqa: BLE001 — any JWT verification failure means "unauthenticated"
         return None
 
 
@@ -243,7 +254,7 @@ def ai_generate_job():
             ],
         )
         payload = json.loads(response.choices[0].message.content)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — any OpenAI/SDK failure must fall back to a graceful error
         current_app.logger.error("AI job generation failed: %s", exc)
         return jsonify({"error": "Failed to generate job — the AI Assistant is momentarily unreachable"}), 502
 
@@ -300,7 +311,7 @@ def ai_generate_job():
                 and verification["passed"] == verification["total"]
                 and verification["total"] > 0
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 — sandbox/runtime failure must not crash job generation
             current_app.logger.error("AI job verification failed: %s", exc)
             verification["compile_error"] = "Verification engine error — could not run generated tests"
 
@@ -336,7 +347,7 @@ def submit_job(job_id):
 
     try:
         result = run_tests(code, job.test_cases, lang)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — sandbox/runtime failure must fall back to a graceful error
         return jsonify({"error": f"Execution engine error: {exc}"}), 503
 
     user_id    = int(get_jwt_identity())

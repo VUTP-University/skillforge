@@ -1,5 +1,7 @@
 import os
 from datetime import timedelta
+from typing import ClassVar
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +17,7 @@ class Config:
 
     # JWT — HttpOnly cookie auth
     JWT_SECRET_KEY              = os.environ.get("JWT_SECRET_KEY", SECRET_KEY)
-    JWT_TOKEN_LOCATION          = ["cookies"]
+    JWT_TOKEN_LOCATION: ClassVar[list[str]] = ["cookies"]
     JWT_COOKIE_HTTPONLY         = True
     JWT_COOKIE_SAMESITE         = "Lax"
     JWT_COOKIE_SECURE           = os.environ.get("JWT_COOKIE_SECURE", "false").lower() == "true"

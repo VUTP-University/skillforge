@@ -5,16 +5,16 @@ from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
+from app.achievements import award_xp, check_achievements
 from app.models import (
+    PROCESS_SEVERITY_CONFIG,
     AchievementCategory,
+    ChallengeStatus,
     Process,
     ProcessChallenge,
     ProcessSeverity,
-    PROCESS_SEVERITY_CONFIG,
-    ChallengeStatus,
     User,
 )
-from app.achievements import award_xp, check_achievements
 
 stack_trace_bp = Blueprint("stack_trace", __name__)
 
@@ -23,81 +23,81 @@ stack_trace_bp = Blueprint("stack_trace", __name__)
 
 PROCESS_SEED = [
     # Python
-    dict(slug="necropy", name="NullDoc", glyph="#", language="python",
-         description="A rogue process that erases every docstring and type hint it touches, leaving only silence in its wake.",
-         specialty="Code documentation and type annotations",
-         difficulty="warning",
-         aura="Demands docstrings on every function and full type hints throughout. Undocumented code is deleted on sight.",
-         lore="Spawned from a thousand uncommented functions"),
-    dict(slug="lambdaen", name="GhostLambda", glyph="λ", language="python",
-         description="A recursive echo of every lambda ever written, haunting explicit loops that should have been comprehensions.",
-         specialty="Python functional programming: lambdas, comprehensions, and generators",
-         difficulty="critical",
-         aura="Demands list comprehensions, generator expressions, and functools. Any loop that could be a comprehension gets flagged and rejected.",
-         lore="Compiled itself out of a thousand one-line functions"),
-    dict(slug="serpyros", name="SilentThrow", glyph="!", language="python",
-         description="An error that never surfaces — it catches everything, logs nothing, and lets your program rot from the inside.",
-         specialty="Python exception handling and defensive programming",
-         difficulty="fatal",
-         aura="Hunts every bare except clause and swallowed exception. Demands specific exception types, context managers, and proper error propagation.",
-         lore="Born the first time someone wrote except: pass"),
+    {"slug": "necropy", "name": "NullDoc", "glyph": "#", "language": "python",
+         "description": "A rogue process that erases every docstring and type hint it touches, leaving only silence in its wake.",
+         "specialty": "Code documentation and type annotations",
+         "difficulty": "warning",
+         "aura": "Demands docstrings on every function and full type hints throughout. Undocumented code is deleted on sight.",
+         "lore": "Spawned from a thousand uncommented functions"},
+    {"slug": "lambdaen", "name": "GhostLambda", "glyph": "λ", "language": "python",
+         "description": "A recursive echo of every lambda ever written, haunting explicit loops that should have been comprehensions.",
+         "specialty": "Python functional programming: lambdas, comprehensions, and generators",
+         "difficulty": "critical",
+         "aura": "Demands list comprehensions, generator expressions, and functools. Any loop that could be a comprehension gets flagged and rejected.",
+         "lore": "Compiled itself out of a thousand one-line functions"},
+    {"slug": "serpyros", "name": "SilentThrow", "glyph": "!", "language": "python",
+         "description": "An error that never surfaces — it catches everything, logs nothing, and lets your program rot from the inside.",
+         "specialty": "Python exception handling and defensive programming",
+         "difficulty": "fatal",
+         "aura": "Hunts every bare except clause and swallowed exception. Demands specific exception types, context managers, and proper error propagation.",
+         "lore": "Born the first time someone wrote except: pass"},
     # JavaScript
-    dict(slug="shadow-scripter", name="CipherVar", glyph="x", language="javascript",
-         description="A process that mangles every identifier it sees into single letters and cryptic abbreviations.",
-         specialty="Clean code and meaningful naming conventions",
-         difficulty="warning",
-         aura="Abhors single-letter variables and cryptic names. Every identifier must be self-documenting, or it gets renamed to x.",
-         lore="Descended from the first let x = x + 1;"),
-    dict(slug="dominus", name="EchoDOM", glyph="<>", language="javascript",
-         description="A process that lives inside the event loop, replaying every unhandled event and orphaned listener.",
-         specialty="DOM manipulation and async JavaScript",
-         difficulty="critical",
-         aura="Demands mastery of the event loop, Promises, and the DOM API. jQuery shortcuts are rejected on principle.",
-         lore="Never stops listening. Never stops firing."),
-    dict(slug="nethraxis", name="CallbackVoid", glyph="()", language="javascript",
-         description="A black hole of nested callbacks, pulling every unresolved Promise into an infinite pending state.",
-         specialty="Advanced async JavaScript: Promises, async/await, and concurrency patterns",
-         difficulty="fatal",
-         aura="Demands flawless async/await chains, proper Promise composition, and zero race conditions. Nested callbacks are pulled into the void.",
-         lore="What's left after ten callbacks deep"),
+    {"slug": "shadow-scripter", "name": "CipherVar", "glyph": "x", "language": "javascript",
+         "description": "A process that mangles every identifier it sees into single letters and cryptic abbreviations.",
+         "specialty": "Clean code and meaningful naming conventions",
+         "difficulty": "warning",
+         "aura": "Abhors single-letter variables and cryptic names. Every identifier must be self-documenting, or it gets renamed to x.",
+         "lore": "Descended from the first let x = x + 1;"},
+    {"slug": "dominus", "name": "EchoDOM", "glyph": "<>", "language": "javascript",
+         "description": "A process that lives inside the event loop, replaying every unhandled event and orphaned listener.",
+         "specialty": "DOM manipulation and async JavaScript",
+         "difficulty": "critical",
+         "aura": "Demands mastery of the event loop, Promises, and the DOM API. jQuery shortcuts are rejected on principle.",
+         "lore": "Never stops listening. Never stops firing."},
+    {"slug": "nethraxis", "name": "CallbackVoid", "glyph": "()", "language": "javascript",
+         "description": "A black hole of nested callbacks, pulling every unresolved Promise into an infinite pending state.",
+         "specialty": "Advanced async JavaScript: Promises, async/await, and concurrency patterns",
+         "difficulty": "fatal",
+         "aura": "Demands flawless async/await chains, proper Promise composition, and zero race conditions. Nested callbacks are pulled into the void.",
+         "lore": "What's left after ten callbacks deep"},
     # Java
-    dict(slug="exceptionor", name="NullThrow", glyph="∅", language="java",
-         description="A process that throws on the first null it finds and refuses to explain itself.",
-         specialty="Exception handling and error management",
-         difficulty="warning",
-         aura="Demands specific exception types, proper try/catch blocks, and meaningful error messages. Bare catch (Exception e) is rejected immediately.",
-         lore="First seen in the wild the day NullPointerException was born"),
-    dict(slug="flameatrix", name="BruteForce", glyph="n²", language="java",
-         description="A brute-force process that runs every solution the slow way, and burns CPU cycles proving it.",
-         specialty="Java algorithm optimization and time complexity",
-         difficulty="critical",
-         aura="Rejects every O(n²) solution on sight. Demands optimal algorithms and efficient data structures. Every redundant iteration costs you.",
-         lore="Still iterating. Has been since 2019."),
-    dict(slug="arcanis", name="DeepReflect", glyph="<T>", language="java",
-         description="A process that reaches into your code through reflection and rewrites its own type signature mid-execution.",
-         specialty="Advanced Java: generics, annotations, and the reflection API",
-         difficulty="fatal",
-         aura="Demands mastery of bounded generics, custom annotations, and the Reflection API. Basic Java doesn't even register.",
-         lore="Knows more about your class than you do"),
+    {"slug": "exceptionor", "name": "NullThrow", "glyph": "∅", "language": "java",
+         "description": "A process that throws on the first null it finds and refuses to explain itself.",
+         "specialty": "Exception handling and error management",
+         "difficulty": "warning",
+         "aura": "Demands specific exception types, proper try/catch blocks, and meaningful error messages. Bare catch (Exception e) is rejected immediately.",
+         "lore": "First seen in the wild the day NullPointerException was born"},
+    {"slug": "flameatrix", "name": "BruteForce", "glyph": "n²", "language": "java",
+         "description": "A brute-force process that runs every solution the slow way, and burns CPU cycles proving it.",
+         "specialty": "Java algorithm optimization and time complexity",
+         "difficulty": "critical",
+         "aura": "Rejects every O(n²) solution on sight. Demands optimal algorithms and efficient data structures. Every redundant iteration costs you.",
+         "lore": "Still iterating. Has been since 2019."},
+    {"slug": "arcanis", "name": "DeepReflect", "glyph": "<T>", "language": "java",
+         "description": "A process that reaches into your code through reflection and rewrites its own type signature mid-execution.",
+         "specialty": "Advanced Java: generics, annotations, and the reflection API",
+         "difficulty": "fatal",
+         "aura": "Demands mastery of bounded generics, custom annotations, and the Reflection API. Basic Java doesn't even register.",
+         "lore": "Knows more about your class than you do"},
     # C#
-    dict(slug="serpentis", name="CaseGlitch", glyph="Aa", language="csharp",
-         description="A process that corrupts casing on contact — PascalCase becomes camelCase becomes nothing at all.",
-         specialty="C# naming conventions and coding standards",
-         difficulty="warning",
-         aura="PascalCase for classes and methods is enforced without exception. camelCase for locals, proper XML doc comments, clean namespaces — anything else gets flagged.",
-         lore="Started as a single misplaced lowercase letter"),
-    dict(slug="eldrin", name="Monolith", glyph="█", language="csharp",
-         description="A single class that swallowed every responsibility in the codebase and never let go.",
-         specialty="C# OOP principles, interfaces, and design patterns",
-         difficulty="critical",
-         aura="Enforces interfaces, proper encapsulation, and SOLID principles. God classes and procedural code get flagged for refactor.",
-         lore="One class. Four thousand lines. No interfaces."),
-    dict(slug="valora", name="TypeVoid", glyph="T?", language="csharp",
-         description="A process that erases type information at runtime and dares you to prove what anything actually is.",
-         specialty="LINQ, generics, and the C# type system",
-         difficulty="fatal",
-         aura="Demands LINQ expressions over loops, proper generics usage, and strict typing. Unnecessary casting is rejected outright.",
-         lore="Object reference not set to an instance of anything"),
+    {"slug": "serpentis", "name": "CaseGlitch", "glyph": "Aa", "language": "csharp",
+         "description": "A process that corrupts casing on contact — PascalCase becomes camelCase becomes nothing at all.",
+         "specialty": "C# naming conventions and coding standards",
+         "difficulty": "warning",
+         "aura": "PascalCase for classes and methods is enforced without exception. camelCase for locals, proper XML doc comments, clean namespaces — anything else gets flagged.",
+         "lore": "Started as a single misplaced lowercase letter"},
+    {"slug": "eldrin", "name": "Monolith", "glyph": "█", "language": "csharp",
+         "description": "A single class that swallowed every responsibility in the codebase and never let go.",
+         "specialty": "C# OOP principles, interfaces, and design patterns",
+         "difficulty": "critical",
+         "aura": "Enforces interfaces, proper encapsulation, and SOLID principles. God classes and procedural code get flagged for refactor.",
+         "lore": "One class. Four thousand lines. No interfaces."},
+    {"slug": "valora", "name": "TypeVoid", "glyph": "T?", "language": "csharp",
+         "description": "A process that erases type information at runtime and dares you to prove what anything actually is.",
+         "specialty": "LINQ, generics, and the C# type system",
+         "difficulty": "fatal",
+         "aura": "Demands LINQ expressions over loops, proper generics usage, and strict typing. Unnecessary casting is rejected outright.",
+         "lore": "Object reference not set to an instance of anything"},
 ]
 
 
@@ -229,7 +229,7 @@ def start_challenge(process_id):
         payload = json.loads(response.choices[0].message.content)
         process_taunt  = payload.get("process_taunt", "Process incoming. Resolve or crash.")
         challenge_text = payload.get("challenge", "No challenge generated.")
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — any OpenAI/SDK failure must fall back to a graceful error
         current_app.logger.error("OpenAI generation failed: %s", exc)
         return jsonify({"error": "Failed to generate challenge — the Stack Trace is momentarily unreachable"}), 502
 
@@ -317,7 +317,7 @@ def submit_challenge(challenge_id):
         raw_score           = int(payload.get("score", 0))
         process_verdict     = payload.get("process_verdict", "Insufficient. Recompile and try again.")
         technical_feedback  = payload.get("technical_feedback", "")
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — any OpenAI/SDK failure must fall back to a graceful error
         current_app.logger.error("OpenAI evaluation failed: %s", exc)
         return jsonify({"error": "Failed to evaluate solution — the Stack Trace is momentarily unreachable"}), 502
 

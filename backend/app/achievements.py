@@ -52,101 +52,101 @@ _LEVEL_TIERS = [20, 30, 40, 50, 60, 70, 80, 90, 100]  # 5 and 10 declared explic
 
 ACHIEVEMENT_SEED = [
     # ── Job — overall completion ladder ──
-    dict(slug="first-job", name="Hello, Job", description="Complete your first job.",
-         category="job", glyph="01",
-         criteria_type="job_completions", criteria_params={"threshold": 1}),
-    dict(slug="job-veteran", name="Job Veteran", description="Complete 10 jobs.",
-         category="job", glyph="10",
-         criteria_type="job_completions", criteria_params={"threshold": 10}),
-    dict(slug="job-grinder-20", name="Job Grinder", description="Complete 20 jobs.",
-         category="job", glyph="20",
-         criteria_type="job_completions", criteria_params={"threshold": 20}),
-    dict(slug="job-crusher-30", name="Job Crusher", description="Complete 30 jobs.",
-         category="job", glyph="30",
-         criteria_type="job_completions", criteria_params={"threshold": 30}),
-    dict(slug="job-juggernaut-40", name="Job Juggernaut", description="Complete 40 jobs.",
-         category="job", glyph="40",
-         criteria_type="job_completions", criteria_params={"threshold": 40}),
-    dict(slug="job-master", name="Job Master", description="Complete 50 jobs.",
-         category="job", glyph="50",
-         criteria_type="job_completions", criteria_params={"threshold": 50}),
-    dict(slug="job-centurion-100", name="Job Centurion", description="Complete 100 jobs.",
-         category="job", glyph="100",
-         criteria_type="job_completions", criteria_params={"threshold": 100}),
-    dict(slug="senior-slayer", name="Senior Slayer", description="Complete 5 Senior-difficulty jobs.",
-         category="job", glyph="!!",
-         criteria_type="job_completions", criteria_params={"threshold": 5, "difficulty": "senior"}),
+    {"slug": "first-job", "name": "Hello, Job", "description": "Complete your first job.",
+         "category": "job", "glyph": "01",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 1}},
+    {"slug": "job-veteran", "name": "Job Veteran", "description": "Complete 10 jobs.",
+         "category": "job", "glyph": "10",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 10}},
+    {"slug": "job-grinder-20", "name": "Job Grinder", "description": "Complete 20 jobs.",
+         "category": "job", "glyph": "20",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 20}},
+    {"slug": "job-crusher-30", "name": "Job Crusher", "description": "Complete 30 jobs.",
+         "category": "job", "glyph": "30",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 30}},
+    {"slug": "job-juggernaut-40", "name": "Job Juggernaut", "description": "Complete 40 jobs.",
+         "category": "job", "glyph": "40",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 40}},
+    {"slug": "job-master", "name": "Job Master", "description": "Complete 50 jobs.",
+         "category": "job", "glyph": "50",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 50}},
+    {"slug": "job-centurion-100", "name": "Job Centurion", "description": "Complete 100 jobs.",
+         "category": "job", "glyph": "100",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 100}},
+    {"slug": "senior-slayer", "name": "Senior Slayer", "description": "Complete 5 Senior-difficulty jobs.",
+         "category": "job", "glyph": "!!",
+         "criteria_type": "job_completions", "criteria_params": {"threshold": 5, "difficulty": "senior"}},
 
     # ── Process ──
-    dict(slug="first-patch", name="First Patch", description="Resolve your first hostile process.",
-         category="process", glyph="#",
-         criteria_type="process_challenges", criteria_params={"threshold": 1}),
-    dict(slug="fatal-exception-handler", name="Fatal Exception Handler", description="Resolve 5 Fatal-severity processes.",
-         category="process", glyph="∅",
-         criteria_type="process_challenges", criteria_params={"threshold": 5, "severity": "fatal"}),
+    {"slug": "first-patch", "name": "First Patch", "description": "Resolve your first hostile process.",
+         "category": "process", "glyph": "#",
+         "criteria_type": "process_challenges", "criteria_params": {"threshold": 1}},
+    {"slug": "fatal-exception-handler", "name": "Fatal Exception Handler", "description": "Resolve 5 Fatal-severity processes.",
+         "category": "process", "glyph": "∅",
+         "criteria_type": "process_challenges", "criteria_params": {"threshold": 5, "severity": "fatal"}},
 
     # ── Test Suite ──
-    dict(slug="test-pilot", name="Test Pilot", description="Complete your first Test Suite run.",
-         category="test_suite", glyph="?",
-         criteria_type="test_run_completions", criteria_params={"threshold": 1}),
-    dict(slug="zero-defects", name="Zero Defects", description="Score a perfect run on the Test Suite.",
-         category="test_suite", glyph="✓",
-         criteria_type="test_run_perfect_score", criteria_params={}),
+    {"slug": "test-pilot", "name": "Test Pilot", "description": "Complete your first Test Suite run.",
+         "category": "test_suite", "glyph": "?",
+         "criteria_type": "test_run_completions", "criteria_params": {"threshold": 1}},
+    {"slug": "zero-defects", "name": "Zero Defects", "description": "Score a perfect run on the Test Suite.",
+         "category": "test_suite", "glyph": "✓",
+         "criteria_type": "test_run_perfect_score", "criteria_params": {}},
 
     # ── General ──
-    dict(slug="level-5", name="Level 5", description="Reach Level 5.",
-         category="general", glyph="05",
-         criteria_type="level", criteria_params={"threshold": 5}),
-    dict(slug="double-digits", name="Double Digits", description="Reach Level 10.",
-         category="general", glyph="10",
-         criteria_type="level", criteria_params={"threshold": 10}),
-    dict(slug="identity-verified", name="Identity Verified", description="Set a custom avatar.",
-         category="general", glyph="@",
-         criteria_type="has_avatar", criteria_params={}),
-    dict(slug="open-source", name="Open Source", description="Author a published job.",
-         category="general", glyph="+",
-         criteria_type="jobs_authored_count", criteria_params={"threshold": 1}),
-    dict(slug="first-comment", name="First Comment", description="Post your first comment on a job.",
-         category="general", glyph="//",
-         criteria_type="job_comments_count", criteria_params={"threshold": 1}),
+    {"slug": "level-5", "name": "Level 5", "description": "Reach Level 5.",
+         "category": "general", "glyph": "05",
+         "criteria_type": "level", "criteria_params": {"threshold": 5}},
+    {"slug": "double-digits", "name": "Double Digits", "description": "Reach Level 10.",
+         "category": "general", "glyph": "10",
+         "criteria_type": "level", "criteria_params": {"threshold": 10}},
+    {"slug": "identity-verified", "name": "Identity Verified", "description": "Set a custom avatar.",
+         "category": "general", "glyph": "@",
+         "criteria_type": "has_avatar", "criteria_params": {}},
+    {"slug": "open-source", "name": "Open Source", "description": "Author a published job.",
+         "category": "general", "glyph": "+",
+         "criteria_type": "jobs_authored_count", "criteria_params": {"threshold": 1}},
+    {"slug": "first-comment", "name": "First Comment", "description": "Post your first comment on a job.",
+         "category": "general", "glyph": "//",
+         "criteria_type": "job_comments_count", "criteria_params": {"threshold": 1}},
 ]
 
 # Job completion ladder, per language (5/10/20/30/40/50/100 jobs × 4 languages)
 for _lang, _meta in _JOB_LANGUAGES.items():
     for _n, _tier in _JOB_LADDER_TIERS:
-        ACHIEVEMENT_SEED.append(dict(
-            slug=f"jobs-{_lang}-{_n}",
-            name=f"{_meta['label']} {_tier}",
-            description=f"Complete {_n} {_meta['label']} jobs.",
-            category="job",
-            glyph=f"{_meta['glyph']}{_n}",
-            criteria_type="job_completions",
-            criteria_params={"threshold": _n, "language": _lang},
-        ))
+        ACHIEVEMENT_SEED.append({
+            "slug": f"jobs-{_lang}-{_n}",
+            "name": f"{_meta['label']} {_tier}",
+            "description": f"Complete {_n} {_meta['label']} jobs.",
+            "category": "job",
+            "glyph": f"{_meta['glyph']}{_n}",
+            "criteria_type": "job_completions",
+            "criteria_params": {"threshold": _n, "language": _lang},
+        })
 
 # Test Suite completion, per language + the Grand Mix
 for _lang, _meta in _TEST_SUITE_LANGUAGES.items():
-    ACHIEVEMENT_SEED.append(dict(
-        slug=f"test-suite-{_lang}",
-        name=f"{_meta['label']} Certified",
-        description=f"Complete a Test Suite run in {_meta['label']}.",
-        category="test_suite",
-        glyph=_meta["glyph"],
-        criteria_type="test_run_completions",
-        criteria_params={"threshold": 1, "language": _lang},
-    ))
+    ACHIEVEMENT_SEED.append({
+        "slug": f"test-suite-{_lang}",
+        "name": f"{_meta['label']} Certified",
+        "description": f"Complete a Test Suite run in {_meta['label']}.",
+        "category": "test_suite",
+        "glyph": _meta["glyph"],
+        "criteria_type": "test_run_completions",
+        "criteria_params": {"threshold": 1, "language": _lang},
+    })
 
 # Level ladder (5 and 10 declared explicitly above; 20 through 100 here)
 for _n in _LEVEL_TIERS:
-    ACHIEVEMENT_SEED.append(dict(
-        slug=f"level-{_n}",
-        name=f"Level {_n}",
-        description=f"Reach Level {_n}.",
-        category="general",
-        glyph=str(_n),
-        criteria_type="level",
-        criteria_params={"threshold": _n},
-    ))
+    ACHIEVEMENT_SEED.append({
+        "slug": f"level-{_n}",
+        "name": f"Level {_n}",
+        "description": f"Reach Level {_n}.",
+        "category": "general",
+        "glyph": str(_n),
+        "criteria_type": "level",
+        "criteria_params": {"threshold": _n},
+    })
 
 
 def _seed_achievements():

@@ -1,19 +1,20 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     decode_token,
-    jwt_required,
     get_jwt,
     get_jwt_identity,
+    jwt_required,
     set_access_cookies,
     set_refresh_cookies,
     unset_jwt_cookies,
 )
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from app import db, limiter
 from app.mailer import send_welcome_email
-from app.models import User, UserRole, RoleName, TokenBlocklist
+from app.models import RoleName, TokenBlocklist, User, UserRole
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -103,8 +104,8 @@ def logout():
         try:
             refresh_claims = decode_token(refresh_cookie)
             db.session.add(TokenBlocklist(jti=refresh_claims["jti"]))
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 — refresh cookie may be malformed/expired; logout must still succeed
+            current_app.logger.debug("Could not blocklist refresh token on logout: %s", exc)
 
     db.session.commit()
     unset_jwt_cookies(response)
