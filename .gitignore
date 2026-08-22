@@ -222,3 +222,4 @@ __marimo__/
 
 # Ignore backend upload files
 backend/uploads/
+backend/app/test_suite_questions/
