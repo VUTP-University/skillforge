@@ -212,6 +212,13 @@ __marimo__/
 
 # Custom ignore rules
 *.DS_Store
+.claude/
 
 # Ignore DB migrations
 **/migrations/
+
+# Ignore PistonAPI packages
+*piston_packages/
+
+# Ignore backend upload files
+backend/uploads/

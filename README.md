@@ -1,117 +1,88 @@
-# SkillForge
+# ⚒ SkillForge
 
-> A collaborative learning platform developed by Universtity of Telecommunications and Post (UTP) students
+Full-stack starter: **Flask REST API** · **React (Vite)** · **PostgreSQL** — all dockerized.
 
-## 📖 About
+## Stack
 
-SkillForge is a university project designed to teach students real-world software development practices through hands-on collaboration. The platform aims to provide a comprehensive learning management system where students can develop, review, and master various technical skills.
+| Layer    | Tech                    |
+|----------|-------------------------|
+| Backend  | Python 3.12 · Flask 3   |
+| Frontend | React 18 · Vite 5       |
+| Database | PostgreSQL 16 (Docker)  |
+| ORM      | SQLAlchemy + Flask-Migrate |
 
-## 🎯 Project Goals
-
-- Teach collaborative Git and GitHub workflows
-- Implement clean code practices and quality standards
-- Build a scalable and maintainable application
-- Foster teamwork and code review skills
-- Create a real-world portfolio project for students
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Git installed on your machine
-- Docker setup
-- Python 3.x (for backend development)
-- Node.js 20+ (for frontend development)
-- A GitHub account
-
-### Installation
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/VUTP-University/skillforge.git
-
-# Navigate to the project directory
+# 1. Clone / enter the project
 cd skillforge
 
-# Follow specific setup instructions in backend/frontend directories (when available)
+# 2. Copy env file (edit secrets before production!)
+cp backend/.env.example backend/.env
 
-# Activating virtual environment (venv)
+# 3. Start everything
+docker compose up --build
 
-# Windows OS:
-# First installation and activation
-cd backend
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
-
-# Subsequent activations
-cd backend
-.\venv\Scripts\activate
-
-# UNIX based OS (MAC or any Linux)
-# First installation and activation
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Subsequent activations
-cd backend
-source venv/bin/activate
+# 4. Run first migration (first time only)
+docker compose exec backend flask db init
+docker compose exec backend flask db migrate -m "initial"
+docker compose exec backend flask db upgrade
 ```
+
+| Service  | URL                        |
+|----------|----------------------------|
+| Frontend | http://localhost:5173       |
+| API      | http://localhost:5000/api   |
+| DB       | localhost:5432              |
+
+## API Endpoints
+
+```
+GET    /api/health
+GET    /api/users/
+POST   /api/users/       { "username": "...", "email": "..." }
+GET    /api/users/:id
+PUT    /api/users/:id
+DELETE /api/users/:id
+```
+
+## Project Structure
+
+```
+skillforge/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py       # App factory
+│   │   ├── config.py
+│   │   ├── models.py
+│   │   └── routes/
+│   │       ├── health.py
+│   │       └── users.py
+│   ├── run.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/api.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── vite.config.js
+│   └── Dockerfile
+└── docker-compose.yml
+```
+
+## Development
 
 ```bash
-# Installing and running the React+Vite frontend
+# View logs
+docker compose logs -f backend
 
-# Prerequisite: 
-# Make sure Node.js 20+ is installed
-# Make sure npm is installed
+# Shell into backend
+docker compose exec backend bash
 
-cd frontend
-npm install -D # Install dependencies
-npm run dev   # Start the development server
-
+# New migration after model changes
+docker compose exec backend flask db migrate -m "describe change"
+docker compose exec backend flask db upgrade
 ```
-
-## 🤝 Contributing
-
-We welcome contributions from all UTP students! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) guide to learn about our development process, how to propose changes, and how to submit pull requests.
-
-### Quick Contribution Guide
-
-1. **Fork** the repository [Only if you are not a member of the organization. All members have write access and can clone and work with this repo)
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
-
-## 📋 Code Quality
-
-This project enforces code quality through:
-- Automated linting and formatting checks
-- Code review requirements
-- Continuous integration workflows
-- Branch protection rules
-
-## 📚 Documentation
-
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Branch Protection Guide](.github/branch-protection.md)
-- [Project Setup Guide](.github/project-setup.md)
-
-## 📄 License
-
-This project is licensed under the GNU General Public License v3 - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Team
-
-- **Instructors**: @karastoyanov, @rayapetkova
-- **Contributors**: UTP Students
-
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/VUTP-University/skillforge)
-- [Issue Tracker](https://github.com/VUTP-University/skillforge/issues)
-- [GitHub Project Board]([https://github.com/VUTP-University/skillforge/projects](https://github.com/orgs/VUTP-University/projects/6))
-
----

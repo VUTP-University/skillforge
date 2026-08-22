@@ -1,158 +1,49 @@
-const API_BASE = '/api';
+import axios from "axios";
 
-/**
- * Read the CSRF token for the access token from the non-HttpOnly cookie
- * set by flask-jwt-extended. Required on state-changing requests that use
- * @jwt_required() on the backend.
- */
-function getCsrfToken() {
-  const match = document.cookie.match(/csrf_access_token=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
+const api = axios.create({
+  baseURL: "/api",
+  withCredentials: true,
+});
 
-/**
- * Read the CSRF token for the refresh token from the non-HttpOnly cookie.
- * Required when calling the /api/refresh endpoint.
- */
-function getCsrfRefreshToken() {
-  const match = document.cookie.match(/csrf_refresh_token=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-/**
- * Log in with email/username + password.
- * The backend sets HttpOnly access_token_cookie and refresh_token_cookie.
- * Returns the user object from the response body.
- */
-export async function login(credentials) {
-  const res = await fetch(`${API_BASE}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({
-      // Support both "email" (from the login form field) and "identifier"
-      identifier: credentials.identifier ?? credentials.email,
-      password: credentials.password,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error || data.msg || 'Login failed');
-  }
-  return data; // { msg, user: { id, username, email } }
-}
-
-/**
- * Register a new account.
- * Returns { success: true } or { success: false, message }.
- */
-export async function signup(formData) {
-  const res = await fetch(`${API_BASE}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    return { success: false, message: data.error || data.msg || 'Signup failed' };
-  }
-  return { success: true };
-}
-
-/**
- * Log out. Asks the backend to clear the JWT cookies.
- */
-export async function logout() {
-  await fetch(`${API_BASE}/logout`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
-}
-
-/**
- * Fetch the currently authenticated user from the backend.
- * If the access token is expired (401), attempts a silent refresh before
- * giving up. Returns the user object or null if not authenticated.
- */
-export async function getCurrentUser() {
-  let res = await fetch(`${API_BASE}/me`, {
-    method: 'GET',
-    credentials: 'include',
-  });
-
-  if (res.status === 401) {
-    // Access token expired — try to get a new one from the refresh token
-    const refreshed = await refreshToken();
-    if (!refreshed) return null;
-    // Retry with the fresh access token cookie
-    res = await fetch(`${API_BASE}/me`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-  }
-
-  if (!res.ok) return null;
-  return res.json(); // { id, username, email }
-}
-
-/**
- * Use the refresh token cookie to get a new access token cookie.
- * Returns true if the refresh succeeded, false otherwise.
- */
-export async function refreshToken() {
-  const csrfRefresh = getCsrfRefreshToken();
-  const res = await fetch(`${API_BASE}/refresh`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(csrfRefresh && { 'X-CSRF-TOKEN': csrfRefresh }),
-    },
-    credentials: 'include',
-  });
-  return res.ok;
-}
-
-/**
- * Helper for protected fetch calls: if the response is 401 try to refresh
- * and redirect to login if that also fails.
- * Returns true if the caller may proceed, false if the user was redirected.
- */
-export async function checkValidToken(status) {
-  if (status === 401) {
-    const refreshed = await refreshToken();
-    if (!refreshed) {
-      window.location.href = '/';
-      return false;
+// Refresh-and-retry on 401 — skip auth endpoints to avoid infinite loops
+api.interceptors.response.use(
+  (r) => r,
+  async (err) => {
+    const url = err.config?.url ?? "";
+    const isAuthEndpoint = url.startsWith("/auth/");
+    if (err.response?.status === 401 && !err.config._retry && !isAuthEndpoint) {
+      err.config._retry = true;
+      try {
+        await axios.post("/api/auth/refresh", {}, { withCredentials: true });
+        return api(err.config);
+      } catch {
+        window.location.href = "/login";
+      }
     }
+    return Promise.reject(err);
   }
-  return true;
+);
+
+export async function register(username, email, password) {
+  const { data } = await api.post("/auth/register", { username, email, password });
+  return data.user;
 }
 
-/**
- * Convenience wrapper for authenticated fetch calls.
- * Automatically includes credentials and the CSRF token header for
- * state-changing methods (POST, PUT, PATCH, DELETE).
- */
-export function authFetch(url, options = {}) {
-  const method = (options.method || 'GET').toUpperCase();
-  const needsCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
-  const csrfToken = needsCsrf ? getCsrfToken() : null;
+export async function login(identifier, password) {
+  const { data } = await api.post("/auth/login", { identifier, password });
+  return data.user;
+}
 
-  return fetch(url, {
-    ...options,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
-      ...options.headers,
-    },
-  });
+export async function logout() {
+  await api.post("/auth/logout");
+}
+
+export async function getCurrentUser() {
+  const { data } = await api.get("/auth/me");
+  return data.user;
+}
+
+export async function authFetch(url, options = {}) {
+  const { data } = await api.request({ url, ...options });
+  return data;
 }

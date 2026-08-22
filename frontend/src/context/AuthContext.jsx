@@ -1,42 +1,49 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { getCurrentUser, logout as logoutService } from '../services/authService';
+import { createContext, useContext, useEffect, useState } from "react";
+import { login as apiLogin, logout as apiLogout, register as apiRegister, getCurrentUser } from "../services/authService";
 
 const AuthContext = createContext(null);
 
-/**
- * Wrap your app with <AuthProvider> to make auth state available everywhere.
- *
- * On mount it calls GET /api/me using the existing HttpOnly JWT cookie.
- * If the cookie is valid the user is set; otherwise the user stays null
- * (i.e. the person is not logged in).
- */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getCurrentUser()
-      .then((u) => setUser(u))
+      .then(setUser)
+      .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
 
-  /** Call this after a successful login to store the user in context. */
-  const login = (userData) => setUser(userData);
+  async function login(identifier, password) {
+    const u = await apiLogin(identifier, password);
+    setUser(u);
+    return u;
+  }
 
-  /** Clears the server-side cookies and resets local state. */
-  const logout = async () => {
-    await logoutService();
+  async function register(username, email, password) {
+    const u = await apiRegister(username, email, password);
+    setUser(u);
+    return u;
+  }
+
+  async function logout() {
+    await apiLogout();
     setUser(null);
-  };
+  }
+
+  function updateUser(updates) {
+    setUser(prev => prev ? { ...prev, ...updates } : prev);
+  }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-/** Access auth state from any component. */
 export function useAuth() {
-  return useContext(AuthContext);
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

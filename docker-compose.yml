@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TZ: Europe/Sofia
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  piston:
+    image: ghcr.io/engineer-man/piston@sha256:63b5654156a89c5a2ad281aface21416615d62ec056d88efe8fcd307ce73575a
+    restart: unless-stopped
+    container_name: piston-api
+    privileged: true
+    ports:
+      - "2000:2000"
+    volumes:
+      - ./piston_packages:/piston/packages
+    tmpfs:
+      - /tmp:exec
+    environment:
+      - PISTON_MAX_COMPILE_TIMEOUT=60000
+      - PISTON_MAX_RUN_TIMEOUT=15000
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: skillforge_network
