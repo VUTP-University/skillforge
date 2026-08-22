@@ -180,6 +180,21 @@ class UserRole(db.Model):
         return f"<UserRole {self.user_id}:{self.role.value}>"
 
 
+class TokenBlocklist(db.Model):
+    __tablename__ = "token_blocklist"
+
+    id         = db.Column(db.Integer, primary_key=True)
+    jti        = db.Column(db.String(36), nullable=False, unique=True, index=True)
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f"<TokenBlocklist {self.jti}>"
+
+
 class Job(db.Model):
     __tablename__ = "jobs"
 

@@ -1,24 +1,45 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from .config import Config
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from .config import Config, ProductionConfig, validate_production_secrets
 
 db      = SQLAlchemy()
 migrate = Migrate()
 jwt     = JWTManager()
+limiter = Limiter(key_func=get_remote_address)
 
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    if config_class is ProductionConfig:
+        validate_production_secrets(app)
+
     # Extensions
     CORS(app, supports_credentials=True, origins=app.config["FRONTEND_ORIGIN"])
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    limiter.init_app(app)
+
+    @app.errorhandler(429)
+    def rate_limit_exceeded(e):
+        return jsonify({"error": "Too many requests. Please try again later."}), 429
+
+    from .models import User, TokenBlocklist
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        if db.session.query(TokenBlocklist.id).filter_by(jti=jti).first() is not None:
+            return True
+        user = db.session.get(User, int(jwt_payload["sub"]))
+        return bool(user and user.is_banned)
 
     # Blueprints
     from .routes.health      import health_bp

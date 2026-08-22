@@ -1,22 +1,25 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
+    decode_token,
     jwt_required,
+    get_jwt,
     get_jwt_identity,
     set_access_cookies,
     set_refresh_cookies,
     unset_jwt_cookies,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app import db, limiter
 from app.mailer import send_welcome_email
-from app.models import User, UserRole, RoleName
+from app.models import User, UserRole, RoleName, TokenBlocklist
 
 auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/register", methods=["POST"])
+@limiter.limit("10 per hour")
 def register():
     data = request.get_json(silent=True) or {}
     username = (data.get("username") or "").strip()
@@ -57,6 +60,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["POST"])
+@limiter.limit("10 per minute; 50 per hour")
 def login():
     data       = request.get_json(silent=True) or {}
     identifier = (data.get("identifier") or "").strip()
@@ -86,8 +90,23 @@ def login():
 
 
 @auth_bp.route("/logout", methods=["POST"])
+@jwt_required(optional=True)
 def logout():
     response = jsonify({"message": "Logged out"})
+
+    access_claims = get_jwt()
+    if access_claims:
+        db.session.add(TokenBlocklist(jti=access_claims["jti"]))
+
+    refresh_cookie = request.cookies.get(current_app.config["JWT_REFRESH_COOKIE_NAME"])
+    if refresh_cookie:
+        try:
+            refresh_claims = decode_token(refresh_cookie)
+            db.session.add(TokenBlocklist(jti=refresh_claims["jti"]))
+        except Exception:
+            pass
+
+    db.session.commit()
     unset_jwt_cookies(response)
     return response
 

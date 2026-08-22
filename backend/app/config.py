@@ -4,9 +4,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+_INSECURE_DEFAULT_SECRET = "dev-secret-change-in-production"
+
 
 class Config:
-    SECRET_KEY              = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+    DEBUG                   = False
+    SECRET_KEY              = os.environ.get("SECRET_KEY", _INSECURE_DEFAULT_SECRET)
     SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -42,6 +45,26 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    DEBUG                  = False
-    JWT_COOKIE_SECURE      = True
+    DEBUG                   = False
+    JWT_COOKIE_SECURE       = True
     JWT_COOKIE_CSRF_PROTECT = True
+
+
+def get_config():
+    """Select the config class from APP_ENV (development|production, default development)."""
+    env = os.environ.get("APP_ENV", "development").strip().lower()
+    return ProductionConfig if env == "production" else DevelopmentConfig
+
+
+def validate_production_secrets(app):
+    """Refuse to boot under ProductionConfig with unset/checked-in-default secrets."""
+    insecure = [
+        name for name in ("SECRET_KEY", "JWT_SECRET_KEY")
+        if not app.config.get(name) or app.config[name] == _INSECURE_DEFAULT_SECRET
+    ]
+    if insecure:
+        raise RuntimeError(
+            "Refusing to start with APP_ENV=production: "
+            f"{', '.join(insecure)} must be set via environment variables to a "
+            "non-default value."
+        )
