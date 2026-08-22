@@ -1,10 +1,11 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
 from .config import Config, ProductionConfig, validate_production_secrets
 
 db      = SQLAlchemy()
@@ -31,7 +32,7 @@ def create_app(config_class=Config):
     def rate_limit_exceeded(e):
         return jsonify({"error": "Too many requests. Please try again later."}), 429
 
-    from .models import User, TokenBlocklist
+    from .models import TokenBlocklist, User
 
     @jwt.token_in_blocklist_loader
     def check_if_token_revoked(jwt_header, jwt_payload):
@@ -42,15 +43,15 @@ def create_app(config_class=Config):
         return bool(user and user.is_banned)
 
     # Blueprints
-    from .routes.health      import health_bp
-    from .routes.users       import users_bp
-    from .routes.auth        import auth_bp
-    from .routes.admin       import admin_bp
-    from .routes.jobs        import jobs_bp
-    from .routes.profile     import profile_bp
-    from .routes.processes   import stack_trace_bp
-    from .routes.test_suite  import test_suite_bp
-    from .routes.reports     import reports_bp
+    from .routes.admin import admin_bp
+    from .routes.auth import auth_bp
+    from .routes.health import health_bp
+    from .routes.jobs import jobs_bp
+    from .routes.processes import stack_trace_bp
+    from .routes.profile import profile_bp
+    from .routes.reports import reports_bp
+    from .routes.test_suite import test_suite_bp
+    from .routes.users import users_bp
 
     app.register_blueprint(health_bp,      url_prefix="/api")
     app.register_blueprint(users_bp,       url_prefix="/api/users")

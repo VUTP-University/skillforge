@@ -4,7 +4,7 @@ from functools import wraps
 
 import requests
 from flask import current_app, jsonify
-from flask_jwt_extended import verify_jwt_in_request, get_jwt
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
 
 PISTON_RUNTIMES = {
     "python":     {"language": "python",     "version": "*"},
