@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -48,7 +50,17 @@ def create_app(config_class=Config):
         if db.session.query(TokenBlocklist.id).filter_by(jti=jti).first() is not None:
             return True
         user = db.session.get(User, int(jwt_payload["sub"]))
-        return bool(user and user.is_banned)
+        if not user:
+            return False
+        if user.is_banned:
+            return True
+        if user.password_changed_at:
+            changed_at = user.password_changed_at
+            if changed_at.tzinfo is None:
+                changed_at = changed_at.replace(tzinfo=timezone.utc)
+            if jwt_payload["iat"] < changed_at.timestamp():
+                return True
+        return False
 
     # Blueprints
     from .routes.admin import admin_bp

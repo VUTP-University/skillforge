@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const api = axios.create({ baseURL: "/api", withCredentials: true });
+import api from "./api";
 
 export const getAdminUsers        = (params = {})    => api.get("/admin/users", { params }).then(r => r.data);
 export const updateUserRole       = (id, role)        => api.patch(`/admin/users/${id}/role`, { role }).then(r => r.data);

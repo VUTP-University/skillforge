@@ -25,6 +25,17 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES   = timedelta(days=30)
     JWT_COOKIE_CSRF_PROTECT     = False  # enable in production with HTTPS
 
+    # Scope each cookie (and its CSRF double-submit counterpart) to only the
+    # paths that actually need it, instead of the default "/" — the refresh
+    # token in particular has a 30-day lifetime and only ever needs to reach
+    # /api/auth/refresh (to mint a new access token) and /api/auth/logout
+    # (to be blocklisted); there's no reason for it to ride along on every
+    # other request.
+    JWT_ACCESS_COOKIE_PATH       = "/api"
+    JWT_REFRESH_COOKIE_PATH      = "/api/auth"
+    JWT_ACCESS_CSRF_COOKIE_PATH  = "/api"
+    JWT_REFRESH_CSRF_COOKIE_PATH = "/api/auth"
+
     FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
     # Flask-Limiter storage — defaults to per-process memory, which silently

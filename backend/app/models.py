@@ -104,6 +104,11 @@ class User(db.Model):
     is_banned     = db.Column(db.Boolean, default=False, nullable=False)
     ban_reason    = db.Column(db.Text, nullable=True)
     banned_at     = db.Column(db.DateTime, nullable=True)
+    # Set whenever the password changes (currently: password reset). Tokens
+    # issued before this moment are treated as revoked — see
+    # check_if_token_revoked in app/__init__.py — so a compromised session
+    # doesn't survive the reset meant to lock it out.
+    password_changed_at = db.Column(db.DateTime, nullable=True)
     created_at    = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),

@@ -1,6 +1,7 @@
 import hashlib
 import re
 import secrets
+import time
 from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, current_app, jsonify, request
@@ -25,6 +26,10 @@ auth_bp = Blueprint("auth", __name__)
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
 PASSWORD_RESET_TOKEN_TTL = timedelta(hours=1)
+# Floor for forgot-password's response time — padding out the fast
+# (email-not-found) path so it can't be distinguished from the slower
+# (email-found: extra DB writes + email dispatch) path via timing.
+MIN_FORGOT_PASSWORD_SECONDS = 0.3
 
 # Computed once at import time so login() can hash-compare against *something*
 # even when no matching user exists — otherwise a nonexistent identifier skips
@@ -124,6 +129,13 @@ def login():
 def logout():
     response = jsonify({"message": "Logged out"})
 
+    # Opportunistic cleanup — anything older than the longest-lived token type
+    # (the refresh token) is guaranteed to have already expired on its own,
+    # so it's safe to drop regardless of which token it was for. Keeps this
+    # table from growing forever without needing a separate scheduled job.
+    stale_cutoff = datetime.now(timezone.utc) - current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    TokenBlocklist.query.filter(TokenBlocklist.created_at < stale_cutoff).delete()
+
     access_claims = get_jwt()
     if access_claims:
         db.session.add(TokenBlocklist(jti=access_claims["jti"]))
@@ -162,6 +174,7 @@ def refresh():
 @auth_bp.route("/forgot-password", methods=["POST"])
 @limiter.limit("5 per hour")
 def forgot_password():
+    started_at = time.monotonic()
     data  = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
 
@@ -169,24 +182,29 @@ def forgot_password():
     # — a differing response would let an attacker enumerate accounts.
     generic_response = jsonify({"message": "If that email is registered, a reset link has been sent."})
 
-    if not email:
-        return generic_response
+    if email:
+        user = User.query.filter(User.email == email).first()
+        if user:
+            # Invalidate any outstanding links before issuing a new one.
+            PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
 
-    user = User.query.filter(User.email == email).first()
-    if user:
-        # Invalidate any outstanding links before issuing a new one.
-        PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
+            raw_token = secrets.token_urlsafe(32)
+            db.session.add(PasswordResetToken(
+                user_id=user.id,
+                token_hash=_hash_reset_token(raw_token),
+                expires_at=datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_TTL,
+            ))
+            db.session.commit()
 
-        raw_token = secrets.token_urlsafe(32)
-        db.session.add(PasswordResetToken(
-            user_id=user.id,
-            token_hash=_hash_reset_token(raw_token),
-            expires_at=datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_TTL,
-        ))
-        db.session.commit()
+            reset_url = f"{current_app.config['FRONTEND_ORIGIN']}/reset-password?token={raw_token}"
+            send_password_reset_email(user.email, user.username, reset_url)
 
-        reset_url = f"{current_app.config['FRONTEND_ORIGIN']}/reset-password?token={raw_token}"
-        send_password_reset_email(user.email, user.username, reset_url)
+    # Pad the response to a fixed minimum duration so an attacker can't tell
+    # a registered email (extra DB writes above) from an unregistered one
+    # (none of that work) by measuring response time.
+    remaining = MIN_FORGOT_PASSWORD_SECONDS - (time.monotonic() - started_at)
+    if remaining > 0:
+        time.sleep(remaining)
 
     return generic_response
 
@@ -215,6 +233,9 @@ def reset_password():
 
     user = db.session.get(User, reset_token.user_id)
     user.password_hash = generate_password_hash(password)
+    # Any token issued before now is treated as revoked (see
+    # check_if_token_revoked) so a hijacked session doesn't survive the reset.
+    user.password_changed_at = datetime.now(timezone.utc)
     reset_token.used_at = datetime.now(timezone.utc)
     # Invalidate any other outstanding links for this user.
     PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
