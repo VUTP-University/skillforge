@@ -2039,6 +2039,127 @@
   font-family: var(--font-heading);
 }
 
+/* ─── Prose — rendered markdown, job description panel ─── */
+
+.job-desc-prose { font-family: var(--font-body); font-size: 0.887rem; }
+
+.job-desc-prose > *:last-child { margin-bottom: 0; }
+
+.job-desc-prose p {
+  font-size: 0.887rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.78);
+  margin-bottom: 0.9rem;
+}
+
+.job-desc-prose h1,
+.job-desc-prose h2,
+.job-desc-prose h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.job-desc-prose h1 { font-size: 1rem; }
+.job-desc-prose h2 { font-size: 0.92rem; }
+.job-desc-prose h3 { font-size: 0.85rem; }
+
+.job-desc-prose h1:first-child,
+.job-desc-prose h2:first-child,
+.job-desc-prose h3:first-child { margin-top: 0; }
+
+.job-desc-prose em { font-style: italic; color: var(--color-amber); }
+
+.job-desc-prose strong { font-weight: 700; color: var(--color-text); }
+
+.job-desc-prose a { color: var(--color-green); transition: color 0.15s; }
+.job-desc-prose a:hover { color: var(--color-green-bright); }
+
+.job-desc-prose blockquote {
+  border-left: 3px solid var(--color-green-border);
+  padding: 0.6rem 0.9rem;
+  margin: 0.9rem 0;
+  background: rgba(77, 255, 143, 0.03);
+  border-radius: 0 4px 4px 0;
+}
+
+.job-desc-prose blockquote p { margin-bottom: 0; font-style: italic; }
+
+.job-desc-prose ul,
+.job-desc-prose ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.9rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.job-desc-prose ul { list-style: disc; }
+.job-desc-prose ol { list-style: decimal; }
+
+.job-desc-prose li {
+  font-size: 0.887rem;
+  line-height: 1.7;
+  margin-bottom: 0.2rem;
+}
+
+.job-desc-prose li p { margin-bottom: 0; }
+
+.job-desc-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.9rem 0;
+  font-size: 0.82rem;
+}
+
+.job-desc-prose thead tr { border-bottom: 1px solid var(--color-green-border); }
+
+.job-desc-prose th {
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-green);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  background: rgba(77, 255, 143, 0.03);
+}
+
+.job-desc-prose td {
+  padding: 0.4rem 0.6rem;
+  color: rgba(255, 255, 255, 0.78);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.job-desc-prose tbody tr:last-child td { border-bottom: none; }
+
+.job-desc-prose code {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 3px;
+  padding: 0.05rem 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 0.85em;
+  color: var(--color-blue);
+}
+
+.job-desc-prose pre {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 4px;
+  padding: 0.85rem 0.95rem;
+  overflow-x: auto;
+  margin: 0.9rem 0;
+}
+
+.job-desc-prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 /* ─── FAQ Mobile ─── */
 @media (max-width: 767px) {
   .faq-body { flex-direction: column; }
