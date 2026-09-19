@@ -17,6 +17,8 @@ import TestSuitePlayPage from "./pages/TestSuitePlayPage";
 import FAQPage from "./pages/FAQPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 /* Spinner shown while auth state is resolving */
 function LoadingScreen() {
@@ -86,6 +88,22 @@ function AuthLayout() {
         element={
           <PublicRoute>
             <Register />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoute>
+            <ForgotPassword />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <PublicRoute>
+            <ResetPassword />
           </PublicRoute>
         }
       />
@@ -240,7 +258,7 @@ function AppLayout() {
 
 function Router() {
   const location = useLocation();
-  const isAuthRoute = location.pathname === "/login" || location.pathname === "/register";
+  const isAuthRoute = ["/login", "/register", "/forgot-password", "/reset-password"].includes(location.pathname);
 
   return isAuthRoute ? <AuthLayout /> : <AppLayout />;
 }

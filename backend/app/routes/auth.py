@@ -1,4 +1,7 @@
+import hashlib
 import re
+import secrets
+from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
@@ -15,12 +18,17 @@ from flask_jwt_extended import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db, limiter
-from app.mailer import send_welcome_email
-from app.models import RoleName, TokenBlocklist, User, UserRole
+from app.mailer import send_password_reset_email, send_welcome_email
+from app.models import PasswordResetToken, RoleName, TokenBlocklist, User, UserRole
 
 auth_bp = Blueprint("auth", __name__)
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+PASSWORD_RESET_TOKEN_TTL = timedelta(hours=1)
+
+
+def _hash_reset_token(raw_token: str) -> str:
+    return hashlib.sha256(raw_token.encode()).hexdigest()
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -134,3 +142,67 @@ def refresh():
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     return response
+
+
+@auth_bp.route("/forgot-password", methods=["POST"])
+@limiter.limit("5 per hour")
+def forgot_password():
+    data  = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+
+    # Always return the same response whether or not the email is registered
+    # — a differing response would let an attacker enumerate accounts.
+    generic_response = jsonify({"message": "If that email is registered, a reset link has been sent."})
+
+    if not email:
+        return generic_response
+
+    user = User.query.filter(User.email == email).first()
+    if user:
+        # Invalidate any outstanding links before issuing a new one.
+        PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
+
+        raw_token = secrets.token_urlsafe(32)
+        db.session.add(PasswordResetToken(
+            user_id=user.id,
+            token_hash=_hash_reset_token(raw_token),
+            expires_at=datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_TTL,
+        ))
+        db.session.commit()
+
+        reset_url = f"{current_app.config['FRONTEND_ORIGIN']}/reset-password?token={raw_token}"
+        send_password_reset_email(user.email, user.username, reset_url)
+
+    return generic_response
+
+
+@auth_bp.route("/password", methods=["PATCH"])
+@limiter.limit("10 per hour")
+def reset_password():
+    data     = request.get_json(silent=True) or {}
+    token    = data.get("token") or ""
+    password = data.get("password") or ""
+
+    if not token or not password:
+        return jsonify({"error": "Token and new password are required"}), 400
+    if len(password) < 8:
+        return jsonify({"error": "Password must be at least 8 characters"}), 400
+
+    reset_token = PasswordResetToken.query.filter_by(token_hash=_hash_reset_token(token)).first()
+    if reset_token:
+        expires_at = reset_token.expires_at.replace(tzinfo=timezone.utc) if reset_token.expires_at.tzinfo is None else reset_token.expires_at
+    if (
+        not reset_token
+        or reset_token.used_at is not None
+        or expires_at < datetime.now(timezone.utc)
+    ):
+        return jsonify({"error": "This reset link is invalid or has expired"}), 400
+
+    user = db.session.get(User, reset_token.user_id)
+    user.password_hash = generate_password_hash(password)
+    reset_token.used_at = datetime.now(timezone.utc)
+    # Invalidate any other outstanding links for this user.
+    PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
+    db.session.commit()
+
+    return jsonify({"message": "Password updated. You can now sign in with your new password."})

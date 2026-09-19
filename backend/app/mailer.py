@@ -155,6 +155,96 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
     return msg
 
 
+def _build_password_reset_email(to_email: str, username: str, from_name: str, from_addr: str, reset_url: str) -> MIMEMultipart:
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Reset your SkillForge password"
+    msg["From"] = f"{from_name} <{from_addr}>"
+    msg["To"] = to_email
+
+    username_html = html.escape(username)
+    reset_url_html = html.escape(reset_url)
+
+    text = (
+        f"Hey {username}_\n\n"
+        "We received a request to reset your SkillForge password.\n\n"
+        f"Reset it here: {reset_url}\n\n"
+        "This link expires in 1 hour and can only be used once.\n"
+        "If you didn't request this, you can safely ignore this email —\n"
+        "your password will stay unchanged.\n\n"
+        "— The SkillForge team\n"
+        "© 2026 SkillForge. All rights reserved."
+    )
+
+    html_body = f"""\
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+  Reset your SkillForge password — this link expires in 1 hour.
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#050806;padding:32px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+        style="max-width:600px;width:100%;background:#10151a;border:1px solid #223028;border-radius:10px;overflow:hidden;font-family:Menlo,Consolas,'Courier New',monospace;">
+
+        <!-- Terminal titlebar -->
+        <tr>
+          <td style="padding:12px 20px;border-bottom:1px solid #223028;">
+            <span style="color:#ff5f56;font-size:13px;">&#9679;</span>
+            <span style="color:#ffbd2e;font-size:13px;"> &#9679;</span>
+            <span style="color:#27c93f;font-size:13px;"> &#9679;</span>
+            <span style="color:#6b8478;font-size:11px;letter-spacing:0.05em;float:right;">operator@skillforge: ~</span>
+          </td>
+        </tr>
+
+        <!-- Brand -->
+        <tr>
+          <td style="padding:28px 28px 0;">
+            <span style="color:#5dffa3;font-size:22px;font-weight:700;letter-spacing:0.02em;">SkillForge</span>
+            <div style="color:#6b8478;font-size:12px;margin-top:4px;">Compile skills. Deploy your future.</div>
+          </td>
+        </tr>
+
+        <!-- Hero -->
+        <tr>
+          <td style="padding:22px 28px 4px;">
+            <div style="font-size:20px;color:#eafff3;margin-bottom:10px;">Password reset requested, <span style="color:#5dffa3;">{username_html}</span>_</div>
+            <p style="margin:0;font-size:14px;line-height:1.65;color:#c9d6cf;">
+              Click below to choose a new password. This link expires in 1 hour and can only be used once.
+            </p>
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="padding:20px 28px 26px;">
+            <a href="{reset_url_html}" style="display:inline-block;padding:12px 26px;background:#5dffa3;color:#06120b;
+              text-decoration:none;font-weight:700;font-size:13px;letter-spacing:0.06em;border-radius:6px;">
+              [ RESET PASSWORD ]
+            </a>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:20px 28px 26px;border-top:1px solid #1a2620;">
+            <p style="margin:0 0 6px;font-size:12px;color:#6b8478;">— The SkillForge team</p>
+            <p style="margin:0;font-size:11px;color:#3f5348;">
+              If you didn't request this, you can safely ignore this email.<br />
+              © 2026 SkillForge. All rights reserved.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+"""
+
+    msg.attach(MIMEText(text, "plain"))
+    msg.attach(MIMEText(html_body, "html"))
+    return msg
+
+
 def _send(msg: MIMEMultipart, server: str, port: int, username: str, password: str) -> None:
     try:
         if port == 465:
@@ -167,7 +257,7 @@ def _send(msg: MIMEMultipart, server: str, port: int, username: str, password: s
                 smtp.login(username, password)
                 smtp.send_message(msg)
     except Exception:
-        logger.exception("Failed to send welcome email to %s", msg["To"])
+        logger.exception("Failed to send email to %s", msg["To"])
 
 
 def send_welcome_email(to_email: str, username: str) -> None:
@@ -185,6 +275,31 @@ def send_welcome_email(to_email: str, username: str) -> None:
         config.get("MAIL_FROM_NAME", "SkillForge"),
         config.get("MAIL_FROM") or config["MAIL_USERNAME"],
         config.get("FRONTEND_ORIGIN", ""),
+    )
+
+    threading.Thread(
+        target=_send,
+        args=(msg, config["MAIL_SERVER"], config["MAIL_PORT"], config["MAIL_USERNAME"], config["MAIL_PASSWORD"]),
+        daemon=True,
+    ).start()
+
+
+def send_password_reset_email(to_email: str, username: str, reset_url: str) -> None:
+    """Best-effort, non-blocking password reset email. Never raises — the
+    forgot-password endpoint must respond identically whether or not
+    delivery actually succeeds."""
+    config = current_app.config
+
+    if not config.get("MAIL_USERNAME") or not config.get("MAIL_PASSWORD"):
+        logger.warning("MAIL_USERNAME/MAIL_PASSWORD not configured — skipping password reset email")
+        return
+
+    msg = _build_password_reset_email(
+        to_email,
+        username,
+        config.get("MAIL_FROM_NAME", "SkillForge"),
+        config.get("MAIL_FROM") or config["MAIL_USERNAME"],
+        reset_url,
     )
 
     threading.Thread(

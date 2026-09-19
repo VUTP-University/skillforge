@@ -197,13 +197,13 @@ export default function Login() {
                     <label className="sf-label" style={{ marginBottom: 0 }} htmlFor="password">
                       Password
                     </label>
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="font-heading"
                       style={{ color: "var(--color-blue)", fontSize: "0.718rem", letterSpacing: "0.05em", opacity: 0.75 }}
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                   <div className="sf-input-wrap">
                     <input
