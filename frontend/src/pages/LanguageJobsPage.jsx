@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { getJobs } from "../services/jobService";
+import { getJobs, getJobStats } from "../services/jobService";
 
 /* ── Config ─────────────────────────────────────────────────────────────── */
 
@@ -17,9 +17,9 @@ const DIFF_META = {
   senior: { label: "Senior", color: "var(--color-red-bright)",  border: "var(--color-red-border)",   bg: "var(--color-red-dim)",    bar: "var(--color-red-bright)" },
 };
 
-const DIFF_ORDER = { junior: 0, mid: 1, senior: 2 };
 const FILTERS    = ["all", "junior", "mid", "senior"];
 const PAGE_SIZE  = 20;
+const EMPTY_STATS = { total: 0, by_difficulty: {} };
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
@@ -284,58 +284,69 @@ export default function LanguageJobsPage() {
   const navigate     = useNavigate();
   const langCfg      = LANG_CONFIG[language];
 
-  const [jobs, setJobs]       = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter]   = useState("all");
-  const [search, setSearch]   = useState("");
-  const [page, setPage]       = useState(1);
+  const [items, setItems]             = useState([]);
+  const [stats, setStats]             = useState(EMPTY_STATS);
+  const [loading, setLoading]         = useState(true);   // only the first fetch shows a full-page spinner
+  const [filter, setFilter]           = useState("all");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch]           = useState("");
+  const [page, setPage]               = useState(1);
+  const [total, setTotal]             = useState(0);
+  const [pages, setPages]             = useState(1);
+
+  const debounceRef = useRef(null);
 
   useEffect(() => {
-    if (!langCfg) { navigate("/", { replace: true }); return; }
+    if (!langCfg) navigate("/", { replace: true });
+  }, [langCfg, navigate]);
 
-    setLoading(true);
-    setFilter("all");
-    setSearch("");
-    setPage(1);
-    getJobs({ language })
-      .then((data) =>
-        setJobs(
-          [...data].sort(
-            (a, b) => (DIFF_ORDER[a.difficulty] ?? 9) - (DIFF_ORDER[b.difficulty] ?? 9)
-          )
-        )
-      )
-      .catch(() => setJobs([]))
-      .finally(() => setLoading(false));
-  }, [language, langCfg, navigate]);
+  // The route param never changes without a full remount (App.jsx keys page
+  // content on location.pathname), so this only ever runs once per language.
+  useEffect(() => {
+    if (!langCfg) return;
+    getJobStats({ language }).then(setStats).catch(() => setStats(EMPTY_STATS));
+  }, [language, langCfg]);
 
-  const countsByDiff = useMemo(
-    () =>
-      jobs.reduce((acc, j) => {
-        acc[j.difficulty] = (acc[j.difficulty] ?? 0) + 1;
-        return acc;
-      }, {}),
-    [jobs]
-  );
+  // Fetch the current page of jobs whenever the filter/search/page changes.
+  useEffect(() => {
+    if (!langCfg) return;
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return jobs.filter((job) => {
-      if (filter !== "all" && job.difficulty !== filter) return false;
-      if (!q) return true;
-      return (
-        job.title.toLowerCase().includes(q) ||
-        (job.description ?? "").toLowerCase().includes(q)
-      );
-    });
-  }, [jobs, filter, search]);
+    let cancelled = false;
+    const params = { language, page, per_page: PAGE_SIZE };
+    if (filter !== "all") params.difficulty = filter;
+    if (search) params.search = search;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage   = Math.min(page, totalPages);
-  const pageSlice  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+    getJobs(params)
+      .then((data) => {
+        if (cancelled) return;
+        setItems(data.items);
+        setTotal(data.total);
+        setPages(data.pages);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setItems([]);
+        setTotal(0);
+        setPages(1);
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [language, langCfg, filter, search, page]);
 
   const handleFilter = (f) => { setFilter(f); setPage(1); };
-  const handleSearch = (v) => { setSearch(v);  setPage(1); };
+
+  function handleSearchInput(v) {
+    setSearchInput(v);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => { setSearch(v); setPage(1); }, 300);
+  }
+
+  function clearSearch() {
+    clearTimeout(debounceRef.current);
+    setSearchInput("");
+    setSearch("");
+    setPage(1);
+  }
 
   if (!langCfg) return null;
 
@@ -380,7 +391,7 @@ export default function LanguageJobsPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", flexShrink: 0 }}>
               {["junior", "mid", "senior"].map((d) => {
                 const m = DIFF_META[d];
-                const n = countsByDiff[d] ?? 0;
+                const n = stats.by_difficulty[d] ?? 0;
                 if (!n) return null;
                 return (
                   <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
@@ -394,7 +405,7 @@ export default function LanguageJobsPage() {
               })}
               <div style={{ width: "1px", height: "14px", background: "var(--color-border-2)" }} />
               <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.705rem", fontWeight: 700, color: "var(--color-text-tertiary)" }}>
-                {jobs.length} total
+                {stats.total} total
               </span>
             </div>
           )}
@@ -415,14 +426,14 @@ export default function LanguageJobsPage() {
             <input
               type="text"
               placeholder="grep jobs…"
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => handleSearchInput(e.target.value)}
               className="sf-input"
               style={{ padding: "0.55rem 0.85rem 0.55rem 2.4rem" }}
             />
-            {search && (
+            {searchInput && (
               <button
-                onClick={() => handleSearch("")}
+                onClick={clearSearch}
                 style={{
                   position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
                   background: "none", border: "none", cursor: "pointer",
@@ -435,20 +446,20 @@ export default function LanguageJobsPage() {
           </div>
 
           {/* Filter pills */}
-          {jobs.length > 0 && (
+          {stats.total > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
               {FILTERS.map((f) => (
                 <FilterPill
                   key={f}
                   value={f}
                   active={filter === f}
-                  count={f === "all" ? jobs.length : (countsByDiff[f] ?? 0)}
+                  count={f === "all" ? stats.total : (stats.by_difficulty[f] ?? 0)}
                   onClick={() => handleFilter(f)}
                 />
               ))}
               {(search || filter !== "all") && (
                 <span style={{ fontSize: "0.738rem", color: "var(--color-text-tertiary)", marginLeft: "0.25rem" }}>
-                  {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                  {total} result{total !== 1 ? "s" : ""}
                 </span>
               )}
             </div>
@@ -462,12 +473,12 @@ export default function LanguageJobsPage() {
           <div className="sf-spinner" style={{ width: "20px", height: "20px" }} />
           <span className="text-sub text-sm">Loading jobs…</span>
         </div>
-      ) : filtered.length === 0 ? (
+      ) : items.length === 0 ? (
         <div
           className="glass-card"
           style={{ padding: "3rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "0.5rem" }}
         >
-          {jobs.length === 0 ? (
+          {stats.total === 0 ? (
             <>
               <p className="text-sub text-sm">No jobs available for {langCfg.name} yet.</p>
               <p className="text-dim text-xs">Check back soon — new jobs are being queued.</p>
@@ -476,7 +487,7 @@ export default function LanguageJobsPage() {
             <>
               <p className="text-sub text-sm">No jobs match your search.</p>
               <button
-                onClick={() => { handleSearch(""); handleFilter("all"); }}
+                onClick={() => { clearSearch(); handleFilter("all"); }}
                 style={{ marginTop: "0.5rem", fontSize: "0.738rem", color: "var(--color-green)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)" }}
               >
                 Clear filters
@@ -509,7 +520,7 @@ export default function LanguageJobsPage() {
             </div>
 
             <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
-              {pageSlice.map((job, i) => (
+              {items.map((job, i) => (
                 <JobRow key={job.id} job={job} language={language} index={i} />
               ))}
             </div>
@@ -517,9 +528,9 @@ export default function LanguageJobsPage() {
 
           {/* Pagination + count */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-            <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
+            <Pagination page={page} totalPages={pages} onChange={setPage} />
             <span style={{ fontSize: "0.718rem", color: "var(--color-text-faint)", fontFamily: "var(--font-heading)" }}>
-              {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} jobs
+              {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total} jobs
             </span>
           </div>
         </>

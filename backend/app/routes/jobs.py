@@ -9,6 +9,7 @@ from flask_jwt_extended import (
     jwt_required,
     verify_jwt_in_request,
 )
+from sqlalchemy import func
 
 from app import db
 from app.achievements import award_xp, check_achievements
@@ -78,8 +79,11 @@ def _validate(data):
 
 @jobs_bp.route("/", methods=["GET"])
 def list_jobs():
-    lang = request.args.get("language")
-    diff = request.args.get("difficulty")
+    lang     = request.args.get("language")
+    diff     = request.args.get("difficulty")
+    search   = (request.args.get("search") or "").strip()
+    page     = max(1, request.args.get("page", 1, type=int))
+    per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
 
     q = Job.query
     if lang:
@@ -92,11 +96,55 @@ def list_jobs():
             q = q.filter(Job.difficulty == JobDifficulty(diff))
         except ValueError:
             pass
+    if search:
+        like = f"%{search}%"
+        q = q.outerjoin(User, Job.author_id == User.id).filter(
+            db.or_(Job.title.ilike(like), User.username.ilike(like))
+        )
 
-    jobs = q.order_by(Job.created_at.desc()).all()
+    q = q.order_by(Job.created_at.desc())
+
+    total = q.count()
+    jobs  = q.offset((page - 1) * per_page).limit(per_page).all()
+    pages = max(1, (total + per_page - 1) // per_page)
+
     role = _caller_role()
     include_sol = role in ("admin", "moderator")
-    return jsonify([job.to_dict(include_solution=include_sol) for job in jobs])
+    return jsonify({
+        "items":    [job.to_dict(include_solution=include_sol) for job in jobs],
+        "total":    total,
+        "page":     page,
+        "pages":    pages,
+        "per_page": per_page,
+    })
+
+
+@jobs_bp.route("/stats", methods=["GET"])
+def job_stats():
+    lang = request.args.get("language")
+
+    if lang:
+        try:
+            lang_enum = Language(lang)
+        except ValueError:
+            return jsonify({"error": f"Invalid language '{lang}'"}), 400
+
+        rows  = (
+            db.session.query(Job.difficulty, func.count(Job.id))
+            .filter(Job.language == lang_enum)
+            .group_by(Job.difficulty)
+            .all()
+        )
+        by_difficulty = {d.value: 0 for d in JobDifficulty}
+        for difficulty, count in rows:
+            by_difficulty[difficulty.value] = count
+        return jsonify({"total": sum(by_difficulty.values()), "by_difficulty": by_difficulty})
+
+    rows = db.session.query(Job.language, func.count(Job.id)).group_by(Job.language).all()
+    by_language = {l.value: 0 for l in Language}
+    for language, count in rows:
+        by_language[language.value] = count
+    return jsonify({"total": sum(by_language.values()), "by_language": by_language})
 
 
 # ── Single ────────────────────────────────────────────────────────────────────
