@@ -41,6 +41,19 @@ def _caller_role():
         return None
 
 
+def _caller_id():
+    """Return the current user's id, or None if unauthenticated."""
+    try:
+        verify_jwt_in_request(optional=True)
+        identity = get_jwt_identity()
+        return int(identity) if identity else None
+    except Exception:  # noqa: BLE001 — any JWT verification failure means "unauthenticated"
+        return None
+
+
+JOB_SORTS = ("newest", "xp_desc", "xp_asc")
+
+
 def _validate(data):
     """Return an error string, or None if data is valid."""
     if not (data.get("title") or "").strip():
@@ -82,8 +95,15 @@ def list_jobs():
     lang     = request.args.get("language")
     diff     = request.args.get("difficulty")
     search   = (request.args.get("search") or "").strip()
+    sort     = request.args.get("sort", "newest")
+    unsolved = (request.args.get("unsolved") or "").lower() in ("true", "1")
     page     = max(1, request.args.get("page", 1, type=int))
     per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
+
+    if sort not in JOB_SORTS:
+        sort = "newest"
+
+    user_id = _caller_id()
 
     q = Job.query
     if lang:
@@ -101,17 +121,39 @@ def list_jobs():
         q = q.outerjoin(User, Job.author_id == User.id).filter(
             db.or_(Job.title.ilike(like), User.username.ilike(like))
         )
+    if unsolved and user_id:
+        completed_ids = db.session.query(JobCompletion.job_id).filter(JobCompletion.user_id == user_id)
+        q = q.filter(~Job.id.in_(completed_ids))
 
-    q = q.order_by(Job.created_at.desc())
+    if sort == "xp_desc":
+        q = q.order_by(Job.xp_reward.desc(), Job.created_at.desc())
+    elif sort == "xp_asc":
+        q = q.order_by(Job.xp_reward.asc(), Job.created_at.desc())
+    else:
+        q = q.order_by(Job.created_at.desc())
 
     total = q.count()
     jobs  = q.offset((page - 1) * per_page).limit(per_page).all()
     pages = max(1, (total + per_page - 1) // per_page)
 
+    completed_ids = set()
+    if user_id and jobs:
+        job_ids = [job.id for job in jobs]
+        completed_ids = {
+            row.job_id for row in
+            JobCompletion.query.filter(JobCompletion.user_id == user_id, JobCompletion.job_id.in_(job_ids))
+        }
+
     role = _caller_role()
     include_sol = role in ("admin", "moderator")
+    items = []
+    for job in jobs:
+        d = job.to_dict(include_solution=include_sol)
+        d["solved"] = job.id in completed_ids
+        items.append(d)
+
     return jsonify({
-        "items":    [job.to_dict(include_solution=include_sol) for job in jobs],
+        "items":    items,
         "total":    total,
         "page":     page,
         "pages":    pages,

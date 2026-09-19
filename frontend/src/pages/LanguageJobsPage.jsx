@@ -96,6 +96,35 @@ function FilterPill({ value, active, count, onClick }) {
   );
 }
 
+function UnsolvedToggle({ active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.35rem",
+        padding: "0.32rem 0.8rem",
+        borderRadius: "3px",
+        border: active ? "1px solid var(--color-amber-border)" : "1px solid var(--color-border-2)",
+        background: active ? "var(--color-amber-dim)" : "transparent",
+        color: active ? "var(--color-amber)" : "var(--color-text-tertiary)",
+        fontFamily: "var(--font-heading)",
+        fontSize: "0.692rem",
+        fontWeight: 700,
+        cursor: "pointer",
+        transition: "all 0.15s",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <svg style={{ width: 11, height: 11 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+      Unsolved only
+    </button>
+  );
+}
+
 function JobRow({ job, language, index }) {
   const m       = DIFF_META[job.difficulty] ?? DIFF_META.junior;
   const tcCount = job.test_cases?.length ?? 0;
@@ -132,9 +161,21 @@ function JobRow({ job, language, index }) {
             overflow: "hidden",
             textOverflow: "ellipsis",
             marginBottom: "0.1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
           }}
         >
-          {job.title}
+          {job.solved && (
+            <svg
+              title="Solved"
+              style={{ width: 13, height: 13, color: "var(--color-green)", flexShrink: 0 }}
+              fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          )}
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{job.title}</span>
         </p>
         <p
           style={{
@@ -288,6 +329,8 @@ export default function LanguageJobsPage() {
   const [stats, setStats]             = useState(EMPTY_STATS);
   const [loading, setLoading]         = useState(true);   // only the first fetch shows a full-page spinner
   const [filter, setFilter]           = useState("all");
+  const [sort, setSort]               = useState("newest");
+  const [unsolved, setUnsolved]       = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch]           = useState("");
   const [page, setPage]               = useState(1);
@@ -312,9 +355,10 @@ export default function LanguageJobsPage() {
     if (!langCfg) return;
 
     let cancelled = false;
-    const params = { language, page, per_page: PAGE_SIZE };
+    const params = { language, page, per_page: PAGE_SIZE, sort };
     if (filter !== "all") params.difficulty = filter;
     if (search) params.search = search;
+    if (unsolved) params.unsolved = "true";
 
     getJobs(params)
       .then((data) => {
@@ -331,9 +375,11 @@ export default function LanguageJobsPage() {
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [language, langCfg, filter, search, page]);
+  }, [language, langCfg, filter, sort, unsolved, search, page]);
 
   const handleFilter = (f) => { setFilter(f); setPage(1); };
+  const handleSort = (s) => { setSort(s); setPage(1); };
+  const toggleUnsolved = () => { setUnsolved((v) => !v); setPage(1); };
 
   function handleSearchInput(v) {
     setSearchInput(v);
@@ -457,7 +503,23 @@ export default function LanguageJobsPage() {
                   onClick={() => handleFilter(f)}
                 />
               ))}
-              {(search || filter !== "all") && (
+
+              <div style={{ width: "1px", height: "16px", background: "var(--color-border-2)", margin: "0 0.15rem" }} />
+
+              <UnsolvedToggle active={unsolved} onClick={toggleUnsolved} />
+
+              <select
+                value={sort}
+                onChange={(e) => handleSort(e.target.value)}
+                className="sf-input"
+                style={{ width: "auto", padding: "0.32rem 1.75rem 0.32rem 0.7rem", fontSize: "0.692rem", fontFamily: "var(--font-heading)", fontWeight: 700 }}
+              >
+                <option value="newest">Newest</option>
+                <option value="xp_desc">Highest XP</option>
+                <option value="xp_asc">Lowest XP</option>
+              </select>
+
+              {(search || filter !== "all" || unsolved) && (
                 <span style={{ fontSize: "0.738rem", color: "var(--color-text-tertiary)", marginLeft: "0.25rem" }}>
                   {total} result{total !== 1 ? "s" : ""}
                 </span>
@@ -485,9 +547,9 @@ export default function LanguageJobsPage() {
             </>
           ) : (
             <>
-              <p className="text-sub text-sm">No jobs match your search.</p>
+              <p className="text-sub text-sm">No jobs match your filters.</p>
               <button
-                onClick={() => { clearSearch(); handleFilter("all"); }}
+                onClick={() => { clearSearch(); handleFilter("all"); setUnsolved(false); setSort("newest"); }}
                 style={{ marginTop: "0.5rem", fontSize: "0.738rem", color: "var(--color-green)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-heading)" }}
               >
                 Clear filters
