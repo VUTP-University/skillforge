@@ -1,3 +1,4 @@
+import html
 import logging
 import smtplib
 import threading
@@ -22,6 +23,11 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
     msg["Subject"] = "Welcome to SkillForge — your account is live"
     msg["From"] = f"{from_name} <{from_addr}>"
     msg["To"] = to_email
+
+    # Escape for the HTML part — usernames are charset-restricted at
+    # registration, but this stays safe for any pre-existing/legacy value.
+    username_html = html.escape(username)
+    to_email_html = html.escape(to_email)
 
     text_features = "\n".join(f"  [+] {desc}" for _, desc in _FEATURES)
     text = (
@@ -76,7 +82,7 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
         <!-- Hero -->
         <tr>
           <td style="padding:22px 28px 4px;">
-            <div style="font-size:20px;color:#eafff3;margin-bottom:10px;">Welcome, <span style="color:#5dffa3;">{username}</span>_</div>
+            <div style="font-size:20px;color:#eafff3;margin-bottom:10px;">Welcome, <span style="color:#5dffa3;">{username_html}</span>_</div>
             <p style="margin:0;font-size:14px;line-height:1.65;color:#c9d6cf;">
               Your account is live. Here's what's waiting for you inside:
             </p>
@@ -112,7 +118,7 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
                   Username
                 </td>
                 <td style="padding:14px 18px;font-size:12px;color:#eafff3;text-align:right;border-bottom:1px solid #1a2620;">
-                  {username}
+                  {username_html}
                 </td>
               </tr>
               <tr>
@@ -120,7 +126,7 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
                   Email
                 </td>
                 <td style="padding:14px 18px;font-size:12px;color:#eafff3;text-align:right;">
-                  {to_email}
+                  {to_email_html}
                 </td>
               </tr>
             </table>

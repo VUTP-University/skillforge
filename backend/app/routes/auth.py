@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
@@ -18,6 +20,8 @@ from app.models import RoleName, TokenBlocklist, User, UserRole
 
 auth_bp = Blueprint("auth", __name__)
 
+USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+
 
 @auth_bp.route("/register", methods=["POST"])
 @limiter.limit("10 per hour")
@@ -31,6 +35,8 @@ def register():
         return jsonify({"error": "All fields are required"}), 400
     if len(username) < 3 or len(username) > 30:
         return jsonify({"error": "Username must be 3–30 characters"}), 400
+    if not USERNAME_RE.match(username):
+        return jsonify({"error": "Username may only contain letters, numbers, underscores, and hyphens"}), 400
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
 

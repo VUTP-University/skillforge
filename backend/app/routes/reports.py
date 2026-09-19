@@ -28,6 +28,14 @@ def create_report():
     if not job:
         return jsonify({"error": "Job not found"}), 404
 
+    existing = JobReport.query.filter(
+        JobReport.job_id == job_id,
+        JobReport.reporter_id == user_id,
+        JobReport.status != ReportStatus.solved,
+    ).first()
+    if existing:
+        return jsonify({"error": "You already have an open report for this job"}), 409
+
     report = JobReport(
         job_id=job_id,
         reporter_id=user_id,
