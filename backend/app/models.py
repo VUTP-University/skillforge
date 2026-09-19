@@ -197,6 +197,33 @@ class TokenBlocklist(db.Model):
         return f"<TokenBlocklist {self.jti}>"
 
 
+class PasswordResetToken(db.Model):
+    __tablename__ = "password_reset_tokens"
+
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # SHA-256 hex digest of the token — the raw token only ever lives in the
+    # emailed link, so a DB leak alone can't be used to reset a password.
+    token_hash = db.Column(db.String(64), nullable=False, unique=True, index=True)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used_at    = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    user = db.relationship("User")
+
+    def __repr__(self):
+        return f"<PasswordResetToken user={self.user_id}>"
+
+
 class Job(db.Model):
     __tablename__ = "jobs"
 

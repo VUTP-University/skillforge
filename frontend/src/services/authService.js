@@ -43,6 +43,16 @@ export async function getCurrentUser() {
   return data.user;
 }
 
+export async function forgotPassword(email) {
+  const { data } = await api.post("/auth/forgot-password", { email });
+  return data;
+}
+
+export async function resetPassword(token, password) {
+  const { data } = await api.patch("/auth/password", { token, password });
+  return data;
+}
+
 export async function authFetch(url, options = {}) {
   const { data } = await api.request({ url, ...options });
   return data;
