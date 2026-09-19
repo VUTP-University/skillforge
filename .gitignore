@@ -215,6 +215,9 @@ __marimo__/
 .claude/
 CLAUDE.MD
 
+# Ignore DB migrations
+**/migrations/
+
 # Ignore PistonAPI packages
 *piston_packages/
 
