@@ -1,5 +1,6 @@
 import enum
 import math
+import secrets
 from datetime import datetime, timezone
 
 from app import db
@@ -528,6 +529,11 @@ class ProcessChallenge(db.Model):
         nullable=False,
     )
     submitted_at       = db.Column(db.DateTime, nullable=True)
+    fail_token         = db.Column(
+        db.String(43),
+        nullable=False,
+        default=lambda: secrets.token_urlsafe(32),
+    )
 
     user    = db.relationship("User")
     process = db.relationship("Process", back_populates="challenges")
@@ -547,6 +553,7 @@ class ProcessChallenge(db.Model):
             "status":             self.status.value,
             "started_at":         self.started_at.isoformat(),
             "submitted_at":       self.submitted_at.isoformat() if self.submitted_at else None,
+            "fail_token":         self.fail_token,
         }
 
     def __repr__(self):

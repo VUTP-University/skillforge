@@ -1,4 +1,5 @@
 import json
+import secrets
 from datetime import datetime, timezone
 
 from flask import Blueprint, current_app, jsonify, request
@@ -190,18 +191,28 @@ def start_challenge(process_id):
     if on_cooldown:
         return jsonify({"error": "Already challenged this process today", "resets_at": resets_at}), 409
 
-    # Check no currently-active challenge for this process exists
+    cfg            = _difficulty_config(process.difficulty)
+    time_minutes   = cfg["minutes"]
+    max_xp         = cfg["max_xp"]
+
+    # Check no currently-active, unexpired challenge for this process exists.
+    # A challenge whose time limit has already elapsed (e.g. the tab crashed
+    # before the fail beacon could fire) is lazily expired here instead of
+    # permanently blocking the user from starting a new one.
     active = (
         ProcessChallenge.query
         .filter_by(user_id=user_id, process_id=process_id, status=ChallengeStatus.active)
         .first()
     )
     if active:
-        return jsonify({"error": "An active challenge already exists", "challenge_id": active.id}), 409
-
-    cfg            = _difficulty_config(process.difficulty)
-    time_minutes   = cfg["minutes"]
-    max_xp         = cfg["max_xp"]
+        active_started_at = active.started_at.replace(tzinfo=timezone.utc) if active.started_at.tzinfo is None else active.started_at
+        active_elapsed     = (datetime.now(timezone.utc) - active_started_at).total_seconds()
+        if active_elapsed > time_minutes * 60:
+            active.status       = ChallengeStatus.failed
+            active.submitted_at = datetime.now(timezone.utc)
+            db.session.commit()
+        else:
+            return jsonify({"error": "An active challenge already exists", "challenge_id": active.id}), 409
     difficulty_name = process.difficulty.value.capitalize()
     lang_upper     = process.language.upper()
 
@@ -357,16 +368,22 @@ def submit_challenge(challenge_id):
 def fail_challenge(challenge_id):
     """
     Mark an active challenge as failed.
-    Accepts both authenticated requests and unauthenticated beacon requests
-    (the challenge record itself carries the user_id for verification).
+    Accepts both authenticated requests and unauthenticated beacon requests.
+    Authenticated callers are verified by ownership; unauthenticated (beacon)
+    callers must present the challenge's fail_token, since the beacon carries
+    no auth cookie and the numeric challenge_id alone is guessable.
     """
     user_id   = get_jwt_identity()
     challenge = ProcessChallenge.query.get_or_404(challenge_id)
 
-    # For authenticated callers verify ownership; for beacon (unauthenticated)
-    # we trust the challenge_id itself (the beacon contains no auth token).
-    if user_id is not None and challenge.user_id != int(user_id):
-        return jsonify({"error": "Forbidden"}), 403
+    if user_id is not None:
+        if challenge.user_id != int(user_id):
+            return jsonify({"error": "Forbidden"}), 403
+    else:
+        data  = request.get_json(silent=True) or {}
+        token = data.get("fail_token")
+        if not token or not secrets.compare_digest(token, challenge.fail_token):
+            return jsonify({"error": "Forbidden"}), 403
 
     # Idempotent — already resolved
     if challenge.status != ChallengeStatus.active:

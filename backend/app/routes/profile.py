@@ -37,6 +37,21 @@ def _allowed_ext(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# Magic-byte signatures for the extensions we accept — the extension alone is
+# attacker-controlled, so the actual file content has to match too.
+_IMAGE_SIGNATURES = (
+    b"\xff\xd8\xff",                          # JPEG
+    b"\x89PNG\r\n\x1a\n",                      # PNG
+)
+
+
+def _looks_like_image(file_storage):
+    file_storage.seek(0)
+    header = file_storage.read(8)
+    file_storage.seek(0)
+    return any(header.startswith(sig) for sig in _IMAGE_SIGNATURES)
+
+
 def _build_process_challenges(user_id):
     rows = (
         db.session.query(ProcessChallenge, Process)
@@ -265,6 +280,8 @@ def upload_avatar():
         return jsonify({"error": "No file selected"}), 400
     if not _allowed_ext(f.filename):
         return jsonify({"error": "Only JPEG and PNG images are allowed"}), 400
+    if not _looks_like_image(f):
+        return jsonify({"error": "File content does not match a JPEG or PNG image"}), 400
 
     f.seek(0, os.SEEK_END)
     size = f.tell()

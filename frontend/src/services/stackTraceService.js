@@ -20,9 +20,11 @@ export const failChallenge = (challengeId) =>
 /**
  * Send a fire-and-forget fail beacon using the Beacon API.
  * Used in the beforeunload handler so the request survives page unload.
+ * The beacon carries no auth cookie, so it must present the challenge's
+ * fail_token to prove ownership.
  */
-export function failChallengeBeacon(challengeId) {
+export function failChallengeBeacon(challengeId, failToken) {
   const url  = `/api/stack-trace/challenges/${challengeId}/fail`;
-  const blob = new Blob([JSON.stringify({})], { type: "application/json" });
+  const blob = new Blob([JSON.stringify({ fail_token: failToken })], { type: "application/json" });
   navigator.sendBeacon(url, blob);
 }

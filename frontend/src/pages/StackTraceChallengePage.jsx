@@ -514,7 +514,7 @@ export default function StackTraceChallengePage() {
   useEffect(() => {
     function handleBeforeUnload() {
       if (challenge && challenge.status === "active" && result === null) {
-        failChallengeBeacon(challenge.id);
+        failChallengeBeacon(challenge.id, challenge.fail_token);
       }
     }
     window.addEventListener("beforeunload", handleBeforeUnload);
