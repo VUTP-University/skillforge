@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAuth } from "../context/AuthContext";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
@@ -692,9 +694,11 @@ export default function JobSolvePage() {
               >
                 Problem
               </p>
-              <p style={{ fontSize: "0.887rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                {job.description}
-              </p>
+              <div className="job-desc-prose">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {job.description}
+                </ReactMarkdown>
+              </div>
             </div>
 
             {/* Divider */}
