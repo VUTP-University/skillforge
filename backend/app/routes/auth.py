@@ -26,9 +26,19 @@ auth_bp = Blueprint("auth", __name__)
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
 PASSWORD_RESET_TOKEN_TTL = timedelta(hours=1)
 
+# Computed once at import time so login() can hash-compare against *something*
+# even when no matching user exists — otherwise a nonexistent identifier skips
+# check_password_hash entirely and responds measurably faster, letting an
+# attacker enumerate registered usernames/emails via timing.
+_DUMMY_PASSWORD_HASH = generate_password_hash(secrets.token_urlsafe(32))
+
 
 def _hash_reset_token(raw_token: str) -> str:
     return hashlib.sha256(raw_token.encode()).hexdigest()
+
+
+def _valid_email(email: str) -> bool:
+    return bool(email) and "@" in email and "." in email.split("@")[-1]
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -45,6 +55,8 @@ def register():
         return jsonify({"error": "Username must be 3–30 characters"}), 400
     if not USERNAME_RE.match(username):
         return jsonify({"error": "Username may only contain letters, numbers, underscores, and hyphens"}), 400
+    if not _valid_email(email):
+        return jsonify({"error": "Invalid email address"}), 400
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
 
@@ -88,7 +100,10 @@ def login():
         (User.username == identifier) | (User.email == identifier.lower())
     ).first()
 
-    if not user or not check_password_hash(user.password_hash, password):
+    # Always run the hash comparison, even against a dummy hash when no user
+    # matches, so response time doesn't reveal whether the identifier exists.
+    password_valid = check_password_hash(user.password_hash if user else _DUMMY_PASSWORD_HASH, password)
+    if not user or not password_valid:
         return jsonify({"error": "Invalid credentials"}), 401
 
     if user.is_banned:

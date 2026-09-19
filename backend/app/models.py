@@ -259,6 +259,10 @@ class Job(db.Model):
     )
 
     def to_dict(self, include_solution=False):
+        # Only index 0 is a public "example" — the rest are held-back grading
+        # cases and must never leak to non-authors, or anyone could read the
+        # expected output straight off the API instead of solving the job.
+        visible_cases = self.test_cases if include_solution else [tc for tc in self.test_cases if tc.index == 0]
         data = {
             "id":          self.id,
             "title":       self.title,
@@ -270,7 +274,8 @@ class Job(db.Model):
             "author_id":   self.author_id,
             "created_at":  self.created_at.isoformat(),
             "updated_at":  self.updated_at.isoformat(),
-            "test_cases":  [tc.to_dict() for tc in self.test_cases],
+            "test_cases":      [tc.to_dict() for tc in visible_cases],
+            "test_case_count": len(self.test_cases),
         }
         if include_solution:
             data["example_solution"] = self.example_solution

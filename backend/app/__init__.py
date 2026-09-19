@@ -28,6 +28,14 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     limiter.init_app(app)
 
+    if config_class is ProductionConfig and app.config["RATELIMIT_STORAGE_URI"] == "memory://":
+        app.logger.warning(
+            "RATELIMIT_STORAGE_URI is unset in production — rate limits (login, "
+            "register, forgot-password) are tracked per-process only and will "
+            "not hold under multiple workers/instances. Set it to a shared "
+            "store such as redis://host:6379."
+        )
+
     @app.errorhandler(429)
     def rate_limit_exceeded(e):
         return jsonify({"error": "Too many requests. Please try again later."}), 429

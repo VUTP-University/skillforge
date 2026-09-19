@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getUsers, deleteUser } from "../services/api";
+import { getUsers } from "../services/api";
 import Badge from "../components/Badge";
 import Avatar from "../components/Avatar";
 
@@ -16,7 +16,6 @@ export default function Users() {
   const [users, setUsers]     = useState([]);
   const [error, setError]     = useState("");
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     getUsers()
@@ -24,19 +23,6 @@ export default function Users() {
       .catch(() => setError("Could not load users."))
       .finally(() => setLoading(false));
   }, []);
-
-  async function handleDelete(id) {
-    setError("");
-    setDeletingId(id);
-    try {
-      await deleteUser(id);
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-    } catch {
-      setError("Failed to remove user. Please try again.");
-    } finally {
-      setDeletingId(null);
-    }
-  }
 
   return (
     <div className="space-y-8">
@@ -103,7 +89,7 @@ export default function Users() {
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--color-border-2)" }}>
-                  {["#", "Username", "Email", "Joined", ""].map((h) => (
+                  {["#", "Username", "Rank", "Joined"].map((h) => (
                     <th
                       key={h}
                       className="px-5 py-3.5 text-left"
@@ -144,19 +130,9 @@ export default function Users() {
                         </div>
                       </Link>
                     </td>
-                    <td className="px-5 py-3.5 text-sm text-sub">{u.email}</td>
+                    <td className="px-5 py-3.5 text-sm text-sub">{u.rank}</td>
                     <td className="px-5 py-3.5 text-xs text-dim">
                       {new Date(u.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <button
-                        onClick={() => handleDelete(u.id)}
-                        disabled={deletingId === u.id}
-                        className="sf-btn-danger"
-                        style={{ width: "auto", padding: "0.3rem 0.75rem", fontSize: "0.835rem" }}
-                      >
-                        {deletingId === u.id ? "Removing…" : "Remove"}
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -175,17 +151,9 @@ export default function Users() {
                   <Avatar src={u.avatar_url} username={u.username} size={36} />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)" }}>{u.username}</p>
-                    <p className="text-sub text-xs truncate">{u.email}</p>
+                    <p className="text-sub text-xs truncate">{u.rank}</p>
                   </div>
                 </Link>
-                <button
-                  onClick={() => handleDelete(u.id)}
-                  disabled={deletingId === u.id}
-                  className="sf-btn-danger flex-shrink-0"
-                  style={{ width: "auto", padding: "0.3rem 0.75rem", fontSize: "0.835rem" }}
-                >
-                  {deletingId === u.id ? "…" : "Remove"}
-                </button>
               </div>
             ))}
           </div>

@@ -27,6 +27,13 @@ class Config:
 
     FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
+    # Flask-Limiter storage — defaults to per-process memory, which silently
+    # stops enforcing limits (like login/register/forgot-password brute-force
+    # protection) as soon as the app runs with more than one worker/instance.
+    # Point this at a shared store (e.g. redis://host:6379) in any multi-process
+    # deployment.
+    RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
+
     # Piston code execution engine — https://github.com/engineer-man/piston
     PISTON_URL = os.environ.get("PISTON_URL", "http://localhost:2000")
 
