@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getJobs } from "../services/jobService";
+import { getJobStats } from "../services/jobService";
 import { getMyProfile } from "../services/profileService";
 import { getRankStyle } from "../constants/ranks";
 import ProgressBar from "../components/ProgressBar";
@@ -75,13 +75,9 @@ export default function Home() {
   const [completedCount, setCompletedCount] = useState(0);
 
   useEffect(() => {
-    getJobs().then((jobs) => {
-      const counts = jobs.reduce((acc, q) => {
-        acc[q.language] = (acc[q.language] ?? 0) + 1;
-        return acc;
-      }, {});
-      setJobCounts(counts);
-      setTotalLive(jobs.length);
+    getJobStats().then(({ total, by_language }) => {
+      setJobCounts(by_language);
+      setTotalLive(total);
     }).catch(() => {});
     getMyProfile()
       .then(data => setCompletedCount(data.completions?.length ?? 0))

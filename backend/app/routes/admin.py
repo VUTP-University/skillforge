@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
+from sqlalchemy import func
 
 from app import db
 from app.models import Job, JobSubmission, Language, RoleName, User, UserRole
@@ -20,8 +21,63 @@ def dashboard():
 @admin_bp.route("/users", methods=["GET"])
 @require_role("admin", "moderator")
 def list_users():
-    users = User.query.order_by(User.created_at.desc()).all()
-    return jsonify([u.to_dict() for u in users])
+    page     = max(1, request.args.get("page", 1, type=int))
+    per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
+    search   = (request.args.get("search") or "").strip()
+    roles    = [r for r in (request.args.get("role") or "").split(",") if r]
+
+    query = User.query.outerjoin(UserRole, UserRole.user_id == User.id)
+
+    if roles:
+        valid_role_values = {r.value for r in RoleName}
+        conditions = []
+        for r in roles:
+            if r not in valid_role_values:
+                continue
+            if r == RoleName.user.value:
+                conditions.append(UserRole.role.is_(None))
+                conditions.append(UserRole.role == RoleName.user)
+            else:
+                conditions.append(UserRole.role == RoleName(r))
+        if conditions:
+            query = query.filter(db.or_(*conditions))
+
+    if search:
+        like = f"%{search}%"
+        conditions = [User.username.ilike(like), User.email.ilike(like)]
+        s_lower = search.lower()
+        if s_lower == RoleName.user.value:
+            conditions.append(UserRole.role.is_(None))
+            conditions.append(UserRole.role == RoleName.user)
+        elif s_lower in {r.value for r in RoleName}:
+            conditions.append(UserRole.role == RoleName(s_lower))
+        query = query.filter(db.or_(*conditions))
+
+    query = query.order_by(User.created_at.desc())
+
+    total = query.count()
+    users = query.offset((page - 1) * per_page).limit(per_page).all()
+    pages = max(1, (total + per_page - 1) // per_page)
+
+    # Role breakdown — global, unaffected by search/role filters above.
+    total_users     = User.query.count()
+    role_rows       = dict(db.session.query(UserRole.role, func.count(UserRole.id)).group_by(UserRole.role).all())
+    admin_count     = role_rows.get(RoleName.admin, 0)
+    moderator_count = role_rows.get(RoleName.moderator, 0)
+    role_counts = {
+        "admin":     admin_count,
+        "moderator": moderator_count,
+        "user":      total_users - admin_count - moderator_count,
+    }
+
+    return jsonify({
+        "items":       [u.to_dict() for u in users],
+        "total":       total,
+        "page":        page,
+        "pages":       pages,
+        "per_page":    per_page,
+        "role_counts": role_counts,
+    })
 
 
 @admin_bp.route("/users/<int:user_id>/role", methods=["PATCH"])

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AdminSubmissionsTable from "../components/AdminSubmissionsTable";
-import { deleteJob, getJobs } from "../services/jobService";
+import { deleteJob, getJobs, getJobStats } from "../services/jobService";
 import { banUser, deleteAdminUser, getAdminUsers, unbanUser, updateUserRole } from "../services/userService";
 import { getReports, updateReport } from "../services/reportService";
 
@@ -253,18 +253,27 @@ export default function AdminDashboard() {
   const navigate        = useNavigate();
 
   /* ── Job state ── */
-  const [jobs, setJobs]           = useState([]);
-  const [jobsLoading, setQL]        = useState(true);
-  const [jobSearch, setJobSearch] = useState("");
-  const [jobPage, setJobPage]     = useState(1);
-  const [deleteJob_, setDeleteQ]    = useState(null);
-  const [deletingQ, setDeletingQ]     = useState(false);
+  const [jobs, setJobs]                 = useState([]);      // current page
+  const [jobsLoading, setQL]            = useState(true);
+  const [jobSearchInput, setJobSearchInput] = useState("");
+  const [jobSearch, setJobSearch]       = useState("");      // debounced
+  const [jobPage, setJobPage]           = useState(1);
+  const [jobTotal, setJobTotal]         = useState(0);
+  const [jobPages, setJobPages]         = useState(1);
+  const [jobStats, setJobStats]         = useState({ total: 0, by_language: {} });
+  const [jobStatsLoading, setJSL]       = useState(true);
+  const [deleteJob_, setDeleteQ]        = useState(null);
+  const [deletingQ, setDeletingQ]       = useState(false);
 
   /* ── User state ── */
-  const [users, setUsers]           = useState([]);
-  const [usersLoading, setUL]       = useState(true);
-  const [userSearch, setUserSearch] = useState("");
-  const [userPage, setUserPage]     = useState(1);
+  const [users, setUsers]                   = useState([]);  // current page
+  const [usersLoading, setUL]               = useState(true);
+  const [userSearchInput, setUserSearchInput] = useState("");
+  const [userSearch, setUserSearch]         = useState("");  // debounced
+  const [userPage, setUserPage]             = useState(1);
+  const [userTotal, setUserTotal]           = useState(0);
+  const [userPages, setUserPages]           = useState(1);
+  const [roleCounts, setRoleCounts]         = useState({ admin: 0, moderator: 0, user: 0 });
   const [deleteUser_, setDeleteU]   = useState(null);
   const [deletingU, setDeletingU]   = useState(false);
   const [roleTarget, setRoleTarget] = useState(null);  // { user, selectedRole }
@@ -274,45 +283,53 @@ export default function AdminDashboard() {
   const [banningU, setBanningU]     = useState(false);
   const [unbanningId, setUnbanningId] = useState(null);
 
+  const jobSearchDebounce  = useRef(null);
+  const userSearchDebounce = useRef(null);
+
+  function handleJobSearch(v) {
+    setJobSearchInput(v);
+    clearTimeout(jobSearchDebounce.current);
+    jobSearchDebounce.current = setTimeout(() => { setJobSearch(v); setJobPage(1); }, 300);
+  }
+
+  function handleUserSearch(v) {
+    setUserSearchInput(v);
+    clearTimeout(userSearchDebounce.current);
+    userSearchDebounce.current = setTimeout(() => { setUserSearch(v); setUserPage(1); }, 300);
+  }
+
   /* ── Fetch ── */
   const fetchJobs = useCallback(() => {
     setQL(true);
-    getJobs().then(setJobs).catch(() => setJobs([])).finally(() => setQL(false));
+    const params = { page: jobPage, per_page: PAGE_SIZE };
+    if (jobSearch) params.search = jobSearch;
+    getJobs(params)
+      .then((d) => { setJobs(d.items); setJobTotal(d.total); setJobPages(d.pages); })
+      .catch(() => { setJobs([]); setJobTotal(0); setJobPages(1); })
+      .finally(() => setQL(false));
+  }, [jobPage, jobSearch]);
+
+  const fetchJobStats = useCallback(() => {
+    setJSL(true);
+    getJobStats()
+      .then(setJobStats)
+      .catch(() => setJobStats({ total: 0, by_language: {} }))
+      .finally(() => setJSL(false));
   }, []);
 
   const fetchUsers = useCallback(() => {
     setUL(true);
-    getAdminUsers().then(setUsers).catch(() => setUsers([])).finally(() => setUL(false));
-  }, []);
+    const params = { page: userPage, per_page: PAGE_SIZE };
+    if (userSearch) params.search = userSearch;
+    getAdminUsers(params)
+      .then((d) => { setUsers(d.items); setUserTotal(d.total); setUserPages(d.pages); setRoleCounts(d.role_counts); })
+      .catch(() => { setUsers([]); setUserTotal(0); setUserPages(1); })
+      .finally(() => setUL(false));
+  }, [userPage, userSearch]);
 
-  useEffect(() => { fetchJobs(); fetchUsers(); }, [fetchJobs, fetchUsers]);
-  useEffect(() => { setJobPage(1); }, [jobSearch]);
-  useEffect(() => { setUserPage(1);  }, [userSearch]);
-
-  /* ── Job filter + pagination ── */
-  const qTerm      = jobSearch.trim().toLowerCase();
-  const filteredQ  = useMemo(() =>
-    !qTerm ? jobs : jobs.filter(q =>
-      q.title.toLowerCase().includes(qTerm) ||
-      (LANG_LABELS[q.language] ?? q.language).toLowerCase().includes(qTerm) ||
-      (DIFF_META[q.difficulty]?.label ?? q.difficulty).toLowerCase().includes(qTerm) ||
-      (q.author ?? "").toLowerCase().includes(qTerm)
-    ), [jobs, qTerm]);
-  const qPages   = Math.max(1, Math.ceil(filteredQ.length / PAGE_SIZE));
-  const qSafe    = Math.min(jobPage, qPages);
-  const qSlice   = filteredQ.slice((qSafe - 1) * PAGE_SIZE, qSafe * PAGE_SIZE);
-
-  /* ── User filter + pagination ── */
-  const uTerm     = userSearch.trim().toLowerCase();
-  const filteredU = useMemo(() =>
-    !uTerm ? users : users.filter(u =>
-      u.username.toLowerCase().includes(uTerm) ||
-      u.email.toLowerCase().includes(uTerm) ||
-      (ROLE_META[u.role]?.label ?? u.role).toLowerCase().includes(uTerm)
-    ), [users, uTerm]);
-  const uPages  = Math.max(1, Math.ceil(filteredU.length / PAGE_SIZE));
-  const uSafe   = Math.min(userPage, uPages);
-  const uSlice  = filteredU.slice((uSafe - 1) * PAGE_SIZE, uSafe * PAGE_SIZE);
+  useEffect(() => { fetchJobs(); }, [fetchJobs]);
+  useEffect(() => { fetchJobStats(); }, [fetchJobStats]);
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   /* ── Job delete ── */
   async function confirmJobDelete() {
@@ -366,10 +383,6 @@ export default function AdminDashboard() {
       setUnbanningId(null);
     }
   }
-
-  /* ── Derived counts ── */
-  const langCounts = jobs.reduce((a, q) => { a[q.language] = (a[q.language] ?? 0) + 1; return a; }, {});
-  const roleCounts = users.reduce((a, u)  => { a[u.role]     = (a[u.role]     ?? 0) + 1; return a; }, {});
 
   /* ── Job column widths ── */
   const JC = { title: { flex: "2 1 0", minWidth: 0 }, language: { flex: "1 0 90px", textAlign: "center" }, difficulty: { flex: "1 0 90px", textAlign: "center" }, xp: { flex: "0 0 52px", textAlign: "center" }, author: { flex: "1 0 90px" }, actions: { flex: "0 0 120px", textAlign: "right" } };
@@ -439,10 +452,10 @@ export default function AdminDashboard() {
         <div>
           <div className="section-divider"><h2>Overview</h2></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <StatCard label="Total Jobs" value={jobsLoading ? "…" : jobs.length}
+            <StatCard label="Total Jobs" value={jobStatsLoading ? "…" : jobStats.total}
               icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>} />
             {["python","javascript","java","csharp"].map((lang) => (
-              <StatCard key={lang} label={LANG_LABELS[lang]} value={jobsLoading ? "…" : (langCounts[lang] ?? 0)}
+              <StatCard key={lang} label={LANG_LABELS[lang]} value={jobStatsLoading ? "…" : (jobStats.by_language[lang] ?? 0)}
                 icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>} />
             ))}
           </div>
@@ -454,18 +467,18 @@ export default function AdminDashboard() {
         <div>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Job Management</h2></div>
-            <SearchInput value={jobSearch} onChange={setJobSearch} placeholder="Search jobs…" />
+            <SearchInput value={jobSearchInput} onChange={handleJobSearch} placeholder="Search jobs…" />
             <button className="sf-btn" style={{ width: "auto", flexShrink: 0 }} onClick={() => navigate("/admin/jobs/new")}>
               + Create Job
             </button>
           </div>
 
-          {jobsLoading ? (
+          {jobsLoading && jobs.length === 0 ? (
             <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading jobs…</span></div>
-          ) : filteredQ.length === 0 ? (
+          ) : jobs.length === 0 ? (
             <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "140px" }}>
-              <p className="text-sub text-sm">{qTerm ? `No jobs match "${jobSearch}".` : "No jobs yet."}</p>
-              {!qTerm && <p className="text-dim text-xs mt-1">Click <span className="text-white/40">+ Create Job</span> to publish the first one.</p>}
+              <p className="text-sub text-sm">{jobSearch ? `No jobs match "${jobSearch}".` : "No jobs yet."}</p>
+              {!jobSearch && <p className="text-dim text-xs mt-1">Click <span className="text-white/40">+ Create Job</span> to publish the first one.</p>}
             </div>
           ) : (
             <>
@@ -480,8 +493,8 @@ export default function AdminDashboard() {
                   <span style={{ ...JC.actions,    ...headerLabel }}>Actions</span>
                 </div>
                 {/* Rows */}
-                {qSlice.map((job, i) => (
-                  <div key={job.id} style={{ ...rowStyle, paddingTop: "0.9rem", paddingBottom: "0.9rem", borderBottom: i < qSlice.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
+                {jobs.map((job, i) => (
+                  <div key={job.id} style={{ ...rowStyle, paddingTop: "0.9rem", paddingBottom: "0.9rem", borderBottom: i < jobs.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                     <div style={{ ...JC.title, minWidth: 0 }}>
@@ -510,10 +523,10 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
                 <p className="text-dim text-xs">
-                  {filteredQ.length === jobs.length ? `${jobs.length} job${jobs.length !== 1 ? "s" : ""} total` : `${filteredQ.length} of ${jobs.length} jobs`}
-                  {qPages > 1 && ` · page ${qSafe} of ${qPages}`}
+                  {jobSearch ? `${jobTotal} matching job${jobTotal !== 1 ? "s" : ""}` : `${jobTotal} job${jobTotal !== 1 ? "s" : ""} total`}
+                  {jobPages > 1 && ` · page ${jobPage} of ${jobPages}`}
                 </p>
-                <Pagination page={qSafe} totalPages={qPages} onChange={setJobPage} />
+                <Pagination page={jobPage} totalPages={jobPages} onChange={setJobPage} />
               </div>
             </>
           )}
@@ -526,14 +539,14 @@ export default function AdminDashboard() {
           {/* Toolbar */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>User Management</h2></div>
-            <SearchInput value={userSearch} onChange={setUserSearch} placeholder="Search users…" />
+            <SearchInput value={userSearchInput} onChange={handleUserSearch} placeholder="Search users…" />
           </div>
 
           {/* Mini stats */}
-          {!usersLoading && users.length > 0 && (
+          {!usersLoading && userTotal > 0 && (
             <div className="grid grid-cols-4 gap-3 mb-4">
               {[
-                { label: "Total",      value: users.length,                color: "rgba(255,255,255,0.682)" },
+                { label: "Total",      value: userTotal,                   color: "rgba(255,255,255,0.682)" },
                 { label: "Admins",     value: roleCounts.admin     ?? 0,   color: ROLE_META.admin.color     },
                 { label: "Moderators", value: roleCounts.moderator ?? 0,   color: ROLE_META.moderator.color },
                 { label: "Users",      value: roleCounts.user      ?? 0,   color: ROLE_META.user.color      },
@@ -546,11 +559,11 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {usersLoading ? (
+          {usersLoading && users.length === 0 ? (
             <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading users…</span></div>
-          ) : filteredU.length === 0 ? (
+          ) : users.length === 0 ? (
             <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "140px" }}>
-              <p className="text-sub text-sm">{uTerm ? `No users match "${userSearch}".` : "No users found."}</p>
+              <p className="text-sub text-sm">{userSearch ? `No users match "${userSearch}".` : "No users found."}</p>
             </div>
           ) : (
             <>
@@ -564,11 +577,11 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Rows */}
-                {uSlice.map((u, i) => {
+                {users.map((u, i) => {
                   const isSelf = u.id === self?.id;
                   return (
                     <div key={u.id}
-                      style={{ ...rowStyle, paddingTop: "0.85rem", paddingBottom: "0.85rem", borderBottom: i < uSlice.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
+                      style={{ ...rowStyle, paddingTop: "0.85rem", paddingBottom: "0.85rem", borderBottom: i < users.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
 
@@ -645,17 +658,17 @@ export default function AdminDashboard() {
               {/* Footer */}
               <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
                 <p className="text-dim text-xs">
-                  {filteredU.length === users.length ? `${users.length} user${users.length !== 1 ? "s" : ""} total` : `${filteredU.length} of ${users.length} users`}
-                  {uPages > 1 && ` · page ${uSafe} of ${uPages}`}
+                  {userSearch ? `${userTotal} matching user${userTotal !== 1 ? "s" : ""}` : `${userTotal} user${userTotal !== 1 ? "s" : ""} total`}
+                  {userPages > 1 && ` · page ${userPage} of ${userPages}`}
                 </p>
-                <Pagination page={uSafe} totalPages={uPages} onChange={setUserPage} />
+                <Pagination page={userPage} totalPages={userPages} onChange={setUserPage} />
               </div>
             </>
           )}
         </div>
 
         {/* ── Reports section ── */}
-        <JobReportsSection users={users} navigate={navigate} />
+        <JobReportsSection navigate={navigate} />
 
         {/* ── Submissions section ── */}
         <div>
@@ -682,13 +695,14 @@ function ReportStatusBadge({ status }) {
   return <span className="badge" style={{ background: m.bg, borderColor: m.border, color: m.color }}>{m.label}</span>;
 }
 
-function JobReportsSection({ users, navigate }) {
-  const [reports,   setReports]   = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [filter,    setFilter]    = useState("all");
-  const [selected,  setSelected]  = useState(null);  // the report being edited
-  const [patch,     setPatch]     = useState({});
-  const [saving,    setSaving]    = useState(false);
+function JobReportsSection({ navigate }) {
+  const [reports,    setReports]    = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [filter,     setFilter]     = useState("all");
+  const [selected,   setSelected]   = useState(null);  // the report being edited
+  const [patch,      setPatch]      = useState({});
+  const [saving,     setSaving]     = useState(false);
+  const [staffUsers, setStaffUsers] = useState([]);    // admins + moderators, for the assignee dropdown
 
   const fetchReports = useCallback(() => {
     setLoading(true);
@@ -697,12 +711,13 @@ function JobReportsSection({ users, navigate }) {
 
   useEffect(() => { fetchReports(); }, [fetchReports]);
 
-  const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
+  useEffect(() => {
+    getAdminUsers({ role: "admin,moderator", per_page: 50 })
+      .then((d) => setStaffUsers(d.items))
+      .catch(() => setStaffUsers([]));
+  }, []);
 
-  const staffUsers = useMemo(
-    () => users.filter((u) => u.role === "admin" || u.role === "moderator"),
-    [users]
-  );
+  const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
 
   const openReport = (report) => {
     setSelected(report);

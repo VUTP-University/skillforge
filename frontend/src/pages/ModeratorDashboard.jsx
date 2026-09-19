@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AdminSubmissionsTable from "../components/AdminSubmissionsTable";
@@ -29,13 +29,13 @@ export default function ModeratorDashboard() {
   const { user }  = useAuth();
   const navigate  = useNavigate();
 
-  const [reports,  setReports]  = useState([]);
-  const [rLoading, setRLoading] = useState(true);
-  const [users,    setUsers]    = useState([]);
-  const [filter,   setFilter]   = useState("all");
-  const [selected, setSelected] = useState(null);
-  const [patch,    setPatch]    = useState({});
-  const [saving,   setSaving]   = useState(false);
+  const [reports,     setReports]     = useState([]);
+  const [rLoading,    setRLoading]    = useState(true);
+  const [staffUsers,  setStaffUsers]  = useState([]);
+  const [filter,      setFilter]      = useState("all");
+  const [selected,    setSelected]    = useState(null);
+  const [patch,       setPatch]       = useState({});
+  const [saving,      setSaving]      = useState(false);
 
   const fetchReports = useCallback(() => {
     setRLoading(true);
@@ -44,13 +44,10 @@ export default function ModeratorDashboard() {
 
   useEffect(() => {
     fetchReports();
-    getAdminUsers().then(setUsers).catch(() => setUsers([]));
+    getAdminUsers({ role: "admin,moderator", per_page: 50 })
+      .then((d) => setStaffUsers(d.items))
+      .catch(() => setStaffUsers([]));
   }, [fetchReports]);
-
-  const staffUsers = useMemo(
-    () => users.filter((u) => u.role === "admin" || u.role === "moderator"),
-    [users]
-  );
 
   const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
 
