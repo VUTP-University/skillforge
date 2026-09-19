@@ -51,7 +51,7 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
                 </td>
               </tr>""" for tag, desc in _FEATURES)
 
-    html = f"""\
+    html_body = f"""\
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
   Your SkillForge account is ready — pick a job and start earning XP.
 </div>
@@ -151,7 +151,7 @@ def _build_welcome_email(to_email: str, username: str, from_name: str, from_addr
 """
 
     msg.attach(MIMEText(text, "plain"))
-    msg.attach(MIMEText(html, "html"))
+    msg.attach(MIMEText(html_body, "html"))
     return msg
 
 
