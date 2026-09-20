@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { RANK_STYLE } from "../constants/ranks";
 import Avatar from "../components/Avatar";
 import Badge from "../components/Badge";
+import Pagination from "../components/Pagination";
 import SectionDivider from "../components/SectionDivider";
 import {
   deleteAvatar,
@@ -30,6 +31,14 @@ const LANG_CONFIG = {
   java:       { name: "Java",       color: "var(--gem-java)" },
   csharp:     { name: "C#",         color: "var(--gem-csharp)" },
 };
+
+const LANG_OPTIONS = [
+  { value: "", label: "All Languages" },
+  { value: "python",     label: "Python" },
+  { value: "javascript", label: "JavaScript" },
+  { value: "java",       label: "Java" },
+  { value: "csharp",     label: "C#" },
+];
 
 const DIFF_META = {
   junior: { label: "Junior", color: "var(--color-green)" },
@@ -90,6 +99,22 @@ export default function ProfilePage() {
   const [subsPage,    setSubsPage]    = useState(1);
   const [subsLoading, setSubsLoading] = useState(false);
 
+  // Submissions table filters
+  const [subsSearch,      setSubsSearch]      = useState("");   // debounced job-title search
+  const [subsLanguage,    setSubsLanguage]    = useState("");
+  const [subsStatus,      setSubsStatus]      = useState("");   // "" | "true" | "false"
+  const subsSearchRef     = useRef(subsSearch);
+  const subsSearchTimer   = useRef(null);
+
+  function applySubsSearch(value) {
+    subsSearchRef.current = value;
+    clearTimeout(subsSearchTimer.current);
+    subsSearchTimer.current = setTimeout(() => {
+      setSubsSearch(subsSearchRef.current);
+      setSubsPage(1);
+    }, 350);
+  }
+
   // Submission detail modal (own profile only)
   const [subModal,        setSubModal]        = useState(null);
   const [subModalLoading, setSubModalLoading] = useState(false);
@@ -113,24 +138,32 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, [userId, isOwnProfile]);
 
-  // Reset page whenever the viewed profile changes
+  // Reset page + filters whenever the viewed profile changes
   useEffect(() => {
     setSubs(null);
     setSubsPage(1);
+    setSubsSearch("");
+    subsSearchRef.current = "";
+    setSubsLanguage("");
+    setSubsStatus("");
   }, [profileKey]);
 
   // Load submissions for own profile OR any public profile
   useEffect(() => {
     setSubsLoading(true);
     let cancelled = false;
+    const filters = {};
+    if (subsSearch)   filters.search      = subsSearch;
+    if (subsLanguage) filters.language    = subsLanguage;
+    if (subsStatus)   filters.all_passed  = subsStatus;
     const req = isOwnProfile
-      ? getMySubmissions(subsPage, 20)
-      : getUserSubmissions(parseInt(userId, 10), subsPage, 20);
+      ? getMySubmissions(subsPage, 20, filters)
+      : getUserSubmissions(parseInt(userId, 10), subsPage, 20, filters);
     req
       .then(data  => { if (!cancelled) setSubs(data); })
       .finally(() => { if (!cancelled) setSubsLoading(false); });
     return () => { cancelled = true; };
-  }, [profileKey, subsPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [profileKey, subsPage, subsSearch, subsLanguage, subsStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleFileSelect(e) {
     const file = e.target.files?.[0];
@@ -591,6 +624,61 @@ export default function ProfilePage() {
               )}
             </div>
 
+            {/* Filters */}
+            <div className="flex items-center gap-3 flex-wrap" style={{ paddingLeft: "0.25rem" }}>
+              {/* Search */}
+              <div style={{ position: "relative", flex: "1 1 220px", maxWidth: "320px" }}>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
+                  style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-faint)", pointerEvents: "none" }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input
+                  type="text" className="sf-input" placeholder="Search job…"
+                  defaultValue={subsSearch}
+                  onChange={(e) => applySubsSearch(e.target.value)}
+                  style={{ paddingLeft: "2.25rem", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
+                />
+              </div>
+
+              {/* Language filter */}
+              <select
+                value={subsLanguage}
+                onChange={(e) => { setSubsLanguage(e.target.value); setSubsPage(1); }}
+                className="sf-input"
+                style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem", minWidth: "130px" }}
+              >
+                {LANG_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+
+              {/* Status toggle */}
+              <div className="flex gap-1">
+                {[["", "All"], ["true", "Passed"], ["false", "Failed"]].map(([val, label]) => (
+                  <button
+                    key={val}
+                    onClick={() => { setSubsStatus(val); setSubsPage(1); }}
+                    style={{
+                      fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700,
+                      letterSpacing: "0.07em", textTransform: "uppercase",
+                      padding: "0.38rem 0.75rem", borderRadius: "6px",
+                      border: "1px solid",
+                      borderColor: subsStatus === val
+                        ? (val === "true" ? "rgba(74,222,128,0.4)" : val === "false" ? "rgba(248,113,113,0.4)" : "var(--color-green-border)")
+                        : "rgba(255,255,255,0.10)",
+                      background: subsStatus === val
+                        ? (val === "true" ? "var(--color-green-dim)" : val === "false" ? "var(--color-red-dim)" : "var(--color-green-dim)")
+                        : "transparent",
+                      color: subsStatus === val
+                        ? (val === "true" ? "var(--color-green)" : val === "false" ? "var(--color-red-bright)" : "var(--color-green)")
+                        : "rgba(255,255,255,0.40)",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Table card */}
             <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
               {/* Column headings */}
@@ -615,12 +703,14 @@ export default function ProfilePage() {
               ) : subs && subs.items.length === 0 ? (
                 <div style={{ padding: "2.5rem", textAlign: "center" }}>
                   <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.802rem", fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: "0.3rem" }}>
-                    No submissions yet
+                    {(subsSearch || subsLanguage || subsStatus) ? "No matches" : "No submissions yet"}
                   </p>
                   <p style={{ fontSize: "0.783rem", color: "var(--color-text-tertiary)" }}>
-                    {isOwnProfile
-                      ? "Start solving jobs to earn XP and build your history."
-                      : "This user hasn't submitted any jobs yet."}
+                    {(subsSearch || subsLanguage || subsStatus)
+                      ? "No submissions match your filters."
+                      : isOwnProfile
+                        ? "Start solving jobs to earn XP and build your history."
+                        : "This user hasn't submitted any jobs yet."}
                   </p>
                 </div>
               ) : (subs?.items ?? []).map((s, i) => {
@@ -701,28 +791,16 @@ export default function ProfilePage() {
 
             {/* Pagination controls */}
             {subs && subs.pages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "0.25rem" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", paddingTop: "0.25rem" }}>
                 <span style={{ fontSize: "0.718rem", color: "var(--color-text-faint)" }}>
                   {((subs.page - 1) * subs.per_page + 1).toLocaleString()}–{Math.min(subs.page * subs.per_page, subs.total).toLocaleString()} of {subs.total.toLocaleString()}
+                  {` · page ${subs.page} of ${subs.pages}`}
                 </span>
-                <div style={{ display: "flex", gap: "0.4rem" }}>
-                  <button
-                    disabled={subs.page <= 1 || subsLoading}
-                    onClick={() => setSubsPage(p => p - 1)}
-                    className="sf-btn-ghost"
-                    style={{ opacity: subs.page <= 1 ? 0.4 : 1 }}
-                  >
-                    ← Prev
-                  </button>
-                  <button
-                    disabled={subs.page >= subs.pages || subsLoading}
-                    onClick={() => setSubsPage(p => p + 1)}
-                    className="sf-btn-ghost"
-                    style={{ opacity: subs.page >= subs.pages ? 0.4 : 1 }}
-                  >
-                    Next →
-                  </button>
-                </div>
+                <Pagination
+                  page={subs.page}
+                  totalPages={subs.pages}
+                  onChange={(p) => { if (!subsLoading) setSubsPage(p); }}
+                />
               </div>
             )}
           </>

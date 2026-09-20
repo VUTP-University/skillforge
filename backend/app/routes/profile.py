@@ -13,6 +13,7 @@ from app.models import (
     Job,
     JobCompletion,
     JobSubmission,
+    Language,
     Process,
     ProcessChallenge,
     TestRun,
@@ -178,7 +179,7 @@ def get_profile(user_id):
 
 # ── Submissions (paginated list + detail) ────────────────────────────────────
 
-def _build_submission_page(user_id, page, per_page):
+def _build_submission_page(user_id, page, per_page, search=None, language=None, all_passed=None):
     """Shared paginated query for submissions; returns (items_list, total, pages)."""
     query = (
         db.session.query(JobSubmission, Job)
@@ -186,6 +187,14 @@ def _build_submission_page(user_id, page, per_page):
         .filter(JobSubmission.user_id == user_id)
         .order_by(JobSubmission.submitted_at.desc())
     )
+    if search:
+        query = query.filter(Job.title.ilike(f"%{search}%"))
+    if language and language in [l.value for l in Language]:
+        query = query.filter(Job.language == Language(language))
+    if all_passed == "true":
+        query = query.filter(JobSubmission.all_passed == True)
+    elif all_passed == "false":
+        query = query.filter(JobSubmission.all_passed == False)
     total = query.count()
     rows  = query.offset((page - 1) * per_page).limit(per_page).all()
     pages = max(1, (total + per_page - 1) // per_page)
@@ -207,10 +216,13 @@ def _build_submission_page(user_id, page, per_page):
 @jwt_required()
 def get_my_submissions():
     """Own paginated submissions — includes solution code and results via detail endpoint."""
-    user_id  = int(get_jwt_identity())
-    page     = max(1, request.args.get("page", 1, type=int))
-    per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
-    items, total, pages = _build_submission_page(user_id, page, per_page)
+    user_id    = int(get_jwt_identity())
+    page       = max(1, request.args.get("page", 1, type=int))
+    per_page   = min(50, max(5, request.args.get("per_page", 20, type=int)))
+    search     = (request.args.get("search") or "").strip()
+    language   = (request.args.get("language") or "").strip()
+    all_passed = request.args.get("all_passed", None)
+    items, total, pages = _build_submission_page(user_id, page, per_page, search, language, all_passed)
     return jsonify({"items": items, "total": total, "page": page, "pages": pages, "per_page": per_page})
 
 
@@ -238,9 +250,12 @@ def get_submission_detail(submission_id):
 def get_user_submissions(user_id):
     """Public paginated submissions for any profile — metadata only, never code or results."""
     db.get_or_404(User, user_id)
-    page     = max(1, request.args.get("page", 1, type=int))
-    per_page = min(50, max(5, request.args.get("per_page", 20, type=int)))
-    items, total, pages = _build_submission_page(user_id, page, per_page)
+    page       = max(1, request.args.get("page", 1, type=int))
+    per_page   = min(50, max(5, request.args.get("per_page", 20, type=int)))
+    search     = (request.args.get("search") or "").strip()
+    language   = (request.args.get("language") or "").strip()
+    all_passed = request.args.get("all_passed", None)
+    items, total, pages = _build_submission_page(user_id, page, per_page, search, language, all_passed)
     return jsonify({"items": items, "total": total, "page": page, "pages": pages, "per_page": per_page})
 
 
