@@ -46,15 +46,22 @@ def _valid_email(email: str) -> bool:
     return bool(email) and "@" in email and "." in email.split("@")[-1]
 
 
-# Every auth cookie used to be set at Path=/ before it was scoped to /api and
-# /api/auth. Cookies are keyed by name *and* path, so narrowing the path left
-# any browser with an existing session holding two copies of each cookie —
-# the stale Path=/ one is never touched by set_access_cookies/set_refresh_
-# cookies/unset_jwt_cookies, which only ever act on the currently configured
-# path. Explicitly expire the old copies on every auth response so they
-# clear out instead of lingering (and potentially shadowing the fresh one —
-# browsers send the more specific path first, but naive server-side cookie
-# parsing can end up preferring whichever one came last).
+# The two JWT cookies (access/refresh, both HttpOnly) used to be set at
+# Path=/ before they were scoped down to /api and /api/auth. Cookies are
+# keyed by name *and* path, so narrowing the path left any browser with an
+# existing session holding two copies of each cookie — the stale Path=/ one
+# is never touched by set_access_cookies/set_refresh_cookies/unset_jwt_
+# cookies, which only ever act on the currently configured path. Explicitly
+# expire the old copies on every auth response so they clear out instead of
+# lingering (and potentially shadowing the fresh one — browsers send the
+# more specific path first, but naive server-side cookie parsing can end up
+# preferring whichever one came last).
+#
+# The CSRF companion cookies are NOT included here: they're intentionally
+# kept at Path=/ (JWT_ACCESS_CSRF_COOKIE_PATH / JWT_REFRESH_CSRF_COOKIE_PATH
+# in config.py) so frontend JS can read them from any page of the SPA, not
+# just pages under /api. Deleting "the Path=/ copy" of those would delete
+# the only copy that's ever actually set.
 _LEGACY_COOKIE_PATH = "/"
 
 
@@ -63,8 +70,6 @@ def _clear_legacy_root_cookies(response):
     names = [
         cfg.get("JWT_ACCESS_COOKIE_NAME", "access_token_cookie"),
         cfg.get("JWT_REFRESH_COOKIE_NAME", "refresh_token_cookie"),
-        cfg.get("JWT_ACCESS_CSRF_COOKIE_NAME", "csrf_access_token"),
-        cfg.get("JWT_REFRESH_CSRF_COOKIE_NAME", "csrf_refresh_token"),
     ]
     for name in names:
         response.delete_cookie(name, path=_LEGACY_COOKIE_PATH)

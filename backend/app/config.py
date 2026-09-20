@@ -25,16 +25,28 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES   = timedelta(days=30)
     JWT_COOKIE_CSRF_PROTECT     = False  # enable in production with HTTPS
 
-    # Scope each cookie (and its CSRF double-submit counterpart) to only the
-    # paths that actually need it, instead of the default "/" — the refresh
-    # token in particular has a 30-day lifetime and only ever needs to reach
-    # /api/auth/refresh (to mint a new access token) and /api/auth/logout
-    # (to be blocklisted); there's no reason for it to ride along on every
-    # other request.
+    # Scope each JWT cookie to only the paths that actually need it, instead
+    # of the default "/" — the refresh token in particular has a 30-day
+    # lifetime and only ever needs to reach /api/auth/refresh (to mint a new
+    # access token) and /api/auth/logout (to be blocklisted); there's no
+    # reason for it to ride along on every other request. Both are HttpOnly,
+    # so JS never needs to read them directly — only the browser needs to
+    # attach them, which it does based on the *request's* path, not the
+    # page's.
     JWT_ACCESS_COOKIE_PATH       = "/api"
     JWT_REFRESH_COOKIE_PATH      = "/api/auth"
-    JWT_ACCESS_CSRF_COOKIE_PATH  = "/api"
-    JWT_REFRESH_CSRF_COOKIE_PATH = "/api/auth"
+
+    # The CSRF companion cookies are different: the double-submit pattern
+    # requires frontend JS (api.js's getCookie()) to read them and echo the
+    # value back in an X-CSRF-TOKEN header. A cookie is only visible to
+    # document.cookie on pages whose own URL falls under the cookie's Path —
+    # and the SPA's pages live at "/", "/admin", etc., never under "/api".
+    # Scoping these to "/api" the same way as the JWT cookies above silently
+    # makes them unreadable from every page of the app, so every CSRF-
+    # protected request fails with a missing/mismatched token. They must
+    # stay at the default "/".
+    JWT_ACCESS_CSRF_COOKIE_PATH  = "/"
+    JWT_REFRESH_CSRF_COOKIE_PATH = "/"
 
     FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
