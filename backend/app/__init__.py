@@ -66,7 +66,15 @@ def create_app(config_class=Config):
             changed_at = user.password_changed_at
             if changed_at.tzinfo is None:
                 changed_at = changed_at.replace(tzinfo=timezone.utc)
-            if jwt_payload["iat"] < changed_at.timestamp():
+            # iat is a JWT-standard integer-second timestamp (fractional part
+            # truncated at issuance), while changed_at keeps microsecond
+            # precision — comparing them directly means a token issued in the
+            # same wall-clock second as the password change (e.g. an
+            # immediate login right after a reset) truncates to a second that
+            # looks "before" changed_at's fractional remainder, even though
+            # it was actually issued after. Floor changed_at to match iat's
+            # granularity so same-second tokens aren't falsely revoked.
+            if jwt_payload["iat"] < int(changed_at.timestamp()):
                 return True
         return False
 
