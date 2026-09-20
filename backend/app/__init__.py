@@ -7,6 +7,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .config import Config, ProductionConfig, validate_production_secrets
 
@@ -19,6 +20,13 @@ limiter = Limiter(key_func=get_remote_address)
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    # Trust one hop of X-Forwarded-* (our Nginx reverse proxy) so
+    # request.remote_addr — and therefore Flask-Limiter's per-IP buckets —
+    # reflects the real client instead of Nginx's own address. Harmless
+    # when there's no proxy in front (e.g. local dev): ProxyFix leaves
+    # remote_addr untouched when the header isn't present.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     if config_class is ProductionConfig:
         validate_production_secrets(app)
