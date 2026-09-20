@@ -46,6 +46,30 @@ def _valid_email(email: str) -> bool:
     return bool(email) and "@" in email and "." in email.split("@")[-1]
 
 
+# Every auth cookie used to be set at Path=/ before it was scoped to /api and
+# /api/auth. Cookies are keyed by name *and* path, so narrowing the path left
+# any browser with an existing session holding two copies of each cookie —
+# the stale Path=/ one is never touched by set_access_cookies/set_refresh_
+# cookies/unset_jwt_cookies, which only ever act on the currently configured
+# path. Explicitly expire the old copies on every auth response so they
+# clear out instead of lingering (and potentially shadowing the fresh one —
+# browsers send the more specific path first, but naive server-side cookie
+# parsing can end up preferring whichever one came last).
+_LEGACY_COOKIE_PATH = "/"
+
+
+def _clear_legacy_root_cookies(response):
+    cfg = current_app.config
+    names = [
+        cfg.get("JWT_ACCESS_COOKIE_NAME", "access_token_cookie"),
+        cfg.get("JWT_REFRESH_COOKIE_NAME", "refresh_token_cookie"),
+        cfg.get("JWT_ACCESS_CSRF_COOKIE_NAME", "csrf_access_token"),
+        cfg.get("JWT_REFRESH_CSRF_COOKIE_NAME", "csrf_refresh_token"),
+    ]
+    for name in names:
+        response.delete_cookie(name, path=_LEGACY_COOKIE_PATH)
+
+
 @auth_bp.route("/register", methods=["POST"])
 @limiter.limit("10 per hour")
 def register():
@@ -88,6 +112,7 @@ def register():
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     set_refresh_cookies(response, create_refresh_token(identity=str(user.id)))
+    _clear_legacy_root_cookies(response)
     return response, 201
 
 
@@ -121,6 +146,7 @@ def login():
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     set_refresh_cookies(response, create_refresh_token(identity=str(user.id)))
+    _clear_legacy_root_cookies(response)
     return response
 
 
@@ -150,6 +176,7 @@ def logout():
 
     db.session.commit()
     unset_jwt_cookies(response)
+    _clear_legacy_root_cookies(response)
     return response
 
 
@@ -168,6 +195,7 @@ def refresh():
     claims = {"role": role}
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
+    _clear_legacy_root_cookies(response)
     return response
 
 
