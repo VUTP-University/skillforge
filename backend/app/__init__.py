@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -28,6 +30,14 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     limiter.init_app(app)
 
+    if config_class is ProductionConfig and app.config["RATELIMIT_STORAGE_URI"] == "memory://":
+        app.logger.warning(
+            "RATELIMIT_STORAGE_URI is unset in production — rate limits (login, "
+            "register, forgot-password) are tracked per-process only and will "
+            "not hold under multiple workers/instances. Set it to a shared "
+            "store such as redis://host:6379."
+        )
+
     @app.errorhandler(429)
     def rate_limit_exceeded(e):
         return jsonify({"error": "Too many requests. Please try again later."}), 429
@@ -40,7 +50,17 @@ def create_app(config_class=Config):
         if db.session.query(TokenBlocklist.id).filter_by(jti=jti).first() is not None:
             return True
         user = db.session.get(User, int(jwt_payload["sub"]))
-        return bool(user and user.is_banned)
+        if not user:
+            return False
+        if user.is_banned:
+            return True
+        if user.password_changed_at:
+            changed_at = user.password_changed_at
+            if changed_at.tzinfo is None:
+                changed_at = changed_at.replace(tzinfo=timezone.utc)
+            if jwt_payload["iat"] < changed_at.timestamp():
+                return True
+        return False
 
     # Blueprints
     from .routes.admin import admin_bp

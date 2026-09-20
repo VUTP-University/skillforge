@@ -213,7 +213,9 @@ def submit_run(run_id):
     for q in run.questions:
         selected      = answer_map.get(q["id"])
         was_correct   = selected == q["correct_index"]
-        xp            = q["xp"] if was_correct else 0
+        # No XP for a run submitted after its time limit — the timer is the
+        # actual challenge here, not just a countdown for show.
+        xp            = q["xp"] if (was_correct and not timed_out) else 0
         total_xp     += xp
         if was_correct:
             correct_count += 1

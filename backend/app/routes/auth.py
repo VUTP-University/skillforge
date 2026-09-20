@@ -1,6 +1,7 @@
 import hashlib
 import re
 import secrets
+import time
 from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, current_app, jsonify, request
@@ -25,10 +26,48 @@ auth_bp = Blueprint("auth", __name__)
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
 PASSWORD_RESET_TOKEN_TTL = timedelta(hours=1)
+# Floor for forgot-password's response time — padding out the fast
+# (email-not-found) path so it can't be distinguished from the slower
+# (email-found: extra DB writes + email dispatch) path via timing.
+MIN_FORGOT_PASSWORD_SECONDS = 0.3
+
+# Computed once at import time so login() can hash-compare against *something*
+# even when no matching user exists — otherwise a nonexistent identifier skips
+# check_password_hash entirely and responds measurably faster, letting an
+# attacker enumerate registered usernames/emails via timing.
+_DUMMY_PASSWORD_HASH = generate_password_hash(secrets.token_urlsafe(32))
 
 
 def _hash_reset_token(raw_token: str) -> str:
     return hashlib.sha256(raw_token.encode()).hexdigest()
+
+
+def _valid_email(email: str) -> bool:
+    return bool(email) and "@" in email and "." in email.split("@")[-1]
+
+
+# Every auth cookie used to be set at Path=/ before it was scoped to /api and
+# /api/auth. Cookies are keyed by name *and* path, so narrowing the path left
+# any browser with an existing session holding two copies of each cookie —
+# the stale Path=/ one is never touched by set_access_cookies/set_refresh_
+# cookies/unset_jwt_cookies, which only ever act on the currently configured
+# path. Explicitly expire the old copies on every auth response so they
+# clear out instead of lingering (and potentially shadowing the fresh one —
+# browsers send the more specific path first, but naive server-side cookie
+# parsing can end up preferring whichever one came last).
+_LEGACY_COOKIE_PATH = "/"
+
+
+def _clear_legacy_root_cookies(response):
+    cfg = current_app.config
+    names = [
+        cfg.get("JWT_ACCESS_COOKIE_NAME", "access_token_cookie"),
+        cfg.get("JWT_REFRESH_COOKIE_NAME", "refresh_token_cookie"),
+        cfg.get("JWT_ACCESS_CSRF_COOKIE_NAME", "csrf_access_token"),
+        cfg.get("JWT_REFRESH_CSRF_COOKIE_NAME", "csrf_refresh_token"),
+    ]
+    for name in names:
+        response.delete_cookie(name, path=_LEGACY_COOKIE_PATH)
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -45,6 +84,8 @@ def register():
         return jsonify({"error": "Username must be 3–30 characters"}), 400
     if not USERNAME_RE.match(username):
         return jsonify({"error": "Username may only contain letters, numbers, underscores, and hyphens"}), 400
+    if not _valid_email(email):
+        return jsonify({"error": "Invalid email address"}), 400
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
 
@@ -71,6 +112,7 @@ def register():
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     set_refresh_cookies(response, create_refresh_token(identity=str(user.id)))
+    _clear_legacy_root_cookies(response)
     return response, 201
 
 
@@ -88,7 +130,10 @@ def login():
         (User.username == identifier) | (User.email == identifier.lower())
     ).first()
 
-    if not user or not check_password_hash(user.password_hash, password):
+    # Always run the hash comparison, even against a dummy hash when no user
+    # matches, so response time doesn't reveal whether the identifier exists.
+    password_valid = check_password_hash(user.password_hash if user else _DUMMY_PASSWORD_HASH, password)
+    if not user or not password_valid:
         return jsonify({"error": "Invalid credentials"}), 401
 
     if user.is_banned:
@@ -101,6 +146,7 @@ def login():
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
     set_refresh_cookies(response, create_refresh_token(identity=str(user.id)))
+    _clear_legacy_root_cookies(response)
     return response
 
 
@@ -108,6 +154,13 @@ def login():
 @jwt_required(optional=True)
 def logout():
     response = jsonify({"message": "Logged out"})
+
+    # Opportunistic cleanup — anything older than the longest-lived token type
+    # (the refresh token) is guaranteed to have already expired on its own,
+    # so it's safe to drop regardless of which token it was for. Keeps this
+    # table from growing forever without needing a separate scheduled job.
+    stale_cutoff = datetime.now(timezone.utc) - current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    TokenBlocklist.query.filter(TokenBlocklist.created_at < stale_cutoff).delete()
 
     access_claims = get_jwt()
     if access_claims:
@@ -123,6 +176,7 @@ def logout():
 
     db.session.commit()
     unset_jwt_cookies(response)
+    _clear_legacy_root_cookies(response)
     return response
 
 
@@ -141,12 +195,14 @@ def refresh():
     claims = {"role": role}
     response = jsonify({"user": user.to_dict()})
     set_access_cookies(response, create_access_token(identity=str(user.id), additional_claims=claims))
+    _clear_legacy_root_cookies(response)
     return response
 
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 @limiter.limit("5 per hour")
 def forgot_password():
+    started_at = time.monotonic()
     data  = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
 
@@ -154,24 +210,29 @@ def forgot_password():
     # — a differing response would let an attacker enumerate accounts.
     generic_response = jsonify({"message": "If that email is registered, a reset link has been sent."})
 
-    if not email:
-        return generic_response
+    if email:
+        user = User.query.filter(User.email == email).first()
+        if user:
+            # Invalidate any outstanding links before issuing a new one.
+            PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
 
-    user = User.query.filter(User.email == email).first()
-    if user:
-        # Invalidate any outstanding links before issuing a new one.
-        PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
+            raw_token = secrets.token_urlsafe(32)
+            db.session.add(PasswordResetToken(
+                user_id=user.id,
+                token_hash=_hash_reset_token(raw_token),
+                expires_at=datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_TTL,
+            ))
+            db.session.commit()
 
-        raw_token = secrets.token_urlsafe(32)
-        db.session.add(PasswordResetToken(
-            user_id=user.id,
-            token_hash=_hash_reset_token(raw_token),
-            expires_at=datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_TTL,
-        ))
-        db.session.commit()
+            reset_url = f"{current_app.config['FRONTEND_ORIGIN']}/reset-password?token={raw_token}"
+            send_password_reset_email(user.email, user.username, reset_url)
 
-        reset_url = f"{current_app.config['FRONTEND_ORIGIN']}/reset-password?token={raw_token}"
-        send_password_reset_email(user.email, user.username, reset_url)
+    # Pad the response to a fixed minimum duration so an attacker can't tell
+    # a registered email (extra DB writes above) from an unregistered one
+    # (none of that work) by measuring response time.
+    remaining = MIN_FORGOT_PASSWORD_SECONDS - (time.monotonic() - started_at)
+    if remaining > 0:
+        time.sleep(remaining)
 
     return generic_response
 
@@ -200,6 +261,9 @@ def reset_password():
 
     user = db.session.get(User, reset_token.user_id)
     user.password_hash = generate_password_hash(password)
+    # Any token issued before now is treated as revoked (see
+    # check_if_token_revoked) so a hijacked session doesn't survive the reset.
+    user.password_changed_at = datetime.now(timezone.utc)
     reset_token.used_at = datetime.now(timezone.utc)
     # Invalidate any other outstanding links for this user.
     PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})

@@ -127,7 +127,7 @@ function UnsolvedToggle({ active, onClick }) {
 
 function JobRow({ job, language, index }) {
   const m       = DIFF_META[job.difficulty] ?? DIFF_META.junior;
-  const tcCount = job.test_cases?.length ?? 0;
+  const tcCount = job.test_case_count ?? job.test_cases?.length ?? 0;
 
   return (
     <div

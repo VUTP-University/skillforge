@@ -104,6 +104,11 @@ class User(db.Model):
     is_banned     = db.Column(db.Boolean, default=False, nullable=False)
     ban_reason    = db.Column(db.Text, nullable=True)
     banned_at     = db.Column(db.DateTime, nullable=True)
+    # Set whenever the password changes (currently: password reset). Tokens
+    # issued before this moment are treated as revoked — see
+    # check_if_token_revoked in app/__init__.py — so a compromised session
+    # doesn't survive the reset meant to lock it out.
+    password_changed_at = db.Column(db.DateTime, nullable=True)
     created_at    = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -259,6 +264,10 @@ class Job(db.Model):
     )
 
     def to_dict(self, include_solution=False):
+        # Only index 0 is a public "example" — the rest are held-back grading
+        # cases and must never leak to non-authors, or anyone could read the
+        # expected output straight off the API instead of solving the job.
+        visible_cases = self.test_cases if include_solution else [tc for tc in self.test_cases if tc.index == 0]
         data = {
             "id":          self.id,
             "title":       self.title,
@@ -270,7 +279,8 @@ class Job(db.Model):
             "author_id":   self.author_id,
             "created_at":  self.created_at.isoformat(),
             "updated_at":  self.updated_at.isoformat(),
-            "test_cases":  [tc.to_dict() for tc in self.test_cases],
+            "test_cases":      [tc.to_dict() for tc in visible_cases],
+            "test_case_count": len(self.test_cases),
         }
         if include_solution:
             data["example_solution"] = self.example_solution

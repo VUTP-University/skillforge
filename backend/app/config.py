@@ -25,7 +25,25 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES   = timedelta(days=30)
     JWT_COOKIE_CSRF_PROTECT     = False  # enable in production with HTTPS
 
+    # Scope each cookie (and its CSRF double-submit counterpart) to only the
+    # paths that actually need it, instead of the default "/" — the refresh
+    # token in particular has a 30-day lifetime and only ever needs to reach
+    # /api/auth/refresh (to mint a new access token) and /api/auth/logout
+    # (to be blocklisted); there's no reason for it to ride along on every
+    # other request.
+    JWT_ACCESS_COOKIE_PATH       = "/api"
+    JWT_REFRESH_COOKIE_PATH      = "/api/auth"
+    JWT_ACCESS_CSRF_COOKIE_PATH  = "/api"
+    JWT_REFRESH_CSRF_COOKIE_PATH = "/api/auth"
+
     FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
+
+    # Flask-Limiter storage — defaults to per-process memory, which silently
+    # stops enforcing limits (like login/register/forgot-password brute-force
+    # protection) as soon as the app runs with more than one worker/instance.
+    # Point this at a shared store (e.g. redis://host:6379) in any multi-process
+    # deployment.
+    RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 
     # Piston code execution engine — https://github.com/engineer-man/piston
     PISTON_URL = os.environ.get("PISTON_URL", "http://localhost:2000")
