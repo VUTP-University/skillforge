@@ -4,4 +4,4 @@
  * each release.
  */
 export const APP_VERSION = "2.2.0";
-export const RELEASE_DATE_LABEL = "Sep 19, 2026";
+export const RELEASE_DATE_LABEL = "Sep 21, 2026";
