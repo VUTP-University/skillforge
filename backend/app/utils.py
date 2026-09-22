@@ -23,6 +23,16 @@ _COMPILE_TIMEOUT = {"java": 10_000, "csharp": 10_000}
 _RUN_TIMEOUT     = {"java": 8_000, "csharp": 8_000}
 _DEFAULT_RUN     = 3_000
 
+# How many Piston executions run_tests() fires at once for the non-index-0
+# test cases. java/csharp need to stay low enough that concurrent JVM/CLR
+# startups reliably finish inside the fixed 3000ms ceiling above (see
+# _RUN_TIMEOUT) — confirmed empirically that 9-way concurrency on a 4-core
+# host got 6/9 SIGKILL'd. python/javascript have no compile/startup cost, so
+# they're not subject to the same failure mode and can run with more
+# parallelism.
+_MAX_PARALLEL_EXECUTIONS = {"java": 2, "csharp": 2}
+_DEFAULT_PARALLEL_EXECUTIONS = 6
+
 
 def _clean_error(text: str) -> str:
     if not text:
