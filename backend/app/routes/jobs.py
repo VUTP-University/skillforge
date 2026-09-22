@@ -293,10 +293,25 @@ def _get_openai_client():
 
 
 def _ai_system_prompt(language, difficulty):
+    # example_solution is never shown to the person solving the job — only
+    # to the admin/author who generated it (Job.to_dict()'s include_solution
+    # gate) — so a solver gets no code hint at all unless the description
+    # itself spells one out. Python's input()/Java's Scanner/C#'s
+    # Console.ReadLine() are common-knowledge enough not to need this, but
+    # Node has no single obvious idiom for reading stdin, so a junior
+    # developer solving a JS job would otherwise be guessing.
+    js_input_hint = (
+        "\nSince this is JavaScript: the description's Input Format section must include, in a "
+        "fenced code block, exactly this stdin-reading line so the solver knows how to read input "
+        "in Node (they never see example_solution): "
+        "`const lines = require('fs').readFileSync(0, 'utf8').trim().split('\\n');`"
+        if language == "javascript" else ""
+    )
     return (
         "You are an expert coding-challenge author for SkillForge, a developer training platform. "
         f"Generate a complete, original {difficulty} {language} coding job.\n"
-        f"Language-specific requirement: {_AI_LANG_ENTRY_HINTS.get(language, '')}\n"
+        f"Language-specific requirement: {_AI_LANG_ENTRY_HINTS.get(language, '')}"
+        f"{js_input_hint}\n"
         "Return ONLY valid JSON with this exact shape:\n"
         '{"title": "...", "description": "...(full Markdown problem statement: context, constraints, '
         'input format, output format)", "example_solution": "...(a correct, working solution in the '
