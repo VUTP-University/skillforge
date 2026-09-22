@@ -5,7 +5,15 @@ from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import func
 
 from app import db
-from app.models import Job, JobSubmission, Language, RoleName, User, UserRole
+from app.models import (
+    Job,
+    JobSubmission,
+    Language,
+    RoleName,
+    User,
+    UserRole,
+    to_utc_iso,
+)
 from app.utils import require_role
 
 admin_bp = Blueprint("admin", __name__)
@@ -188,7 +196,7 @@ def list_submissions():
         "all_passed":   s.all_passed,
         "passed":       (s.test_results or {}).get("passed"),
         "total":        (s.test_results or {}).get("total"),
-        "submitted_at": s.submitted_at.isoformat(),
+        "submitted_at": to_utc_iso(s.submitted_at),
     } for s, j, u in rows]
 
     return jsonify({"items": items, "total": total, "page": page, "pages": pages, "per_page": per_page})
@@ -213,5 +221,5 @@ def get_submission(submission_id):
         "total":         (s.test_results or {}).get("total"),
         "solution_code": s.solution_code,
         "test_results":  s.test_results,
-        "submitted_at":  s.submitted_at.isoformat(),
+        "submitted_at":  to_utc_iso(s.submitted_at),
     })

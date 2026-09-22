@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
 
 from app import db
-from app.models import User
+from app.models import User, to_utc_iso
 
 users_bp = Blueprint("users", __name__)
 
@@ -17,7 +17,7 @@ def _public_dict(user):
         "total_xp":   user.total_xp or 0,
         "level":      user.level,
         "rank":       user.rank,
-        "created_at": user.created_at.isoformat(),
+        "created_at": to_utc_iso(user.created_at),
     }
 
 

@@ -20,6 +20,7 @@ from app.models import (
     TestRunStatus,
     User,
     UserAchievement,
+    to_utc_iso,
     xp_progress,
 )
 
@@ -72,7 +73,7 @@ def _build_process_challenges(user_id):
         "xp_earned":       c.xp_earned,
         "score_pct":       c.score_pct,
         "process_verdict": c.process_verdict,
-        "started_at":      c.started_at.isoformat(),
+        "started_at":      to_utc_iso(c.started_at),
     } for c, p in rows]
 
 
@@ -93,8 +94,8 @@ def _build_test_runs(user_id):
         "score_xp":        s.score_xp,
         "correct_count":   s.correct_count,
         "total_questions": len(s.questions) if s.questions else 0,
-        "started_at":      s.started_at.isoformat(),
-        "completed_at":    s.completed_at.isoformat() if s.completed_at else None,
+        "started_at":      to_utc_iso(s.started_at),
+        "completed_at":    to_utc_iso(s.completed_at),
     } for s in rows]
 
 
@@ -112,7 +113,7 @@ def _build_completions(user_id):
         "language":     j.language.value,
         "difficulty":   j.difficulty.value,
         "xp_earned":    c.xp_earned,
-        "completed_at": c.completed_at.isoformat(),
+        "completed_at": to_utc_iso(c.completed_at),
     } for c, j in rows]
 
 
@@ -130,7 +131,7 @@ def _build_achievements(user_id):
         "description": a.description,
         "category":    a.category.value,
         "glyph":       a.glyph,
-        "earned_at":   ua.earned_at.isoformat(),
+        "earned_at":   to_utc_iso(ua.earned_at),
     } for ua, a in rows]
 
 
@@ -169,7 +170,7 @@ def get_profile(user_id):
         "level":               user.level,
         "rank":                user.rank,
         **xp_progress(user.total_xp or 0),
-        "created_at":          user.created_at.isoformat(),
+        "created_at":          to_utc_iso(user.created_at),
         "completions":        _build_completions(user_id),
         "process_challenges": _build_process_challenges(user_id),
         "test_runs":          _build_test_runs(user_id),
@@ -207,7 +208,7 @@ def _build_submission_page(user_id, page, per_page, search=None, language=None, 
         "all_passed":   s.all_passed,
         "passed":       (s.test_results or {}).get("passed"),
         "total":        (s.test_results or {}).get("total"),
-        "submitted_at": s.submitted_at.isoformat(),
+        "submitted_at": to_utc_iso(s.submitted_at),
     } for s, j in rows]
     return items, total, pages
 
@@ -242,7 +243,7 @@ def get_submission_detail(submission_id):
         "all_passed":    s.all_passed,
         "solution_code": s.solution_code,
         "test_results":  s.test_results,
-        "submitted_at":  s.submitted_at.isoformat(),
+        "submitted_at":  to_utc_iso(s.submitted_at),
     })
 
 
