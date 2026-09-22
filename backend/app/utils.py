@@ -13,8 +13,14 @@ PISTON_RUNTIMES = {
     "csharp":     {"language": "csharp",     "version": "*"},
 }
 
+# Piston's java/mono packages compile on the fly as part of the run stage
+# (no separate "compile" response key — java 15's single-file source
+# execution runs `java Main.java` directly), so JVM/CLR startup latency eats
+# into run_timeout, not compile_timeout. 3s is tight even in isolation and
+# routinely gets SIGKILL'd once several submissions run concurrently and
+# compete for CPU during that startup — bumped to give real headroom.
 _COMPILE_TIMEOUT = {"java": 10_000, "csharp": 10_000}
-_RUN_TIMEOUT     = {"java": 3_000, "csharp": 3_000}
+_RUN_TIMEOUT     = {"java": 8_000, "csharp": 8_000}
 _DEFAULT_RUN     = 3_000
 
 
@@ -119,7 +125,15 @@ def run_tests(code: str, test_cases: list, lang: str) -> dict:
     other: dict[int, dict] = {}
     remaining = sorted_tcs[1:]
     if remaining:
-        with ThreadPoolExecutor(max_workers=len(remaining)) as pool:
+        # Uncapped concurrency here means a 10-test job fires 9 simultaneous
+        # Piston executions — for compiled languages (java/csharp) that's 9
+        # JVM/CLR startups competing for the host's CPU at once, which is
+        # exactly what pushed run_timeout failures in production (see
+        # _RUN_TIMEOUT above). Capping keeps a full submission's worth of
+        # concurrent sandboxes well within what a few real cores can serve
+        # without contention-driven timeouts, at the cost of a bit less
+        # parallelism for languages that don't need it.
+        with ThreadPoolExecutor(max_workers=min(len(remaining), 3)) as pool:
             fut_map = {pool.submit(_execute, code, tc.input, lang, piston_url): tc for tc in remaining}
             for fut in as_completed(fut_map):
                 tc = fut_map[fut]
