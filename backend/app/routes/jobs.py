@@ -275,7 +275,13 @@ def update_job(job_id):
 
 _AI_LANG_ENTRY_HINTS = {
     "python":     "Read input via input(). Plain script, no class wrapper needed.",
-    "javascript": "Read all of stdin (e.g. via require('readline') or process.stdin), split on newlines. Plain Node.js script, no class needed.",
+    "javascript": (
+        "Read stdin synchronously — NOT the readline module or process.stdin event "
+        "listeners, which are confusing async patterns for a coding-challenge learner. "
+        "Use: `const lines = require('fs').readFileSync(0, 'utf8').trim().split('\\n');` "
+        "then index into `lines` for each value (parseInt/parseFloat as needed). "
+        "Plain Node.js script, no class needed."
+    ),
     "java":       "MUST be a single top-level `public class Main` with `public static void main(String[] args)`. Read input via `new Scanner(System.in)` or a BufferedReader.",
     "csharp":     "MUST be a single `public class Program` with `public static void Main(string[] args)`. Read input via `Console.ReadLine()`.",
 }
@@ -287,10 +293,25 @@ def _get_openai_client():
 
 
 def _ai_system_prompt(language, difficulty):
+    # example_solution is never shown to the person solving the job — only
+    # to the admin/author who generated it (Job.to_dict()'s include_solution
+    # gate) — so a solver gets no code hint at all unless the description
+    # itself spells one out. Python's input()/Java's Scanner/C#'s
+    # Console.ReadLine() are common-knowledge enough not to need this, but
+    # Node has no single obvious idiom for reading stdin, so a junior
+    # developer solving a JS job would otherwise be guessing.
+    js_input_hint = (
+        "\nSince this is JavaScript: the description's Input Format section must include, in a "
+        "fenced code block, exactly this stdin-reading line so the solver knows how to read input "
+        "in Node (they never see example_solution): "
+        "`const lines = require('fs').readFileSync(0, 'utf8').trim().split('\\n');`"
+        if language == "javascript" else ""
+    )
     return (
         "You are an expert coding-challenge author for SkillForge, a developer training platform. "
         f"Generate a complete, original {difficulty} {language} coding job.\n"
-        f"Language-specific requirement: {_AI_LANG_ENTRY_HINTS.get(language, '')}\n"
+        f"Language-specific requirement: {_AI_LANG_ENTRY_HINTS.get(language, '')}"
+        f"{js_input_hint}\n"
         "Return ONLY valid JSON with this exact shape:\n"
         '{"title": "...", "description": "...(full Markdown problem statement: context, constraints, '
         'input format, output format)", "example_solution": "...(a correct, working solution in the '
