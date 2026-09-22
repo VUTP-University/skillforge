@@ -5,7 +5,15 @@ from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import func
 
 from app import db
-from app.models import Job, JobSubmission, Language, RoleName, User, UserRole, to_utc_iso
+from app.models import (
+    Job,
+    JobSubmission,
+    Language,
+    RoleName,
+    User,
+    UserRole,
+    to_utc_iso,
+)
 from app.utils import require_role
 
 admin_bp = Blueprint("admin", __name__)
