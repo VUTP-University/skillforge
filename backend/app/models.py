@@ -6,6 +6,27 @@ from datetime import datetime, timezone
 from app import db
 
 
+def to_utc_iso(dt):
+    """ISO-8601 string for a UTC instant, safe to hand to frontend `new Date(...)`.
+
+    Every DateTime column here is `db.DateTime` without `timezone=True`
+    (Postgres TIMESTAMP WITHOUT TIME ZONE), so SQLAlchemy hands back a
+    tzinfo-naive datetime once it's round-tripped through the DB — even
+    though the stored value is UTC by convention (everything here is written
+    via `datetime.now(timezone.utc)`). Plain `.isoformat()` on a naive
+    datetime omits the offset entirely, and a browser's `new Date(...)`
+    parses an offset-less date-time string as *local* time, not UTC — so an
+    unguarded `.isoformat()` silently hands the frontend a wrong instant
+    whenever the viewer isn't in UTC. Reattach the UTC label before
+    serializing so the string is unambiguous.
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.isoformat()
+
+
 class RoleName(enum.Enum):
     user      = "user"
     moderator = "moderator"
@@ -156,8 +177,8 @@ class User(db.Model):
             "level_progress_pct":  progress["level_progress_pct"],
             "is_banned":           self.is_banned,
             "ban_reason":          self.ban_reason,
-            "banned_at":           self.banned_at.isoformat() if self.banned_at else None,
-            "created_at":          self.created_at.isoformat(),
+            "banned_at":           to_utc_iso(self.banned_at),
+            "created_at":          to_utc_iso(self.created_at),
         }
 
     def __repr__(self):
@@ -277,8 +298,8 @@ class Job(db.Model):
             "xp_reward":   self.xp_reward,
             "author":      self.author.username if self.author else None,
             "author_id":   self.author_id,
-            "created_at":  self.created_at.isoformat(),
-            "updated_at":  self.updated_at.isoformat(),
+            "created_at":  to_utc_iso(self.created_at),
+            "updated_at":  to_utc_iso(self.updated_at),
             "test_cases":      [tc.to_dict() for tc in visible_cases],
             "test_case_count": len(self.test_cases),
         }
@@ -352,7 +373,7 @@ class JobComment(db.Model):
             "username":   self.user.username,
             "avatar_url": f"/api/media/avatars/{self.user.avatar}" if self.user.avatar else None,
             "content":    self.content,
-            "created_at": self.created_at.isoformat(),
+            "created_at": to_utc_iso(self.created_at),
         }
 
     def __repr__(self):
@@ -470,9 +491,9 @@ class TestRun(db.Model):
             "score_xp":        self.score_xp,
             "correct_count":   self.correct_count,
             "total_questions": len(self.questions) if self.questions else 0,
-            "started_at":      self.started_at.isoformat(),
-            "expires_at":      self.expires_at.isoformat(),
-            "completed_at":    self.completed_at.isoformat() if self.completed_at else None,
+            "started_at":      to_utc_iso(self.started_at),
+            "expires_at":      to_utc_iso(self.expires_at),
+            "completed_at":    to_utc_iso(self.completed_at),
         }
 
     def __repr__(self):
@@ -588,8 +609,8 @@ class ProcessChallenge(db.Model):
             "xp_earned":          self.xp_earned,
             "score_pct":          self.score_pct,
             "status":             self.status.value,
-            "started_at":         self.started_at.isoformat(),
-            "submitted_at":       self.submitted_at.isoformat() if self.submitted_at else None,
+            "started_at":         to_utc_iso(self.started_at),
+            "submitted_at":       to_utc_iso(self.submitted_at),
             "fail_token":         self.fail_token,
         }
 
@@ -659,8 +680,8 @@ class JobReport(db.Model):
             "status":         self.status.value,
             "assigned_to_id": self.assigned_to_id,
             "assigned_to":    self.assigned_to.username if self.assigned_to else None,
-            "created_at":     self.created_at.isoformat(),
-            "updated_at":     self.updated_at.isoformat(),
+            "created_at":     to_utc_iso(self.created_at),
+            "updated_at":     to_utc_iso(self.updated_at),
         }
 
     def __repr__(self):

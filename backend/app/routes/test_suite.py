@@ -8,7 +8,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app import db
 from app.achievements import award_xp, check_achievements
-from app.models import AchievementCategory, TestRun, TestRunStatus, User
+from app.models import AchievementCategory, TestRun, TestRunStatus, User, to_utc_iso
 
 test_suite_bp = Blueprint("test_suite", __name__)
 
@@ -146,7 +146,7 @@ def start_run():
     if active:
         return jsonify({
             "run_id":     active.id,
-            "expires_at": active.expires_at.isoformat(),
+            "expires_at": to_utc_iso(active.expires_at),
             "questions":  [_strip_correct(q) for q in active.questions],
             "resumed":    True,
         })
@@ -177,7 +177,7 @@ def start_run():
 
     return jsonify({
         "run_id":     run.id,
-        "expires_at": run.expires_at.isoformat(),
+        "expires_at": to_utc_iso(run.expires_at),
         "questions":  [_strip_correct(q) for q in questions],
         "resumed":    False,
     }), 201
