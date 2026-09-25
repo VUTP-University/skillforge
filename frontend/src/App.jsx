@@ -15,6 +15,7 @@ import StackTraceChallengePage from "./pages/StackTraceChallengePage";
 import TestSuitePage from "./pages/TestSuitePage";
 import TestSuitePlayPage from "./pages/TestSuitePlayPage";
 import FAQPage from "./pages/FAQPage";
+import ContactPage from "./pages/ContactPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -216,6 +217,8 @@ function AppLayout() {
                 </ProtectedRoute>
               }
             />
+            {/* Public — reachable whether or not the visitor is logged in */}
+            <Route path="/contact" element={<ContactPage />} />
             <Route
               path="/stack-trace"
               element={
