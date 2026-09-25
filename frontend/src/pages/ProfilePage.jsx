@@ -30,6 +30,7 @@ const LANG_CONFIG = {
   javascript: { name: "JavaScript", color: "var(--gem-javascript)" },
   java:       { name: "Java",       color: "var(--gem-java)" },
   csharp:     { name: "C#",         color: "var(--gem-csharp)" },
+  cpp:        { name: "C++",        color: "var(--gem-cpp)" },
 };
 
 const LANG_OPTIONS = [
@@ -38,6 +39,7 @@ const LANG_OPTIONS = [
   { value: "javascript", label: "JavaScript" },
   { value: "java",       label: "Java" },
   { value: "csharp",     label: "C#" },
+  { value: "cpp",        label: "C++" },
 ];
 
 const DIFF_META = {
@@ -981,6 +983,7 @@ export default function ProfilePage() {
                 javascript: { label: "JavaScript", glyph: "js", color: "var(--gem-javascript)" },
                 java:       { label: "Java",       glyph: "jv", color: "var(--gem-java)" },
                 csharp:     { label: "C#",         glyph: "c#", color: "var(--gem-csharp)" },
+                cpp:        { label: "C++",        glyph: "c++", color: "var(--gem-cpp)" },
                 mix:        { label: "All Paths",  glyph: "**", color: "var(--color-blue)" },
               }[s.language] ?? { label: s.language, glyph: "?", color: "var(--color-amber)" };
 

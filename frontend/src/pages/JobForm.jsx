@@ -6,6 +6,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
 import { createJob, generateJobWithAI, getJob, updateJob } from "../services/jobService";
 import { useAuth } from "../context/AuthContext";
 
@@ -16,6 +17,7 @@ const LANGUAGES = [
   { value: "javascript", label: "JavaScript" },
   { value: "java",       label: "Java"       },
   { value: "csharp",     label: "C#"         },
+  { value: "cpp",        label: "C++"        },
 ];
 
 const DIFFICULTIES = [
@@ -29,6 +31,7 @@ const LANG_EXT = {
   javascript: () => [javascript({ jsx: false })],
   java:       () => [java()],
   csharp:     () => [java()],
+  cpp:        () => [cpp()],
 };
 
 const EMPTY_TC = Array.from({ length: 10 }, (_, i) => ({ index: i, input: "", output: "" }));

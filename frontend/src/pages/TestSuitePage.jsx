@@ -50,10 +50,20 @@ const LANG_CARDS = [
     colorRgb: "177,140,255",
     cta:      "Start Run",
   },
+  {
+    key:      "cpp",
+    glyph:    "c++",
+    title:    "C++ Run",
+    label:    "C++",
+    desc:     "Memory management, templates, and the STL",
+    color:    "var(--gem-cpp)",
+    colorRgb: "59,130,246",
+    cta:      "Start Run",
+  },
 ];
 
 const LANG_LABEL = {
-  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#", mix: "All Paths",
+  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#", cpp: "C++", mix: "All Paths",
 };
 
 function formatCountdown(isoString) {
@@ -289,7 +299,7 @@ function MixCard({ canPlay, activeRun, starting, onStart }) {
           The Grand Mix
         </h3>
         <p style={{ fontSize: "0.789rem", color: "var(--color-text-tertiary)", lineHeight: 1.5 }}>
-          Questions drawn from all four languages — Python, JavaScript, Java, and C#.
+          Questions drawn from all five languages — Python, JavaScript, Java, C#, and C++.
           The ultimate all-rounder run.
         </p>
       </div>

@@ -21,7 +21,7 @@ QUESTIONS_PER_MODE  = 20
 _PICK = {"easy": 7, "medium": 8, "hard": 5}
 _XP   = {"easy": 10, "medium": 20, "hard": 30}
 
-VALID_LANGUAGES = {"python", "javascript", "java", "csharp", "mix"}
+VALID_LANGUAGES = {"python", "javascript", "java", "csharp", "cpp", "mix"}
 
 # ── Question pools (loaded once at import time) ───────────────────────────────
 
@@ -40,7 +40,7 @@ def _pool(lang: str) -> list:
 def _build_pool(language: str) -> list:
     if language == "mix":
         combined = []
-        for l in ("python", "javascript", "java", "csharp"):
+        for l in ("python", "javascript", "java", "csharp", "cpp"):
             combined.extend(_pool(l))
         return combined
     return _pool(language)

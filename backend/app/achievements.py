@@ -35,6 +35,7 @@ _JOB_LANGUAGES = {
     "javascript": {"label": "JavaScript", "glyph": "js"},
     "java":       {"label": "Java",       "glyph": "jv"},
     "csharp":     {"label": "C#",         "glyph": "c#"},
+    "cpp":        {"label": "C++",        "glyph": "cp"},
 }
 
 _JOB_LADDER_TIERS = [(5, "Novice"), (10, "Adept"), (20, "Specialist"), (30, "Expert"),
@@ -45,6 +46,7 @@ _TEST_SUITE_LANGUAGES = {
     "javascript": {"label": "JavaScript", "glyph": "js"},
     "java":       {"label": "Java",       "glyph": "jv"},
     "csharp":     {"label": "C#",         "glyph": "c#"},
+    "cpp":        {"label": "C++",        "glyph": "cp"},
     "mix":        {"label": "Grand Mix",  "glyph": "**"},
 }
 

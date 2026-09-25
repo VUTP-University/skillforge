@@ -8,8 +8,8 @@ const DIFF_META = {
   fatal:    { label: "Fatal",    color: "var(--color-red-bright)", dimBorder: "rgba(255,95,86,0.20)",   hotBorder: "rgba(255,95,86,0.65)",   glow: "rgba(255,95,86,0.25)",   bg: "rgba(255,95,86,0.10)"   },
 };
 
-const LANG_LABELS = { python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#" };
-const LANG_TABS   = ["all", "python", "javascript", "java", "csharp"];
+const LANG_LABELS = { python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#", cpp: "C++" };
+const LANG_TABS   = ["all", "python", "javascript", "java", "csharp", "cpp"];
 
 function formatReset(iso) {
   if (!iso) return "";

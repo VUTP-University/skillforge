@@ -9,6 +9,7 @@ const LANG_CONFIG = {
   javascript: { name: "JavaScript", description: "Build the modern web, from DOM to async patterns"  },
   java:       { name: "Java",       description: "Enterprise patterns, OOP, Android & more"          },
   csharp:     { name: "C#",         description: "Games, desktop apps, cloud & systems programming"  },
+  cpp:        { name: "C++",        description: "Systems programming, performance & memory control" },
 };
 
 const DIFF_META = {
