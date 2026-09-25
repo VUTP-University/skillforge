@@ -99,6 +99,25 @@ PROCESS_SEED = [
          "difficulty": "fatal",
          "aura": "Demands LINQ expressions over loops, proper generics usage, and strict typing. Unnecessary casting is rejected outright.",
          "lore": "Object reference not set to an instance of anything"},
+    # C++
+    {"slug": "nullptrix", "name": "WildPointer", "glyph": "*", "language": "cpp",
+         "description": "A process that dereferences anything it can reach, whether or not the memory behind it is still alive.",
+         "specialty": "C++ memory management: pointers, RAII, and smart pointers",
+         "difficulty": "warning",
+         "aura": "Demands RAII and smart pointers (unique_ptr/shared_ptr) in place of raw new/delete. Every unmatched allocation gets flagged.",
+         "lore": "Spawned from a new with no delete in sight"},
+    {"slug": "templaris", "name": "TemplateWraith", "glyph": "T::", "language": "cpp",
+         "description": "A process that instantiates itself infinitely, generating a new specialization for every type it touches.",
+         "specialty": "C++ templates, generic programming, and the STL",
+         "difficulty": "critical",
+         "aura": "Demands generic, reusable template code and proper use of the STL over hand-rolled containers. Type-specific duplication gets flagged for refactor.",
+         "lore": "Compiled once, exists in a thousand specializations"},
+    {"slug": "segfaultia", "name": "UndefinedOne", "glyph": "~", "language": "cpp",
+         "description": "A process that exists in a state the standard never promised — one wrong move and it takes the whole program with it.",
+         "specialty": "Advanced C++: undefined behavior, move semantics, and manual resource management",
+         "difficulty": "fatal",
+         "aura": "Demands flawless move semantics, virtual destructors, and zero undefined behavior. Dangling references and use-after-free are rejected on sight.",
+         "lore": "Corrupted the stack the moment its destructor never ran"},
 ]
 
 

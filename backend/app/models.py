@@ -38,6 +38,7 @@ class Language(enum.Enum):
     javascript = "javascript"
     java       = "java"
     csharp     = "csharp"
+    cpp        = "cpp"
 
 
 class JobDifficulty(enum.Enum):

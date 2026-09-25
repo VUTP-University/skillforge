@@ -8,6 +8,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
 import { getJob, submitJob, getComments, addComment, deleteComment } from "../services/jobService";
 import { createReport } from "../services/reportService";
 import Avatar from "../components/Avatar";
@@ -25,6 +26,7 @@ const LANG_LABEL = {
   javascript: "JavaScript",
   java:       "Java",
   csharp:     "C#",
+  cpp:        "C++",
 };
 
 const LANG_EXT = {
@@ -32,6 +34,7 @@ const LANG_EXT = {
   javascript: () => [javascript({ jsx: false })],
   java:       () => [java()],
   csharp:     () => [java()],   // rough structural match
+  cpp:        () => [cpp()],
 };
 
 const STARTER = {
@@ -67,6 +70,15 @@ class Solution {
         // int b = int.Parse(Console.ReadLine());
         // your solution here
     }
+}
+`,
+  cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    // int a; cin >> a;
+    // int b; cin >> b;
+    // your solution here
 }
 `,
 };

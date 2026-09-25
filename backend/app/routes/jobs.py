@@ -284,6 +284,7 @@ _AI_LANG_ENTRY_HINTS = {
     ),
     "java":       "MUST be a single top-level `public class Main` with `public static void main(String[] args)`. Read input via `new Scanner(System.in)` or a BufferedReader.",
     "csharp":     "MUST be a single `public class Program` with `public static void Main(string[] args)`. Read input via `Console.ReadLine()`.",
+    "cpp":        "MUST include `#include <iostream>` (and any other needed standard headers) with a single top-level `int main()`. Read input via `std::cin >>` or `std::getline(std::cin, ...)`.",
 }
 
 

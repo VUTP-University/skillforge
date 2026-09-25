@@ -32,6 +32,7 @@ const LANGUAGES = [
   { slug: "javascript", name: "JavaScript", glyph: "js", interpreter: "node",    description: "Build the modern web",        accentColor: "var(--gem-javascript)" },
   { slug: "java",       name: "Java",       glyph: "jv", interpreter: "java",    description: "Enterprise, Android & more",  accentColor: "var(--gem-java)" },
   { slug: "csharp",     name: "C#",         glyph: "c#", interpreter: "dotnet",  description: "Games, apps & cloud",         accentColor: "var(--gem-csharp)" },
+  { slug: "cpp",        name: "C++",        glyph: "c++", interpreter: "g++",    description: "Systems & performance",       accentColor: "var(--gem-cpp)" },
 ];
 
 const SECTIONS = [
@@ -201,9 +202,9 @@ export default function Home() {
       {/* ── Language Job Cards — per-card terminal chrome, no imagery ── */}
       <div id="jobs">
         <SectionDivider title="Choose Your Job" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {LANGUAGES.map((lang) => (
-            <Link key={lang.slug} to={`/jobs/${lang.slug}`} style={{ textDecoration: "none" }}>
+            <Link key={lang.slug} to={`/jobs/${lang.slug}`} className="job-card-link" style={{ textDecoration: "none" }}>
               <div className="group job-card" style={{ "--card-accent": lang.accentColor }}>
                 <div className="job-card-bar">
                   <TermDots />

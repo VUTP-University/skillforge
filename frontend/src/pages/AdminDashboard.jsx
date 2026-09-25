@@ -13,7 +13,7 @@ import { getReports, updateReport } from "../services/reportService";
 const PAGE_SIZE = 10;
 
 const LANG_LABELS = {
-  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#",
+  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#", cpp: "C++",
 };
 
 const DIFF_META = {
@@ -451,10 +451,10 @@ export default function AdminDashboard() {
         {/* ── Overview ── */}
         <div>
           <div className="section-divider"><h2>Overview</h2></div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
             <StatCard label="Total Jobs" value={jobStatsLoading ? "…" : jobStats.total}
               icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>} />
-            {["python","javascript","java","csharp"].map((lang) => (
+            {["python","javascript","java","csharp","cpp"].map((lang) => (
               <StatCard key={lang} label={LANG_LABELS[lang]} value={jobStatsLoading ? "…" : (jobStats.by_language[lang] ?? 0)}
                 icon={<svg className="w-4 h-4 text-green" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>} />
             ))}

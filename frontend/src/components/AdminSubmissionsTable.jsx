@@ -7,10 +7,10 @@ import { getAdminSubmission, getAdminSubmissions } from "../services/userService
 const PAGE_SIZE = 20;
 
 const LANG_LABELS = {
-  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#",
+  python: "Python", javascript: "JavaScript", java: "Java", csharp: "C#", cpp: "C++",
 };
 const LANG_COLORS = {
-  python: "var(--color-green)", javascript: "var(--color-amber)", java: "var(--color-red-bright)", csharp: "var(--gem-csharp)",
+  python: "var(--color-green)", javascript: "var(--color-amber)", java: "var(--color-red-bright)", csharp: "var(--gem-csharp)", cpp: "var(--gem-cpp)",
 };
 const DIFF_META = {
   junior: { label: "Junior", color: "var(--color-green)" },
@@ -24,6 +24,7 @@ const LANG_OPTIONS = [
   { value: "javascript", label: "JavaScript" },
   { value: "java",       label: "Java" },
   { value: "csharp",     label: "C#" },
+  { value: "cpp",        label: "C++" },
 ];
 
 /* ── Pagination ───────────────────────────────────────────────────────────── */

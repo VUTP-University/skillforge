@@ -4,6 +4,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { python }     from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { java }       from "@codemirror/lang-java";
+import { cpp }        from "@codemirror/lang-cpp";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { useAuth }    from "../context/AuthContext";
 import {
@@ -24,6 +25,7 @@ const LANG_LABELS = {
   javascript: "JavaScript",
   java:       "Java",
   csharp:     "C#",
+  cpp:        "C++",
 };
 
 function getLangExtension(language) {
@@ -32,6 +34,7 @@ function getLangExtension(language) {
     case "javascript": return javascript({ jsx: false });
     case "java":       return java();
     case "csharp":     return java();   // best approximation available
+    case "cpp":        return cpp();
     default:           return [];
   }
 }

@@ -11,6 +11,7 @@ PISTON_RUNTIMES = {
     "javascript": {"language": "javascript", "version": "*"},
     "java":       {"language": "java",       "version": "*"},
     "csharp":     {"language": "csharp",     "version": "*"},
+    "cpp":        {"language": "cpp",        "version": "*"},
 }
 
 # Piston's java/mono packages compile on the fly as part of the run stage
@@ -27,8 +28,15 @@ PISTON_RUNTIMES = {
 # there's no config-side way to buy more headroom here — concurrency has to
 # be low enough that JVM/CLR startup reliably finishes inside this fixed
 # window instead.
-_COMPILE_TIMEOUT = {"java": 10_000, "csharp": 10_000}
-_RUN_TIMEOUT     = {"java": 3_000, "csharp": 3_000}
+# cpp's g++ compiles ahead of run (unlike java/csharp's compile-on-run), so
+# it gets its own real "compile" stage in Piston's response — genuinely
+# different cost profile from java/csharp, not just copied numbers. These
+# starting values mirror java/csharp's conservative defaults but are NOT
+# verified against the cpp package's own limit_overrides ceiling (see
+# _MAX_PARALLEL_EXECUTIONS below) — that only exists once the package is
+# installed, and must be re-tuned empirically the same way java/csharp were.
+_COMPILE_TIMEOUT = {"java": 10_000, "csharp": 10_000, "cpp": 10_000}
+_RUN_TIMEOUT     = {"java": 3_000, "csharp": 3_000, "cpp": 3_000}
 _DEFAULT_RUN     = 3_000
 
 # How many Piston executions run_tests() fires at once for the non-index-0
@@ -38,7 +46,7 @@ _DEFAULT_RUN     = 3_000
 # host got 6/9 SIGKILL'd. python/javascript have no compile/startup cost, so
 # they're not subject to the same failure mode and can run with more
 # parallelism.
-_MAX_PARALLEL_EXECUTIONS = {"java": 2, "csharp": 2}
+_MAX_PARALLEL_EXECUTIONS = {"java": 2, "csharp": 2, "cpp": 2}
 _DEFAULT_PARALLEL_EXECUTIONS = 6
 
 
