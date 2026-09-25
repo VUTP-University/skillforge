@@ -532,6 +532,18 @@ export default function JobSolvePage() {
   const { language, jobId } = useParams();
   const navigate             = useNavigate();
   const { user: currentUser, updateUser } = useAuth();
+  const isPrivileged = !!currentUser && ["admin", "moderator"].includes(currentUser.role);
+
+  const blockCopy = useCallback((e) => {
+    if (!isPrivileged) e.preventDefault();
+  }, [isPrivileged]);
+
+  const blockPaste = useCallback((e) => {
+    if (!isPrivileged) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, [isPrivileged]);
 
   const [job,         setJob]        = useState(null);
   const [loading,     setLoading]    = useState(true);
@@ -681,7 +693,9 @@ export default function JobSolvePage() {
         <div className="lg:w-2/5" style={{ flexShrink: 0, minWidth: 0 }}>
           <div
             className="glass-card job-desc-sticky"
-            style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}
+            style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem", userSelect: isPrivileged ? undefined : "none" }}
+            onCopy={blockCopy}
+            onCut={blockCopy}
           >
             {/* Description */}
             <div>
@@ -771,6 +785,7 @@ export default function JobSolvePage() {
               overflow: "hidden",
               border: "1px solid rgba(255,255,255,0.10)",
             }}
+            onPasteCapture={blockPaste}
           >
             <CodeMirror
               value={code}
