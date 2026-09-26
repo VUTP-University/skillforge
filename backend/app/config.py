@@ -71,6 +71,10 @@ class Config:
     MAIL_FROM      = os.environ.get("MAIL_FROM", MAIL_USERNAME)
     MAIL_FROM_NAME = os.environ.get("MAIL_FROM_NAME", "SkillForge")
 
+    # Inbox the Contact page's messages are sent to — same mailbox that sends
+    # the welcome/password-reset emails above.
+    SUPPORT_EMAIL = os.environ.get("SUPPORT_EMAIL", "support@skill-forge.study")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

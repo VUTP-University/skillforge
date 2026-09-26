@@ -123,6 +123,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-6">
               <Link to="/" className={desktopLinkCls(isActive("/"))}>Dashboard</Link>
               <Link to="/faq" className={desktopLinkCls(isActive("/faq"))}>FAQ</Link>
+              <Link to="/contact" className={desktopLinkCls(isActive("/contact"))}>Contacts</Link>
             </div>
           )}
 
@@ -209,6 +210,7 @@ export default function Navbar() {
             ) : (
               /* Not logged in — desktop */
               <div className="hidden md:flex items-center gap-2">
+                <Link to="/contact" className={desktopLinkCls(isActive("/contact"))} style={{ marginRight: "0.5rem" }}>Contacts</Link>
                 <Link to="/login" className="sf-btn-ghost">Sign in</Link>
                 <Link
                   to="/register"
@@ -264,6 +266,7 @@ export default function Navbar() {
               <>
                 <NavLink to="/" end className={({ isActive }) => mobileLinkCls(isActive)}>Dashboard</NavLink>
                 <NavLink to="/faq" className={({ isActive }) => mobileLinkCls(isActive)}>FAQ</NavLink>
+                <NavLink to="/contact" className={({ isActive }) => mobileLinkCls(isActive)}>Contacts</NavLink>
                 <div style={{ height: "1px", background: "rgba(255,255,255,0.06)", margin: "0.5rem 0" }} />
                 <NavLink to="/profile" className={({ isActive }) => mobileLinkCls(isActive)}>View Profile</NavLink>
                 {user.role === "moderator" && (
@@ -283,6 +286,7 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                <NavLink to="/contact"  className={({ isActive }) => mobileLinkCls(isActive)}>Contacts</NavLink>
                 <NavLink to="/login"    className={({ isActive }) => mobileLinkCls(isActive)}>Sign in</NavLink>
                 <NavLink to="/register" className={({ isActive }) => mobileLinkCls(isActive)}>Register</NavLink>
               </>

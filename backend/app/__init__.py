@@ -81,6 +81,7 @@ def create_app(config_class=Config):
     # Blueprints
     from .routes.admin import admin_bp
     from .routes.auth import auth_bp
+    from .routes.contact import contact_bp
     from .routes.health import health_bp
     from .routes.jobs import jobs_bp
     from .routes.processes import stack_trace_bp
@@ -98,6 +99,7 @@ def create_app(config_class=Config):
     app.register_blueprint(stack_trace_bp, url_prefix="/api/stack-trace")
     app.register_blueprint(test_suite_bp,  url_prefix="/api/test-suite")
     app.register_blueprint(reports_bp,     url_prefix="/api/reports")
+    app.register_blueprint(contact_bp,     url_prefix="/api/contact")
 
     # Achievement catalog — seeded once at startup (evaluation depends on it
     # already existing, unlike Process's lazy per-request seed). Guarded on

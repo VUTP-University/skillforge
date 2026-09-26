@@ -245,6 +245,119 @@ def _build_password_reset_email(to_email: str, username: str, from_name: str, fr
     return msg
 
 
+def _build_contact_email(name: str, from_email: str, message: str, to_addr: str, from_name: str, from_addr: str) -> MIMEMultipart:
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = f"[Contact] {name}"
+    msg["From"] = f"{from_name} <{from_addr}>"
+    msg["To"] = to_addr
+    # Lets support hit "Reply" and land straight in the visitor's inbox —
+    # From must stay the authenticated mailbox above for SMTP/SPF to accept it.
+    msg["Reply-To"] = from_email
+
+    name_html    = html.escape(name)
+    email_html   = html.escape(from_email)
+    message_html = html.escape(message).replace("\n", "<br>")
+
+    text = (
+        f"New contact form message\n\n"
+        f"Name:  {name}\n"
+        f"Email: {from_email}\n\n"
+        f"{message}\n\n"
+        "— Sent via the SkillForge Contact page"
+    )
+
+    html_body = f"""\
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+  New message from {name_html} via the SkillForge Contact page.
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#050806;padding:32px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+        style="max-width:600px;width:100%;background:#10151a;border:1px solid #223028;border-radius:10px;overflow:hidden;font-family:Menlo,Consolas,'Courier New',monospace;">
+
+        <!-- Terminal titlebar -->
+        <tr>
+          <td style="padding:12px 20px;border-bottom:1px solid #223028;">
+            <span style="color:#ff5f56;font-size:13px;">&#9679;</span>
+            <span style="color:#ffbd2e;font-size:13px;"> &#9679;</span>
+            <span style="color:#27c93f;font-size:13px;"> &#9679;</span>
+            <span style="color:#6b8478;font-size:11px;letter-spacing:0.05em;float:right;">operator@skillforge: ~</span>
+          </td>
+        </tr>
+
+        <!-- Brand -->
+        <tr>
+          <td style="padding:28px 28px 0;">
+            <span style="color:#5dffa3;font-size:22px;font-weight:700;letter-spacing:0.02em;">SkillForge</span>
+            <div style="color:#6b8478;font-size:12px;margin-top:4px;">Compile skills. Deploy your future.</div>
+          </td>
+        </tr>
+
+        <!-- Hero -->
+        <tr>
+          <td style="padding:22px 28px 4px;">
+            <div style="font-size:20px;color:#eafff3;margin-bottom:10px;">New Contact message_</div>
+            <p style="margin:0;font-size:14px;line-height:1.65;color:#c9d6cf;">
+              Submitted via the Contact page on SkillForge.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Sender recap -->
+        <tr>
+          <td style="padding:20px 28px 4px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+              style="border:1px solid #223028;border-radius:8px;">
+              <tr>
+                <td style="padding:14px 18px;font-size:12px;color:#6b8478;border-bottom:1px solid #1a2620;">
+                  Name
+                </td>
+                <td style="padding:14px 18px;font-size:12px;color:#eafff3;text-align:right;border-bottom:1px solid #1a2620;">
+                  {name_html}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 18px;font-size:12px;color:#6b8478;">
+                  Email
+                </td>
+                <td style="padding:14px 18px;font-size:12px;color:#eafff3;text-align:right;">
+                  {email_html}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Message -->
+        <tr>
+          <td style="padding:6px 28px 26px;">
+            <div style="border:1px solid #223028;border-radius:8px;padding:16px 18px;font-size:13px;line-height:1.65;color:#c9d6cf;">
+              {message_html}
+            </div>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:20px 28px 26px;border-top:1px solid #1a2620;">
+            <p style="margin:0;font-size:11px;color:#3f5348;">
+              Reply to this email to respond directly to {email_html}.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+"""
+
+    msg.attach(MIMEText(text, "plain"))
+    msg.attach(MIMEText(html_body, "html"))
+    return msg
+
+
 def _send(msg: MIMEMultipart, server: str, port: int, username: str, password: str) -> None:
     try:
         if port == 465:
@@ -300,6 +413,32 @@ def send_password_reset_email(to_email: str, username: str, reset_url: str) -> N
         config.get("MAIL_FROM_NAME", "SkillForge"),
         config.get("MAIL_FROM") or config["MAIL_USERNAME"],
         reset_url,
+    )
+
+    threading.Thread(
+        target=_send,
+        args=(msg, config["MAIL_SERVER"], config["MAIL_PORT"], config["MAIL_USERNAME"], config["MAIL_PASSWORD"]),
+        daemon=True,
+    ).start()
+
+
+def send_contact_email(name: str, from_email: str, message: str) -> None:
+    """Best-effort, non-blocking Contact-page email. Never raises — the
+    contact endpoint must respond identically whether or not delivery
+    actually succeeds."""
+    config = current_app.config
+
+    if not config.get("MAIL_USERNAME") or not config.get("MAIL_PASSWORD"):
+        logger.warning("MAIL_USERNAME/MAIL_PASSWORD not configured — skipping contact email")
+        return
+
+    msg = _build_contact_email(
+        name,
+        from_email,
+        message,
+        config.get("SUPPORT_EMAIL", "support@skill-forge.study"),
+        config.get("MAIL_FROM_NAME", "SkillForge"),
+        config.get("MAIL_FROM") or config["MAIL_USERNAME"],
     )
 
     threading.Thread(
