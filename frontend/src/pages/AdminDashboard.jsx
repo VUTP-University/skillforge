@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AdminSubmissionsTable from "../components/AdminSubmissionsTable";
 import { deleteJob, getJobs, getJobStats } from "../services/jobService";
+import { deleteContract, getContracts } from "../services/contractService";
 import { banUser, deleteAdminUser, getAdminUsers, unbanUser, updateUserRole } from "../services/userService";
 import { getReports, updateReport } from "../services/reportService";
 
@@ -265,6 +266,17 @@ export default function AdminDashboard() {
   const [deleteJob_, setDeleteQ]        = useState(null);
   const [deletingQ, setDeletingQ]       = useState(false);
 
+  /* ── Contract state ── */
+  const [contracts, setContracts]                 = useState([]);   // current page
+  const [contractsLoading, setCL]                 = useState(true);
+  const [contractSearchInput, setContractSearchInput] = useState("");
+  const [contractSearch, setContractSearch]       = useState("");   // debounced
+  const [contractPage, setContractPage]           = useState(1);
+  const [contractTotal, setContractTotal]         = useState(0);
+  const [contractPages, setContractPages]         = useState(1);
+  const [deleteContract_, setDeleteC]             = useState(null);
+  const [deletingC, setDeletingC]                 = useState(false);
+
   /* ── User state ── */
   const [users, setUsers]                   = useState([]);  // current page
   const [usersLoading, setUL]               = useState(true);
@@ -284,12 +296,19 @@ export default function AdminDashboard() {
   const [unbanningId, setUnbanningId] = useState(null);
 
   const jobSearchDebounce  = useRef(null);
+  const contractSearchDebounce = useRef(null);
   const userSearchDebounce = useRef(null);
 
   function handleJobSearch(v) {
     setJobSearchInput(v);
     clearTimeout(jobSearchDebounce.current);
     jobSearchDebounce.current = setTimeout(() => { setJobSearch(v); setJobPage(1); }, 300);
+  }
+
+  function handleContractSearch(v) {
+    setContractSearchInput(v);
+    clearTimeout(contractSearchDebounce.current);
+    contractSearchDebounce.current = setTimeout(() => { setContractSearch(v); setContractPage(1); }, 300);
   }
 
   function handleUserSearch(v) {
@@ -317,6 +336,16 @@ export default function AdminDashboard() {
       .finally(() => setJSL(false));
   }, []);
 
+  const fetchContracts = useCallback(() => {
+    setCL(true);
+    const params = { page: contractPage, per_page: PAGE_SIZE };
+    if (contractSearch) params.search = contractSearch;
+    getContracts(params)
+      .then((d) => { setContracts(d.items); setContractTotal(d.total); setContractPages(d.pages); })
+      .catch(() => { setContracts([]); setContractTotal(0); setContractPages(1); })
+      .finally(() => setCL(false));
+  }, [contractPage, contractSearch]);
+
   const fetchUsers = useCallback(() => {
     setUL(true);
     const params = { page: userPage, per_page: PAGE_SIZE };
@@ -329,6 +358,7 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
   useEffect(() => { fetchJobStats(); }, [fetchJobStats]);
+  useEffect(() => { fetchContracts(); }, [fetchContracts]);
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   /* ── Job delete ── */
@@ -337,6 +367,14 @@ export default function AdminDashboard() {
     setDeletingQ(true);
     try { await deleteJob(deleteJob_.id); setDeleteQ(null); fetchJobs(); }
     finally { setDeletingQ(false); }
+  }
+
+  /* ── Contract delete ── */
+  async function confirmContractDelete() {
+    if (!deleteContract_) return;
+    setDeletingC(true);
+    try { await deleteContract(deleteContract_.id); setDeleteC(null); fetchContracts(); }
+    finally { setDeletingC(false); }
   }
 
   /* ── User delete ── */
@@ -387,6 +425,9 @@ export default function AdminDashboard() {
   /* ── Job column widths ── */
   const JC = { title: { flex: "2 1 0", minWidth: 0 }, language: { flex: "1 0 90px", textAlign: "center" }, difficulty: { flex: "1 0 90px", textAlign: "center" }, xp: { flex: "0 0 52px", textAlign: "center" }, author: { flex: "1 0 90px" }, actions: { flex: "0 0 120px", textAlign: "right" } };
 
+  /* ── Contract column widths ── */
+  const CC = { title: { flex: "2 1 0", minWidth: 0 }, topic: { flex: "1 0 100px", textAlign: "center" }, difficulty: { flex: "1 0 90px", textAlign: "center" }, xp: { flex: "0 0 52px", textAlign: "center" }, author: { flex: "1 0 90px" }, actions: { flex: "0 0 120px", textAlign: "right" } };
+
   /* ── User column widths ── */
   const UC = { identity: { flex: "2 1 0", minWidth: 0 }, role: { flex: "1 0 110px", textAlign: "center" }, joined: { flex: "1 0 100px" }, actions: { flex: "0 0 230px", textAlign: "right" } };
 
@@ -399,6 +440,15 @@ export default function AdminDashboard() {
           title="Delete Job?"
           body={<><span className="text-white">"{deleteJob_.title}"</span> and all its test cases will be permanently removed.</>}
           onConfirm={confirmJobDelete} onCancel={() => !deletingQ && setDeleteQ(null)} busy={deletingQ}
+        />
+      )}
+
+      {/* ── Contract delete modal ── */}
+      {deleteContract_ && (
+        <DeleteModal
+          title="Delete Contract?"
+          body={<><span className="text-white">"{deleteContract_.title}"</span> with its tests, submissions, completions and comments will be permanently removed.</>}
+          onConfirm={confirmContractDelete} onCancel={() => !deletingC && setDeleteC(null)} busy={deletingC}
         />
       )}
 
@@ -527,6 +577,78 @@ export default function AdminDashboard() {
                   {jobPages > 1 && ` · page ${jobPage} of ${jobPages}`}
                 </p>
                 <Pagination page={jobPage} totalPages={jobPages} onChange={setJobPage} />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ═══════════════════════════════════════════════
+            CONTRACT MANAGEMENT
+            ═══════════════════════════════════════════════ */}
+        <div>
+          <div className="flex items-center gap-3 mb-4 flex-wrap">
+            <div className="section-divider" style={{ flex: 1, minWidth: "180px", marginBottom: 0 }}><h2>Contract Management</h2></div>
+            <SearchInput value={contractSearchInput} onChange={handleContractSearch} placeholder="Search contracts…" />
+            <button className="sf-btn" style={{ width: "auto", flexShrink: 0 }} onClick={() => navigate("/admin/contracts/new")}>
+              + Create Contract
+            </button>
+          </div>
+
+          {contractsLoading && contracts.length === 0 ? (
+            <div className="flex items-center justify-center gap-3 py-16"><div className="sf-spinner" /><span className="text-sub text-sm">Loading contracts…</span></div>
+          ) : contracts.length === 0 ? (
+            <div className="glass-card p-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "140px" }}>
+              <p className="text-sub text-sm">{contractSearch ? `No contracts match "${contractSearch}".` : "No contracts yet."}</p>
+              {!contractSearch && <p className="text-dim text-xs mt-1">Click <span className="text-white/40">+ Create Contract</span> to publish the first one.</p>}
+            </div>
+          ) : (
+            <>
+              <div className="glass-card overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ ...rowStyle, paddingTop: "0.65rem", paddingBottom: "0.65rem", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}>
+                  <span style={{ ...CC.title,      ...headerLabel }}>Title</span>
+                  <span style={{ ...CC.topic,      ...headerLabel }}>Topic</span>
+                  <span style={{ ...CC.difficulty, ...headerLabel }}>Difficulty</span>
+                  <span style={{ ...CC.xp,         ...headerLabel }}>XP</span>
+                  <span style={{ ...CC.author,     ...headerLabel }}>Author</span>
+                  <span style={{ ...CC.actions,    ...headerLabel }}>Actions</span>
+                </div>
+                {contracts.map((contract, i) => (
+                  <div key={contract.id} style={{ ...rowStyle, paddingTop: "0.9rem", paddingBottom: "0.9rem", borderBottom: i < contracts.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                    <div style={{ ...CC.title, minWidth: 0 }}>
+                      <p className="text-white text-sm font-semibold truncate">{contract.title}</p>
+                      <p className="text-dim text-xs mt-0.5">
+                        {new Date(contract.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                        {" · "}{contract.time_limit_ms} ms · {contract.memory_limit_mb} MB
+                      </p>
+                    </div>
+                    <div style={CC.topic}>
+                      <span className="text-xs font-medium" style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.05em", color: "rgba(255,255,255,0.682)" }}>{contract.topic ?? "—"}</span>
+                    </div>
+                    <div style={{ ...CC.difficulty, display: "flex", justifyContent: "center" }}>
+                      <DiffBadge difficulty={contract.difficulty} />
+                    </div>
+                    <div style={CC.xp}><span className="text-green font-bold text-sm">{contract.xp_reward}</span></div>
+                    <div style={{ ...CC.author, minWidth: 0 }}><span className="text-sub text-xs truncate block">{contract.author ?? "—"}</span></div>
+                    <div style={{ ...CC.actions, display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                      <button className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem" }} onClick={() => navigate(`/admin/contracts/${contract.id}/edit`)}>Edit</button>
+                      <button onClick={() => setDeleteC({ id: contract.id, title: contract.title })}
+                        style={{ padding: "0.28rem 0.65rem", borderRadius: "0.375rem", border: "1px solid var(--color-red-border)", background: "transparent", color: "rgba(248,113,113,0.705)", fontFamily: "var(--font-heading)", fontSize: "0.692rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-red-bright)"; e.currentTarget.style.background = "var(--color-red-dim)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(248,113,113,0.65)"; e.currentTarget.style.background = "transparent"; }}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
+                <p className="text-dim text-xs">
+                  {contractSearch ? `${contractTotal} matching contract${contractTotal !== 1 ? "s" : ""}` : `${contractTotal} contract${contractTotal !== 1 ? "s" : ""} total`}
+                  {contractPages > 1 && ` · page ${contractPage} of ${contractPages}`}
+                </p>
+                <Pagination page={contractPage} totalPages={contractPages} onChange={setContractPage} />
               </div>
             </>
           )}

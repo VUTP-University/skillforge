@@ -82,6 +82,7 @@ def create_app(config_class=Config):
     from .routes.admin import admin_bp
     from .routes.auth import auth_bp
     from .routes.contact import contact_bp
+    from .routes.contracts import contracts_bp
     from .routes.health import health_bp
     from .routes.jobs import jobs_bp
     from .routes.processes import stack_trace_bp
@@ -95,6 +96,7 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp,        url_prefix="/api/auth")
     app.register_blueprint(admin_bp,       url_prefix="/api/admin")
     app.register_blueprint(jobs_bp,        url_prefix="/api/jobs")
+    app.register_blueprint(contracts_bp,   url_prefix="/api/contracts")
     app.register_blueprint(profile_bp,     url_prefix="/api")
     app.register_blueprint(stack_trace_bp, url_prefix="/api/stack-trace")
     app.register_blueprint(test_suite_bp,  url_prefix="/api/test-suite")

@@ -66,9 +66,16 @@ class Config:
 
     # Piston code execution engine — https://github.com/engineer-man/piston
     PISTON_URL = os.environ.get("PISTON_URL", "http://localhost:2000")
+    # Whole-run budget for a Contract (all tests run in one process). Must not
+    # exceed the Piston server's PISTON_RUN_TIMEOUT ceiling (3000 by default).
+    CONTRACT_RUN_TIMEOUT_MS = int(os.environ.get("CONTRACT_RUN_TIMEOUT_MS", "10000"))
 
     # OpenAI — used for Stack Trace process challenge generation & evaluation
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+    # Model behind the Jobs/Contracts AI Assistants. A reasoning model: it
+    # works out expected outputs before answering, which gpt-4o-mini didn't.
+    AI_ASSISTANT_MODEL            = os.environ.get("AI_ASSISTANT_MODEL", "gpt-6-luna")
+    AI_ASSISTANT_REASONING_EFFORT = os.environ.get("AI_ASSISTANT_REASONING_EFFORT", "high")
 
     # Mail (SMTP via Namecheap Private Email) — welcome email on registration
     MAIL_SERVER    = os.environ.get("MAIL_SERVER", "mail.privateemail.com")

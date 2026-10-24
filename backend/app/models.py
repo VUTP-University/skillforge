@@ -447,6 +447,191 @@ class JobSubmission(db.Model):
         return f"<JobSubmission user={self.user_id} job={self.job_id} passed={self.all_passed}>"
 
 
+# ── Contracts ───────────────────────────────────────────────────────────────
+# Jobs graded by unit tests (structure, behaviour, time & memory limits)
+# instead of stdin/stdout comparison — for data-structure/algorithm work.
+
+# Languages the contract harness supports so far (see contract_runner.py).
+CONTRACT_LANGUAGES = ("python",)
+
+XP_BY_CONTRACT_DIFFICULTY = {
+    JobDifficulty.junior:  60,
+    JobDifficulty.mid:    120,
+    JobDifficulty.senior: 200,
+}
+
+CONTRACT_DEFAULT_TIME_LIMIT_MS   = 1000
+CONTRACT_DEFAULT_MEMORY_LIMIT_MB = 64
+
+
+class Contract(db.Model):
+    __tablename__ = "contracts"
+
+    id               = db.Column(db.Integer, primary_key=True)
+    title            = db.Column(db.String(200), nullable=False)
+    description      = db.Column(db.Text, nullable=False)
+    topic            = db.Column(db.String(60), nullable=True)    # free-form tag: "BST", "Graphs", "DP"…
+    language         = db.Column(db.Enum(Language), nullable=False)
+    difficulty       = db.Column(db.Enum(JobDifficulty, name="job_difficulty"), nullable=False)
+    xp_reward        = db.Column(db.Integer, nullable=False)
+    starter_code     = db.Column(db.Text, nullable=False)
+    example_solution = db.Column(db.Text, nullable=False)
+    public_tests     = db.Column(db.Text, nullable=False)
+    hidden_tests     = db.Column(db.Text, nullable=False)
+    time_limit_ms    = db.Column(db.Integer, nullable=False, default=CONTRACT_DEFAULT_TIME_LIMIT_MS)
+    memory_limit_mb  = db.Column(db.Integer, nullable=False, default=CONTRACT_DEFAULT_MEMORY_LIMIT_MB)
+    author_id        = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    author = db.relationship("User", foreign_keys=[author_id])
+
+    def to_dict(self, include_solution=False):
+        # hidden_tests and example_solution are the grading material — only
+        # admins/moderators (who author contracts) ever get them.
+        data = {
+            "id":              self.id,
+            "title":           self.title,
+            "description":     self.description,
+            "topic":           self.topic,
+            "language":        self.language.value,
+            "difficulty":      self.difficulty.value,
+            "xp_reward":       self.xp_reward,
+            "starter_code":    self.starter_code,
+            "public_tests":    self.public_tests,
+            "time_limit_ms":   self.time_limit_ms,
+            "memory_limit_mb": self.memory_limit_mb,
+            "author":          self.author.username if self.author else None,
+            "author_id":       self.author_id,
+            "created_at":      to_utc_iso(self.created_at),
+            "updated_at":      to_utc_iso(self.updated_at),
+        }
+        if include_solution:
+            data["example_solution"] = self.example_solution
+            data["hidden_tests"]     = self.hidden_tests
+        return data
+
+    def __repr__(self):
+        return f"<Contract {self.id}: {self.title}>"
+
+
+class ContractCompletion(db.Model):
+    __tablename__ = "contract_completions"
+
+    id           = db.Column(db.Integer, primary_key=True)
+    user_id      = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    contract_id  = db.Column(
+        db.Integer,
+        db.ForeignKey("contracts.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    xp_earned    = db.Column(db.Integer, nullable=False)
+    completed_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    user     = db.relationship("User")
+    contract = db.relationship("Contract")
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "contract_id", name="uq_user_contract_completion"),
+    )
+
+    def __repr__(self):
+        return f"<ContractCompletion user={self.user_id} contract={self.contract_id}>"
+
+
+class ContractSubmission(db.Model):
+    """Every graded submission (public + hidden tests), whether it passes or fails."""
+    __tablename__ = "contract_submissions"
+
+    id            = db.Column(db.Integer, primary_key=True)
+    user_id       = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    contract_id   = db.Column(
+        db.Integer,
+        db.ForeignKey("contracts.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    solution_code = db.Column(db.Text, nullable=False)
+    test_results  = db.Column(db.JSON, nullable=True)
+    all_passed    = db.Column(db.Boolean, nullable=False, default=False)
+    submitted_at  = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+        index=True,
+    )
+
+    user     = db.relationship("User")
+    contract = db.relationship("Contract")
+
+    def __repr__(self):
+        return f"<ContractSubmission user={self.user_id} contract={self.contract_id} passed={self.all_passed}>"
+
+
+class ContractComment(db.Model):
+    __tablename__ = "contract_comments"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(
+        db.Integer,
+        db.ForeignKey("contracts.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id     = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    content     = db.Column(db.Text, nullable=False)
+    created_at  = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    contract = db.relationship("Contract")
+    user     = db.relationship("User")
+
+    def to_dict(self):
+        return {
+            "id":          self.id,
+            "contract_id": self.contract_id,
+            "user_id":     self.user_id,
+            "username":    self.user.username,
+            "avatar_url":  f"/api/media/avatars/{self.user.avatar}" if self.user.avatar else None,
+            "content":     self.content,
+            "created_at":  to_utc_iso(self.created_at),
+        }
+
+    def __repr__(self):
+        return f"<ContractComment {self.id} contract={self.contract_id} user={self.user_id}>"
+
+
 # ── Test Suite ──────────────────────────────────────────────────────────────
 
 

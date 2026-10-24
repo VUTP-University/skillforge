@@ -293,6 +293,29 @@ def _get_openai_client():
     return OpenAI(api_key=current_app.config["OPENAI_API_KEY"])
 
 
+def _ai_assistant_json(system_prompt, user_prompt, max_completion_tokens):
+    """
+    Run one AI Assistant generation (Jobs and Contracts) and return the parsed
+    JSON object. Reasoning models take max_completion_tokens rather than
+    max_tokens, and their hidden reasoning counts against it — budgets must
+    cover reasoning plus the visible JSON.
+    """
+    response = _get_openai_client().chat.completions.create(
+        model=current_app.config["AI_ASSISTANT_MODEL"],
+        reasoning_effort=current_app.config["AI_ASSISTANT_REASONING_EFFORT"],
+        response_format={"type": "json_object"},
+        max_completion_tokens=max_completion_tokens,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt},
+        ],
+    )
+    choice = response.choices[0]
+    if choice.finish_reason == "length":
+        raise RuntimeError(f"model hit the {max_completion_tokens}-token completion budget before finishing")
+    return json.loads(choice.message.content)
+
+
 def _ai_system_prompt(language, difficulty):
     # example_solution is never shown to the person solving the job — only
     # to the admin/author who generated it (Job.to_dict()'s include_solution
@@ -355,17 +378,9 @@ def ai_generate_job():
         return jsonify({"error": f"Invalid difficulty '{difficulty}'"}), 400
 
     try:
-        client   = _get_openai_client()
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            response_format={"type": "json_object"},
-            max_tokens=4000,
-            messages=[
-                {"role": "system", "content": _ai_system_prompt(language, difficulty)},
-                {"role": "user",   "content": _ai_user_prompt(description)},
-            ],
+        payload = _ai_assistant_json(
+            _ai_system_prompt(language, difficulty), _ai_user_prompt(description), max_completion_tokens=32_000
         )
-        payload = json.loads(response.choices[0].message.content)
     except Exception as exc:  # noqa: BLE001 — any OpenAI/SDK failure must fall back to a graceful error
         current_app.logger.error("AI job generation failed: %s", exc)
         return jsonify({"error": "Failed to generate job — the AI Assistant is momentarily unreachable"}), 502
