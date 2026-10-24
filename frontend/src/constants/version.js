@@ -3,5 +3,5 @@
  * wordmark (navbar + login/register). Bump both values together on
  * each release.
  */
-export const APP_VERSION = "2.2.4";
-export const RELEASE_DATE_LABEL = "Sep 26, 2026";
+export const APP_VERSION = "2.2.5";
+export const RELEASE_DATE_LABEL = "Oct 24, 2026";
