@@ -76,7 +76,7 @@ def _clear_legacy_root_cookies(response):
 
 
 @auth_bp.route("/register", methods=["POST"])
-@limiter.limit("10 per hour")
+@limiter.limit(lambda: current_app.config["REGISTER_RATE_LIMIT"])
 def register():
     data = request.get_json(silent=True) or {}
     username = (data.get("username") or "").strip()
@@ -122,7 +122,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("10 per minute; 50 per hour")
+@limiter.limit(lambda: current_app.config["LOGIN_RATE_LIMIT"])
 def login():
     data       = request.get_json(silent=True) or {}
     identifier = (data.get("identifier") or "").strip()
