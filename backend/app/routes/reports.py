@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -80,6 +80,6 @@ def update_report(report_id):
                 return jsonify({"error": "Assigned user not found"}), 404
             report.assigned_to_id = aid
 
-    report.updated_at = datetime.now(timezone.utc)
+    report.updated_at = datetime.now(UTC)
     db.session.commit()
     return jsonify(report.to_dict())

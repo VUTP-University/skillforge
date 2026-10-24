@@ -1,6 +1,6 @@
 import json
 import secrets
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -154,7 +154,7 @@ def _difficulty_config(difficulty_enum):
 
 def _today_utc():
     """Return today's date in UTC as a date object."""
-    return datetime.now(timezone.utc).date()
+    return datetime.now(UTC).date()
 
 
 def _challenge_cooldown(user_id, process_id):
@@ -173,7 +173,7 @@ def _challenge_cooldown(user_id, process_id):
         return False, None
     # Resets at midnight UTC tomorrow
     from datetime import timedelta
-    tomorrow_midnight = datetime(today.year, today.month, today.day, tzinfo=timezone.utc) + timedelta(days=1)
+    tomorrow_midnight = datetime(today.year, today.month, today.day, tzinfo=UTC) + timedelta(days=1)
     return True, tomorrow_midnight.isoformat()
 
 
@@ -224,11 +224,11 @@ def start_challenge(process_id):
         .first()
     )
     if active:
-        active_started_at = active.started_at.replace(tzinfo=timezone.utc) if active.started_at.tzinfo is None else active.started_at
-        active_elapsed     = (datetime.now(timezone.utc) - active_started_at).total_seconds()
+        active_started_at = active.started_at.replace(tzinfo=UTC) if active.started_at.tzinfo is None else active.started_at
+        active_elapsed     = (datetime.now(UTC) - active_started_at).total_seconds()
         if active_elapsed > time_minutes * 60:
             active.status       = ChallengeStatus.failed
-            active.submitted_at = datetime.now(timezone.utc)
+            active.submitted_at = datetime.now(UTC)
             db.session.commit()
         else:
             return jsonify({"error": "An active challenge already exists", "challenge_id": active.id}), 409
@@ -269,7 +269,7 @@ def start_challenge(process_id):
         challenge_text = challenge_text,
         process_taunt  = process_taunt,
         status         = ChallengeStatus.active,
-        started_at     = datetime.now(timezone.utc),
+        started_at     = datetime.now(UTC),
     )
     db.session.add(challenge)
     db.session.commit()
@@ -306,12 +306,12 @@ def submit_challenge(challenge_id):
     time_seconds = cfg["minutes"] * 60
     max_xp       = cfg["max_xp"]
 
-    started_at_utc = challenge.started_at.replace(tzinfo=timezone.utc) if challenge.started_at.tzinfo is None else challenge.started_at
-    elapsed        = (datetime.now(timezone.utc) - started_at_utc).total_seconds()
+    started_at_utc = challenge.started_at.replace(tzinfo=UTC) if challenge.started_at.tzinfo is None else challenge.started_at
+    elapsed        = (datetime.now(UTC) - started_at_utc).total_seconds()
 
     if elapsed > time_seconds:
         challenge.status       = ChallengeStatus.failed
-        challenge.submitted_at = datetime.now(timezone.utc)
+        challenge.submitted_at = datetime.now(UTC)
         db.session.commit()
         return jsonify({"error": "Time limit exceeded", "status": "failed"}), 410
 
@@ -367,7 +367,7 @@ def submit_challenge(challenge_id):
     challenge.xp_earned          = xp_earned
     challenge.score_pct          = score_pct
     challenge.status             = ChallengeStatus.completed
-    challenge.submitted_at       = datetime.now(timezone.utc)
+    challenge.submitted_at       = datetime.now(UTC)
 
     unlocked = check_achievements(user, categories=[AchievementCategory.process, AchievementCategory.general]) if user else []
 
@@ -409,7 +409,7 @@ def fail_challenge(challenge_id):
         return jsonify({"status": challenge.status.value}), 200
 
     challenge.status       = ChallengeStatus.failed
-    challenge.submitted_at = datetime.now(timezone.utc)
+    challenge.submitted_at = datetime.now(UTC)
     db.session.commit()
 
     return jsonify({"status": "failed"}), 200

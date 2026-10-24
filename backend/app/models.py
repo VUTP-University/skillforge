@@ -1,7 +1,7 @@
 import enum
 import math
 import secrets
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app import db
 
@@ -13,7 +13,7 @@ def to_utc_iso(dt):
     (Postgres TIMESTAMP WITHOUT TIME ZONE), so SQLAlchemy hands back a
     tzinfo-naive datetime once it's round-tripped through the DB — even
     though the stored value is UTC by convention (everything here is written
-    via `datetime.now(timezone.utc)`). Plain `.isoformat()` on a naive
+    via `datetime.now(UTC)`). Plain `.isoformat()` on a naive
     datetime omits the offset entirely, and a browser's `new Date(...)`
     parses an offset-less date-time string as *local* time, not UTC — so an
     unguarded `.isoformat()` silently hands the frontend a wrong instant
@@ -23,7 +23,7 @@ def to_utc_iso(dt):
     if dt is None:
         return None
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt.isoformat()
 
 
@@ -133,7 +133,7 @@ class User(db.Model):
     password_changed_at = db.Column(db.DateTime, nullable=True)
     created_at    = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -199,7 +199,7 @@ class UserRole(db.Model):
     role        = db.Column(db.Enum(RoleName), nullable=False, default=RoleName.user)
     assigned_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -216,7 +216,7 @@ class TokenBlocklist(db.Model):
     jti        = db.Column(db.String(36), nullable=False, unique=True, index=True)
     created_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -241,7 +241,7 @@ class PasswordResetToken(db.Model):
     used_at    = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -268,12 +268,12 @@ class Job(db.Model):
     )
     created_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
     updated_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -359,7 +359,7 @@ class JobComment(db.Model):
     content    = db.Column(db.Text, nullable=False)
     created_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -398,7 +398,7 @@ class JobCompletion(db.Model):
     xp_earned    = db.Column(db.Integer, nullable=False)
     completed_at = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -435,7 +435,7 @@ class JobSubmission(db.Model):
     all_passed    = db.Column(db.Boolean, nullable=False, default=False)
     submitted_at  = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
         index=True,
     )
@@ -476,7 +476,7 @@ class TestRun(db.Model):
     correct_count = db.Column(db.Integer, default=0, nullable=False)
     started_at    = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
     expires_at    = db.Column(db.DateTime, nullable=False)
@@ -584,7 +584,7 @@ class ProcessChallenge(db.Model):
     status             = db.Column(db.Enum(ChallengeStatus), nullable=False, default=ChallengeStatus.active)
     started_at         = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
     submitted_at       = db.Column(db.DateTime, nullable=True)
@@ -656,13 +656,13 @@ class JobReport(db.Model):
     )
     created_at     = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
     updated_at     = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -726,7 +726,7 @@ class Achievement(db.Model):
     sort_order      = db.Column(db.Integer, nullable=False, default=0)
     created_at      = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -754,7 +754,7 @@ class UserAchievement(db.Model):
     )
     earned_at      = db.Column(
         db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 

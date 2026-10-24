@@ -56,6 +56,13 @@ class Config:
     # Point this at a shared store (e.g. redis://host:6379) in any multi-process
     # deployment.
     RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
+    RATELIMIT_ENABLED     = os.environ.get("RATELIMIT_ENABLED", "true").lower() == "true"
+
+    # Per-IP limits on the auth endpoints. Kept generous by default because
+    # whole classrooms register from one campus NAT address; override via env
+    # without a redeploy (Flask-Limiter syntax, e.g. "30 per hour").
+    REGISTER_RATE_LIMIT = os.environ.get("REGISTER_RATE_LIMIT", "30 per hour")
+    LOGIN_RATE_LIMIT    = os.environ.get("LOGIN_RATE_LIMIT", "20 per minute; 200 per hour")
 
     # Piston code execution engine — https://github.com/engineer-man/piston
     PISTON_URL = os.environ.get("PISTON_URL", "http://localhost:2000")
