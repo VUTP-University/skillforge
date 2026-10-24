@@ -492,3 +492,21 @@ def test_setup_class_failure_is_reported_per_test(app):
     public = [t for t in report["solution"]["tests"] if t["suite"] == "public"]
     assert [t["status"] for t in public] == ["error"]
     assert "setUpClass failed" in public[0]["message"] and "boom" in public[0]["message"]
+
+
+# ── Description markdown ─────────────────────────────────────────────────────
+
+def test_save_rejects_unclosed_code_fence(app):
+    client, _ = _client_for(app, "admin", RoleName.admin)
+    resp = client.post("/api/contracts/", json=_payload(description="## API\n```python\nclass BST: ...\n"))
+    assert resp.status_code == 400
+    assert "never closed" in resp.get_json()["error"]
+
+
+def test_close_fences_repairs_ai_style_triple_quote_close():
+    from app.routes.contracts import _close_fences, _unclosed_fence
+    broken = '## API\n\n```python\nclass A:\n    pass\n"""\n\n### Rules and Constraints\n- one\n'
+    fixed = _close_fences(broken)
+    assert not _unclosed_fence(fixed)
+    assert '"""' not in fixed
+    assert fixed.index("```\n") < fixed.index("### Rules")

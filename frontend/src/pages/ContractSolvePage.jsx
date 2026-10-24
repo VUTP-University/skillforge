@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
@@ -11,6 +9,7 @@ import {
   getContractComments, addContractComment, deleteContractComment,
 } from "../services/contractService";
 import ContractTestResults from "../components/ContractTestResults";
+import SpecMarkdown from "../components/SpecMarkdown";
 import Avatar from "../components/Avatar";
 
 /* ── Config ──────────────────────────────────────────────────────────────── */
@@ -256,11 +255,21 @@ export default function ContractSolvePage() {
   const [xpBanner, setXpBanner] = useState(null);
   const xpTimerRef = useRef(null);
 
-  // Same anti-copy/paste stance as Jobs: privileged users author contracts and need both.
-  const blockCopy  = useCallback((e) => { if (!isPrivileged) e.preventDefault(); }, [isPrivileged]);
-  const blockPaste = useCallback((e) => {
+  // Regular users can't copy the spec/tests out or move code in or out of the
+  // editor; admins/moderators author contracts and need both. Bound in the
+  // capture phase: CodeMirror (spec code blocks, public tests, the editor)
+  // handles copy/paste itself on its content node and would act before a
+  // bubbling handler could cancel it.
+  const blockClipboard = useCallback((e) => {
     if (!isPrivileged) { e.preventDefault(); e.stopPropagation(); }
   }, [isPrivileged]);
+  const noClipboard = {
+    onCopyCapture:      blockClipboard,
+    onCutCapture:       blockClipboard,
+    onPasteCapture:     blockClipboard,
+    onDropCapture:      blockClipboard,
+    onDragStartCapture: blockClipboard,
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -381,8 +390,7 @@ export default function ContractSolvePage() {
           <div
             className="glass-card job-desc-sticky"
             style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem", userSelect: isPrivileged ? undefined : "none" }}
-            onCopy={blockCopy}
-            onCut={blockCopy}
+            {...noClipboard}
           >
             <div style={{ display: "flex", gap: "0.4rem" }}>
               <TabButton active={tab === "problem"} onClick={() => setTab("problem")}>Spec</TabButton>
@@ -390,9 +398,7 @@ export default function ContractSolvePage() {
             </div>
 
             {tab === "problem" ? (
-              <div className="job-desc-prose">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{contract.description}</ReactMarkdown>
-              </div>
+              <SpecMarkdown>{contract.description}</SpecMarkdown>
             ) : (
               <div>
                 <p className="text-xs text-dim mb-2" style={{ fontFamily: "var(--font-body)" }}>
@@ -427,7 +433,7 @@ export default function ContractSolvePage() {
         <div className="flex-1 flex flex-col gap-4 w-full" style={{ minWidth: 0 }}>
           <span style={labelStyle}>solution.py</span>
 
-          <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.10)" }} onPasteCapture={blockPaste}>
+          <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.10)" }} {...noClipboard}>
             <CodeMirror
               value={code}
               onChange={handleCodeChange}

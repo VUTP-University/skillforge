@@ -9,6 +9,7 @@ import {
   createContract, generateContractWithAI, getContract, updateContract, verifyContract,
 } from "../services/contractService";
 import ContractTestResults from "../components/ContractTestResults";
+import SpecMarkdown from "../components/SpecMarkdown";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -171,6 +172,7 @@ export default function ContractForm() {
   const [error,   setError]   = useState(null);
   const [report,  setReport]  = useState(null);
   const [aiOpen,  setAiOpen]  = useState(false);
+  const [preview, setPreview] = useState(false);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -309,15 +311,41 @@ export default function ContractForm() {
         <SectionDivider title="Specification" />
         <div className="space-y-4">
           <div>
-            <FieldLabel required hint="Markdown. Spell out every class/method/function signature, return type and exception the tests rely on — hidden tests can only check what the spec promises.">Description</FieldLabel>
-            <textarea
-              className="sf-input"
-              rows={10}
-              style={{ resize: "vertical", lineHeight: 1.7 }}
-              placeholder={"Context of the problem…\n\n## API\n- `class Ledger`\n  - `deposit(account: str, amount: int) -> None` — raises `ValueError` if amount <= 0\n\n## Rules\n…"}
-              value={form.description}
-              onChange={(e) => setField("description", e.target.value)}
-            />
+            <FieldLabel required hint="Markdown, shown next to the starter code. Describe behaviour in words — don't repeat the signatures, the starter code already has them. Pin down every behaviour the tests check (returns, errors, duplicates, empty input); hidden tests can only check what the spec promises.">Description</FieldLabel>
+            <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.5rem" }}>
+              {[["Write", false], ["Preview", true]].map(([label, value]) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setPreview(value)}
+                  className={preview === value ? "sf-btn-secondary" : "sf-btn-ghost"}
+                  style={{ width: "auto", padding: "0.3rem 0.8rem", fontSize: "0.692rem" }}
+                >
+                  {label}
+                </button>
+              ))}
+              {(form.description.match(/^\s*```/gm) ?? []).length % 2 === 1 && (
+                <span className="text-xs" style={{ color: "var(--color-amber)", alignSelf: "center", marginLeft: "0.4rem" }}>
+                  A ``` code block is never closed — everything after it renders as code.
+                </span>
+              )}
+            </div>
+            {preview ? (
+              <div className="glass-card" style={{ padding: "1.25rem", minHeight: "12rem" }}>
+                {form.description.trim()
+                  ? <SpecMarkdown>{form.description}</SpecMarkdown>
+                  : <p className="text-dim text-sm">Nothing to preview yet.</p>}
+              </div>
+            ) : (
+              <textarea
+                className="sf-input"
+                rows={10}
+                style={{ resize: "vertical", lineHeight: 1.7 }}
+                placeholder={"Context of the problem…\n\n## Behaviour\n- `deposit(account, amount)` adds `amount` to the account; raises `ValueError` if amount <= 0\n- `balance(account)` returns 0 for an unknown account\n\n## Example\n```python\nledger = Ledger()\nledger.deposit(\"alice\", 50)\nledger.balance(\"alice\")  # → 50\n```\n\n## Rules\n…\n\n## Constraints\n…"}
+                value={form.description}
+                onChange={(e) => setField("description", e.target.value)}
+              />
+            )}
           </div>
           <CodeField
             label="Starter code"

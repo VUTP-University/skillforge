@@ -174,7 +174,7 @@ export default function ContractsPage() {
             <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", fontWeight: 700, color: "var(--color-text)", lineHeight: 1.2, marginBottom: "0.4rem" }}>
               Contracts
             </h1>
-            <p className="text-sub" style={{ fontSize: "1rem", maxWidth: "44rem" }}>
+            <p className="text-sub" style={{ fontSize: "1rem" }}>
               Bigger exercises built to a spec — classes, APIs, algorithms, systems. Instead of matching
               output, your code is graded by unit tests: structure, behaviour, edge cases, and per-test
               time &amp; memory limits.

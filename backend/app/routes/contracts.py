@@ -1,3 +1,4 @@
+import re
 from datetime import UTC, datetime
 
 from flask import Blueprint, current_app, jsonify, request
@@ -35,12 +36,47 @@ MEMORY_LIMIT_RANGE_MB = (8, 512)
 _LIST_OMIT = ("description", "starter_code", "public_tests")
 
 
+_FENCE_RE   = re.compile(r"^\s*```")
+_HEADING_RE = re.compile(r"^#{2,6} ")
+
+
+def _unclosed_fence(markdown):
+    """True when a ``` code block is opened but never closed."""
+    return sum(1 for line in markdown.splitlines() if _FENCE_RE.match(line)) % 2 == 1
+
+
+def _close_fences(markdown):
+    """
+    Repair a code block the AI left open — usually "closed" with a stray
+    \"\"\" line — by closing it before the next markdown heading (or at the end).
+    """
+    lines = markdown.splitlines()
+    open_at = None
+    for i, line in enumerate(lines):
+        if _FENCE_RE.match(line):
+            open_at = None if open_at is not None else i
+        elif open_at is not None and _HEADING_RE.match(line):
+            end = i
+            while end > open_at + 1 and not lines[end - 1].strip():
+                end -= 1
+            if lines[end - 1].strip() in ('"""', "'''"):
+                lines[end - 1] = "```"
+            else:
+                lines.insert(end, "```")
+            return _close_fences("\n".join(lines))
+    if open_at is not None:
+        lines.append("```")
+    return "\n".join(lines)
+
+
 def _validate(data):
     """Return an error string, or None if data is valid."""
     if not (data.get("title") or "").strip():
         return "Title is required"
     if not (data.get("description") or "").strip():
         return "Description is required"
+    if _unclosed_fence(data["description"]):
+        return "Description has a ``` code block that is never closed"
     if data.get("language") not in CONTRACT_LANGUAGES:
         return f"Contracts currently support: {', '.join(CONTRACT_LANGUAGES)}"
     if data.get("difficulty") not in [d.value for d in JobDifficulty]:
@@ -303,12 +339,17 @@ def _ai_contract_system_prompt(difficulty):
         '"description": "...", "starter_code": "...", "example_solution": "...", '
         '"public_tests": "...", "hidden_tests": "...", "time_limit_ms": 1000, "memory_limit_mb": 64}\n'
         "Rules:\n"
-        "- description: Markdown. Context, then an exact API section listing every class/method/function "
-        "signature the tests use (names, parameters, return types, exceptions raised), then rules and "
-        "constraints. The solver never sees the tests' assertions beyond the public ones, so the spec must be "
-        "complete.\n"
-        "- starter_code: the module skeleton (solution.py) with every required signature and docstring, bodies "
-        "`raise NotImplementedError`. No solution logic.\n"
+        "- description: Markdown, shown next to the editor that already holds starter_code. Do NOT repeat the "
+        "signatures or paste the class skeleton — starter_code is the single source of truth for the API. "
+        "Instead use these headings, in order: a short context paragraph (no heading), then `## Behaviour` "
+        "(a bullet per public method/function, in words: what it returns, what it raises and when, how it "
+        "treats duplicates, empty input, ties, invalid values — every behaviour any test checks), `## Example` "
+        "(one short ```python block showing the API in use with expected results in comments, closed with a "
+        "``` line, never with \"\"\"), `## Rules` and `## Constraints` (input sizes, complexity expectations, "
+        "what is not allowed). The solver never sees hidden assertions, so the spec must be complete; no test "
+        "may check behaviour the spec does not state.\n"
+        "- starter_code: the module skeleton (solution.py) with every required class/method/function signature, "
+        "type hints and a one-line docstring each; bodies `raise NotImplementedError`. No solution logic.\n"
         "- example_solution: a complete, correct solution.py that passes every public and hidden test.\n"
         "- public_tests and hidden_tests: full Python modules using `import unittest` and "
         "`from solution import ...`, each with one or more unittest.TestCase classes and test methods named "
@@ -365,7 +406,7 @@ def ai_generate_contract():
     generated = {
         "title":            str(payload.get("title") or "").strip()[:200],
         "topic":            str(payload.get("topic") or "").strip()[:60],
-        "description":      str(payload.get("description") or "").strip(),
+        "description":      _close_fences(str(payload.get("description") or "").strip()),
         "language":         "python",
         "difficulty":       difficulty,
         "starter_code":     str(payload.get("starter_code") or ""),
