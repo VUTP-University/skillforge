@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { python } from "@codemirror/lang-python";
 import { useAuth } from "../context/AuthContext";
 import {
-  createContract, deleteContract, getContract, updateContract, verifyContract,
+  createContract, generateContractWithAI, getContract, updateContract, verifyContract,
 } from "../services/contractService";
 import ContractTestResults from "../components/ContractTestResults";
 
@@ -17,59 +18,35 @@ const DIFFICULTIES = [
   { value: "senior", label: "Senior", xp: 200 },
 ];
 
-const TEMPLATE_STARTER = `class BST:
-    """Binary search tree of integers. Duplicates go to the right subtree."""
-
-    def insert(self, value: int) -> None:
-        raise NotImplementedError
-
-    def contains(self, value: int) -> bool:
-        raise NotImplementedError
-
-    def inorder(self) -> list[int]:
-        raise NotImplementedError
-`;
-
-const TEMPLATE_PUBLIC = `import unittest
-from solution import BST
+// Placeholders (not prefilled values) — they show the expected file shape
+// without biasing every new contract toward one kind of exercise.
+const PLACEHOLDER = {
+  starter_code: `# solution.py — what the solver starts with.
+# Declare every class/function the tests use, with stub bodies:
+#
+# class Ledger:
+#     def deposit(self, account: str, amount: int) -> None:
+#         raise NotImplementedError`,
+  example_solution: `# A complete solution.py that passes every public and hidden test.`,
+  public_tests: `import unittest
+from solution import ...
 
 
-class TestStructure(unittest.TestCase):
-    def test_has_required_methods(self):
-        """BST defines insert(), contains() and inorder()"""
-        for name in ("insert", "contains", "inorder"):
-            self.assertTrue(callable(getattr(BST, name, None)), f"BST.{name}() is missing")
+class TestBasics(unittest.TestCase):
+    def test_api_exists(self):
+        """Required classes/methods are defined"""
+        ...`,
+  hidden_tests: `import unittest
+from contract import limits   # optional: per-test overrides
+from solution import ...
 
 
-class TestBehaviour(unittest.TestCase):
-    def test_inorder_is_sorted(self):
-        tree = BST()
-        for v in [5, 3, 8, 1, 4]:
-            tree.insert(v)
-        self.assertEqual(tree.inorder(), [1, 3, 4, 5, 8])
-`;
-
-const TEMPLATE_HIDDEN = `import random
-import unittest
-from contract import limits      # per-test override of the contract-wide limits
-from solution import BST
-
-
-class TestHidden(unittest.TestCase):
-    def test_contains_missing(self):
-        tree = BST()
-        tree.insert(1)
-        self.assertFalse(tree.contains(2))
-
-    @limits(time_ms=2000, memory_mb=48)
-    def test_large_random_input(self):
-        """50k random inserts stay O(n log n) on average"""
-        values = random.Random(42).sample(range(10**6), 50_000)
-        tree = BST()
-        for v in values:
-            tree.insert(v)
-        self.assertEqual(tree.inorder(), sorted(values))
-`;
+class TestEdgeCases(unittest.TestCase):
+    @limits(time_ms=2000, memory_mb=64)
+    def test_large_input(self):
+        """Handles 100k operations within the limits"""
+        ...`,
+};
 
 const EMPTY_FORM = {
   title:            "",
@@ -78,10 +55,10 @@ const EMPTY_FORM = {
   difficulty:       "mid",
   time_limit_ms:    1000,
   memory_limit_mb:  64,
-  starter_code:     TEMPLATE_STARTER,
+  starter_code:     "",
   example_solution: "",
-  public_tests:     TEMPLATE_PUBLIC,
-  hidden_tests:     TEMPLATE_HIDDEN,
+  public_tests:     "",
+  hidden_tests:     "",
 };
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
@@ -106,7 +83,34 @@ function FieldLabel({ children, required, hint }) {
   );
 }
 
-function CodeField({ label, hint, value, onChange, minHeight = "220px" }) {
+function DifficultyPicker({ value, onChange, showXp = true }) {
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {DIFFICULTIES.map((d) => (
+        <button
+          key={d.value}
+          type="button"
+          onClick={() => onChange(d.value)}
+          style={{
+            padding: "0.55rem 0.5rem", borderRadius: "0.5rem",
+            border: value === d.value ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.08)",
+            background: value === d.value ? "var(--color-green-dim)" : "rgba(255,255,255,0.03)",
+            color: value === d.value ? "var(--color-green)" : "rgba(255,255,255,0.50)",
+            fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
+            letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
+          }}
+        >
+          {d.label}
+          {showXp && (
+            <div style={{ fontSize: "0.738rem", fontFamily: "var(--font-body)", marginTop: "0.2rem", opacity: 0.7 }}>{d.xp} XP</div>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function CodeField({ label, hint, value, onChange, placeholder, minHeight = "220px" }) {
   return (
     <div>
       <FieldLabel required hint={hint}>{label}</FieldLabel>
@@ -114,6 +118,7 @@ function CodeField({ label, hint, value, onChange, minHeight = "220px" }) {
         <CodeMirror
           value={value}
           onChange={onChange}
+          placeholder={placeholder}
           theme={vscodeDark}
           extensions={[python()]}
           minHeight={minHeight}
@@ -156,12 +161,12 @@ export default function ContractForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [form,          setForm]          = useState(EMPTY_FORM);
-  const [loading,       setLoading]       = useState(isEdit);
-  const [busy,          setBusy]          = useState(null);  // "verify" | "save" | "delete" | null
-  const [error,         setError]         = useState(null);
-  const [report,        setReport]        = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [form,    setForm]    = useState(EMPTY_FORM);
+  const [loading, setLoading] = useState(isEdit);
+  const [busy,    setBusy]    = useState(null);  // "verify" | "save" | null
+  const [error,   setError]   = useState(null);
+  const [report,  setReport]  = useState(null);
+  const [aiOpen,  setAiOpen]  = useState(false);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -209,24 +214,14 @@ export default function ContractForm() {
     setError(null);
     setReport(null);
     try {
-      const saved = isEdit ? await updateContract(id, payload()) : await createContract(payload());
-      navigate(`/contracts/${saved.id}`);
+      if (isEdit) await updateContract(id, payload());
+      else        await createContract(payload());
+      navigate("/admin");
     } catch (err) {
       const data = err?.response?.data;
       setError(data?.error ?? "Failed to save contract.");
       if (data?.verification) setReport(data.verification);
     } finally {
-      setBusy(null);
-    }
-  };
-
-  const handleDelete = async () => {
-    setBusy("delete");
-    try {
-      await deleteContract(id);
-      navigate("/contracts");
-    } catch (err) {
-      setError(err?.response?.data?.error ?? "Failed to delete contract.");
       setBusy(null);
     }
   };
@@ -243,21 +238,29 @@ export default function ContractForm() {
   const selectedDiff = DIFFICULTIES.find((d) => d.value === form.difficulty);
 
   return (
+    <>
     <div className="space-y-8 w-full" style={{ maxWidth: "1100px" }}>
 
-      <div>
-        <Link
-          to={isEdit ? `/contracts/${id}` : "/contracts"}
-          className="text-sub text-xs flex items-center gap-1.5 mb-5 w-fit"
-          style={{ fontFamily: "var(--font-heading)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none" }}
-        >
-          ← {isEdit ? "Back to contract" : "Contracts"}
-        </Link>
-        <h1 className="text-3xl font-bold text-white mb-1">{isEdit ? "Edit Contract" : "New Contract"}</h1>
-        <p className="text-sub text-sm">
-          Contracts are graded by Python <code>unittest</code> suites. Saving re-verifies the contract: the example
-          solution must pass every test and the starter code must fail at least one.
-        </p>
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-1">{isEdit ? "Edit Contract" : "Create Contract"}</h1>
+          <p className="text-sub text-sm" style={{ maxWidth: "44rem" }}>
+            A contract is an exercise graded by Python <code>unittest</code> suites instead of fixed input/output —
+            the solver implements an API (classes, functions, a small system) and the tests exercise it.
+            Saving re-verifies it: the example solution must pass every test and the starter code must fail at least one.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {!isEdit && user?.role === "admin" && (
+            <button type="button" onClick={() => setAiOpen(true)} className="sf-btn-secondary" style={{ width: "auto" }}>
+              ✦ AI Assistant
+            </button>
+          )}
+          <button type="button" onClick={() => navigate("/admin")} className="sf-btn-ghost" style={{ width: "auto" }}>
+            ← Back to Admin
+          </button>
+        </div>
       </div>
 
       {/* ── Basics ── */}
@@ -266,36 +269,17 @@ export default function ContractForm() {
         <div className="space-y-4">
           <div>
             <FieldLabel required>Title</FieldLabel>
-            <input className="sf-input" maxLength={200} placeholder="e.g. Binary Search Tree" value={form.title} onChange={(e) => setField("title", e.target.value)} />
+            <input className="sf-input" maxLength={200} placeholder="e.g. Transaction Ledger" value={form.title} onChange={(e) => setField("title", e.target.value)} />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <FieldLabel>Topic</FieldLabel>
-              <input className="sf-input" maxLength={60} placeholder="e.g. BST, Graphs, Dynamic Programming" value={form.topic} onChange={(e) => setField("topic", e.target.value)} />
+              <input className="sf-input" maxLength={60} placeholder="e.g. OOP Design, Caching, Graphs, Parsing" value={form.topic} onChange={(e) => setField("topic", e.target.value)} />
             </div>
             <div>
               <FieldLabel required>Difficulty</FieldLabel>
-              <div className="grid grid-cols-3 gap-2">
-                {DIFFICULTIES.map((d) => (
-                  <button
-                    key={d.value}
-                    type="button"
-                    onClick={() => setField("difficulty", d.value)}
-                    style={{
-                      padding: "0.55rem 0.5rem", borderRadius: "0.5rem",
-                      border: form.difficulty === d.value ? "1px solid var(--color-green-border)" : "1px solid rgba(255,255,255,0.08)",
-                      background: form.difficulty === d.value ? "var(--color-green-dim)" : "rgba(255,255,255,0.03)",
-                      color: form.difficulty === d.value ? "var(--color-green)" : "rgba(255,255,255,0.50)",
-                      fontFamily: "var(--font-heading)", fontSize: "0.718rem", fontWeight: 700,
-                      letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
-                    }}
-                  >
-                    {d.label}
-                    <div style={{ fontSize: "0.738rem", fontFamily: "var(--font-body)", marginTop: "0.2rem", opacity: 0.7 }}>{d.xp} XP</div>
-                  </button>
-                ))}
-              </div>
+              <DifficultyPicker value={form.difficulty} onChange={(v) => setField("difficulty", v)} />
             </div>
           </div>
 
@@ -305,7 +289,7 @@ export default function ContractForm() {
               <input type="number" min={50} max={5000} className="sf-input" value={form.time_limit_ms} onChange={(e) => setField("time_limit_ms", e.target.value)} />
             </div>
             <div>
-              <FieldLabel required hint="Peak Python allocations per test (8–512).">Memory limit (MB)</FieldLabel>
+              <FieldLabel required hint="Peak Python allocations per test, test data included (8–512).">Memory limit (MB)</FieldLabel>
               <input type="number" min={8} max={512} className="sf-input" value={form.memory_limit_mb} onChange={(e) => setField("memory_limit_mb", e.target.value)} />
             </div>
             <div className="glass-card p-4 text-center" style={{ border: "1px solid var(--color-green-border)", alignSelf: "end" }}>
@@ -321,19 +305,28 @@ export default function ContractForm() {
         <SectionDivider title="Specification" />
         <div className="space-y-4">
           <div>
-            <FieldLabel required hint="Markdown. Spell out the exact class/method names and signatures the tests rely on.">Description</FieldLabel>
-            <textarea className="sf-input" rows={10} style={{ resize: "vertical", lineHeight: 1.7 }} value={form.description} onChange={(e) => setField("description", e.target.value)} />
+            <FieldLabel required hint="Markdown. Spell out every class/method/function signature, return type and exception the tests rely on — hidden tests can only check what the spec promises.">Description</FieldLabel>
+            <textarea
+              className="sf-input"
+              rows={10}
+              style={{ resize: "vertical", lineHeight: 1.7 }}
+              placeholder={"Context of the problem…\n\n## API\n- `class Ledger`\n  - `deposit(account: str, amount: int) -> None` — raises `ValueError` if amount <= 0\n\n## Rules\n…"}
+              value={form.description}
+              onChange={(e) => setField("description", e.target.value)}
+            />
           </div>
           <CodeField
             label="Starter code"
             hint="What the solver's editor starts with (solution.py). Stubs that raise NotImplementedError work well."
             value={form.starter_code}
+            placeholder={PLACEHOLDER.starter_code}
             onChange={(v) => setField("starter_code", v)}
           />
           <CodeField
             label="Example solution"
             hint="Reference implementation. Admins/moderators only — used to verify the tests."
             value={form.example_solution}
+            placeholder={PLACEHOLDER.example_solution}
             onChange={(v) => setField("example_solution", v)}
           />
         </div>
@@ -347,6 +340,7 @@ export default function ContractForm() {
             label="Public tests"
             hint="Shown to solvers and run by “Run tests”. Import from `solution`; failures show full assertion output."
             value={form.public_tests}
+            placeholder={PLACEHOLDER.public_tests}
             onChange={(v) => setField("public_tests", v)}
             minHeight="260px"
           />
@@ -354,6 +348,7 @@ export default function ContractForm() {
             label="Hidden tests"
             hint="Run only on Submit. Solvers see each test's name, docstring and pass/fail — never its source or assertion message. Use `@limits(time_ms=…, memory_mb=…)` from `contract` for per-test limits."
             value={form.hidden_tests}
+            placeholder={PLACEHOLDER.hidden_tests}
             onChange={(v) => setField("hidden_tests", v)}
             minHeight="260px"
           />
@@ -368,27 +363,137 @@ export default function ContractForm() {
             {busy === "verify" ? "Verifying…" : "Verify"}
           </button>
           <button className="sf-btn" style={{ width: "auto" }} onClick={handleSave} disabled={!!busy}>
-            {busy === "save" ? "Verifying & saving…" : isEdit ? "Save changes" : "Publish contract"}
+            {busy === "save" ? "Verifying & saving…" : isEdit ? "Save Changes" : "Publish Contract"}
           </button>
-          {isEdit && user?.role === "admin" && (
-            confirmDelete ? (
-              <>
-                <button className="sf-btn-danger" style={{ width: "auto", marginLeft: "auto" }} onClick={handleDelete} disabled={!!busy}>
-                  {busy === "delete" ? "Deleting…" : "Confirm delete"}
-                </button>
-                <button className="sf-btn-ghost" style={{ width: "auto" }} onClick={() => setConfirmDelete(false)} disabled={!!busy}>
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button className="sf-btn-danger" style={{ width: "auto", marginLeft: "auto" }} onClick={() => setConfirmDelete(true)} disabled={!!busy}>
-                Delete
-              </button>
-            )
-          )}
         </div>
         <VerificationReport report={report} />
       </div>
     </div>
+
+    {aiOpen && (
+      <AiAssistantModal
+        initialDifficulty={form.difficulty}
+        onClose={() => setAiOpen(false)}
+        onApply={(generated) => {
+          setForm({
+            title:            generated.title,
+            description:      generated.description,
+            topic:            generated.topic ?? "",
+            difficulty:       generated.difficulty,
+            time_limit_ms:    generated.time_limit_ms,
+            memory_limit_mb:  generated.memory_limit_mb,
+            starter_code:     generated.starter_code,
+            example_solution: generated.example_solution,
+            public_tests:     generated.public_tests,
+            hidden_tests:     generated.hidden_tests,
+          });
+          setError(null);
+          setReport(generated.verification ?? null);
+        }}
+      />
+    )}
+    </>
+  );
+}
+
+/* ── AI Assistant modal ──────────────────────────────────────────────────── */
+
+function AiAssistantModal({ initialDifficulty, onClose, onApply }) {
+  const [difficulty,  setDifficulty]  = useState(initialDifficulty);
+  const [description, setDescription] = useState("");
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState(null);
+  const [result,      setResult]      = useState(null);  // verification report of the last draft
+
+  async function handleGenerate() {
+    setLoading(true);
+    setError(null);
+    try {
+      const generated = await generateContractWithAI({ difficulty, description });
+      onApply(generated);
+      setResult(generated.verification ?? { ok: false, error: "Could not reach the execution engine to verify the draft." });
+    } catch (err) {
+      setError(err.response?.data?.error ?? "Something went wrong. Please try again.");
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return createPortal(
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}
+      onClick={onClose}
+    >
+      <div
+        className="term-window term-window--blue"
+        style={{ width: "100%", maxWidth: "560px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="term-bar">
+          <span className="term-dot term-dot--red" />
+          <span className="term-dot term-dot--yellow" />
+          <span className="term-dot term-dot--green" />
+          <span className="term-title">AI Assistant — Contracts</span>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ background: "none", border: "none", color: "var(--color-text-tertiary)", cursor: "pointer", fontSize: "1rem", lineHeight: 1, padding: "0 0.2rem", flexShrink: 0 }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ padding: "1.2rem 1.4rem", overflowY: "auto", flex: 1 }} className="space-y-4">
+          <p className="text-sub text-xs" style={{ fontFamily: "var(--font-body)" }}>
+            Drafts a full Python contract — spec, starter code, example solution, public and hidden unit tests,
+            and limits — then verifies it in the sandbox. Nothing is published until you save; review everything first.
+          </p>
+
+          <div>
+            <FieldLabel required>Difficulty</FieldLabel>
+            <DifficultyPicker value={difficulty} onChange={setDifficulty} showXp={false} />
+          </div>
+
+          <div>
+            <FieldLabel>Topic / short description (optional)</FieldLabel>
+            <textarea
+              className="sf-input"
+              placeholder="e.g. a rate limiter, an LRU cache, a bank ledger with transfers, Dijkstra on a city map, an expression parser…"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              style={{ resize: "vertical" }}
+            />
+          </div>
+
+          {error && <div className="sf-error">{error}</div>}
+
+          {result && !error && (
+            result.ok ? (
+              <div className="sf-success">
+                Generated ✓ — the example solution passes all {result.solution.total} tests and the starter code fails.
+              </div>
+            ) : (
+              <div className="sf-error">
+                Generated, but verification failed: {result.error} — the full report is on the form; fix it or regenerate.
+              </div>
+            )
+          )}
+
+          <button type="button" onClick={handleGenerate} className="sf-btn" disabled={loading}>
+            {loading ? (
+              <>
+                <div className="sf-spinner" />
+                Drafting & verifying contract…
+              </>
+            ) : (
+              result ? "Regenerate" : "Generate"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }

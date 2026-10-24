@@ -367,11 +367,6 @@ export default function ContractSolvePage() {
               by {contract.author}
             </Link>
           )}
-          {isPrivileged && (
-            <Link to={`/admin/contracts/${contract.id}/edit`} className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem", textDecoration: "none", marginLeft: "auto" }}>
-              Edit
-            </Link>
-          )}
         </div>
         <h1 style={{ fontSize: "clamp(1.3rem, 5vw, 1.9rem)", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
           {contract.title}

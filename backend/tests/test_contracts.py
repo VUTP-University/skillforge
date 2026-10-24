@@ -313,3 +313,56 @@ def test_harness_limits_and_isolation(app):
     assert result["status"] == "ok", result
 
     assert run("def broken(:\n")["status"] == "import_error"
+
+
+# ── AI Assistant (OpenAI mocked) ─────────────────────────────────────────────
+
+class _FakeOpenAI:
+    def __init__(self, content):
+        message = type("Msg", (), {"content": content})
+        choice  = type("Choice", (), {"message": message})
+        self.chat = type("Chat", (), {"completions": self})()
+        self._response = type("Resp", (), {"choices": [choice]})
+        self.calls = []
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return self._response
+
+
+def _mock_ai(monkeypatch, payload):
+    fake = _FakeOpenAI(json.dumps(payload))
+    monkeypatch.setattr("app.routes.contracts._get_openai_client", lambda: fake)
+    return fake
+
+
+def test_ai_generate_is_admin_only(app):
+    client, _ = _client_for(app, "mod", RoleName.moderator)
+    assert client.post("/api/contracts/ai-generate", json={"difficulty": "mid"}).status_code == 403
+
+
+def test_ai_generate_rejects_invalid_payload(app, monkeypatch):
+    _mock_ai(monkeypatch, {"title": "No tests"})
+    client, _ = _client_for(app, "admin", RoleName.admin)
+    resp = client.post("/api/contracts/ai-generate", json={"difficulty": "mid"})
+    assert resp.status_code == 502
+
+
+@needs_piston
+def test_ai_generate_returns_verified_draft(app, monkeypatch):
+    fake = _mock_ai(monkeypatch, {
+        "title": "Binary Search Tree", "topic": "Trees", "description": "Implement BST.",
+        "starter_code": STARTER, "example_solution": SOLUTION,
+        "public_tests": PUBLIC_TESTS, "hidden_tests": HIDDEN_TESTS,
+        "time_limit_ms": 99999, "memory_limit_mb": "64",
+    })
+    client, _ = _client_for(app, "admin", RoleName.admin)
+    resp = client.post("/api/contracts/ai-generate", json={"difficulty": "senior", "description": "rate limiter"})
+    assert resp.status_code == 200, resp.get_json()
+    draft = resp.get_json()
+    assert draft["time_limit_ms"] == 5000          # clamped into range
+    assert draft["memory_limit_mb"] == 64
+    assert draft["verification"]["ok"] is True
+    assert "rate limiter" in fake.calls[0]["messages"][1]["content"]
+    # Generation only drafts — nothing is saved until the admin publishes.
+    assert client.get("/api/contracts/").get_json()["total"] == 0

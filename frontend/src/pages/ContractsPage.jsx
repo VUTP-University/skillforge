@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { getContracts, getContractTopics } from "../services/contractService";
 import Pagination from "../components/Pagination";
 
@@ -45,7 +44,7 @@ function DiffBadge({ difficulty }) {
   );
 }
 
-function ContractRow({ contract, index, canEdit }) {
+function ContractRow({ contract, index }) {
   const m = DIFF_META[contract.difficulty] ?? DIFF_META.junior;
   return (
     <div
@@ -83,16 +82,9 @@ function ContractRow({ contract, index, canEdit }) {
         </p>
       </Link>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexShrink: 0 }}>
-        <span style={{ fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, color: "var(--color-green)" }}>
-          {contract.xp_reward} XP
-        </span>
-        {canEdit && (
-          <Link to={`/admin/contracts/${contract.id}/edit`} className="sf-btn-ghost" style={{ width: "auto", padding: "0.28rem 0.65rem", fontSize: "0.692rem", textDecoration: "none" }}>
-            Edit
-          </Link>
-        )}
-      </div>
+      <span style={{ flexShrink: 0, fontFamily: "var(--font-heading)", fontSize: "0.757rem", fontWeight: 700, color: "var(--color-green)" }}>
+        {contract.xp_reward} XP
+      </span>
     </div>
   );
 }
@@ -100,9 +92,6 @@ function ContractRow({ contract, index, canEdit }) {
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
 export default function ContractsPage() {
-  const { user } = useAuth();
-  const canEdit  = !!user && ["admin", "moderator"].includes(user.role);
-
   const [items, setItems]             = useState([]);
   const [topics, setTopics]           = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -180,22 +169,16 @@ export default function ContractsPage() {
           cd ~/dashboard
         </Link>
 
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
+        <div>
             <p className="hero-eyebrow">ls ./contracts</p>
             <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", fontWeight: 700, color: "var(--color-text)", lineHeight: 1.2, marginBottom: "0.4rem" }}>
               Contracts
             </h1>
-            <p className="text-sub" style={{ fontSize: "1rem", maxWidth: "40rem" }}>
-              Implement data structures and algorithms to spec. Graded by unit tests: structure,
-              behaviour, and per-test time &amp; memory limits.
+            <p className="text-sub" style={{ fontSize: "1rem", maxWidth: "44rem" }}>
+              Bigger exercises built to a spec — classes, APIs, algorithms, systems. Instead of matching
+              output, your code is graded by unit tests: structure, behaviour, edge cases, and per-test
+              time &amp; memory limits.
             </p>
-          </div>
-          {canEdit && (
-            <Link to="/admin/contracts/new" className="sf-btn" style={{ width: "auto", textDecoration: "none", flexShrink: 0 }}>
-              + New Contract
-            </Link>
-          )}
         </div>
       </div>
 
@@ -276,7 +259,7 @@ export default function ContractsPage() {
         <>
           <div className="glass-card" style={{ padding: 0, overflow: "hidden" }}>
             {items.map((c, i) => (
-              <ContractRow key={c.id} contract={c} index={i} canEdit={canEdit} />
+              <ContractRow key={c.id} contract={c} index={i} />
             ))}
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>

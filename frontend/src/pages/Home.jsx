@@ -36,7 +36,7 @@ const LANGUAGES = [
 ];
 
 const SECTIONS = [
-  { name: "Contracts",   path: "/contracts",   glyph: "{}", proc: "contracts.sh",   description: "Build data structures to spec, unit-tested" },
+  { name: "Contracts",   path: "/contracts",   glyph: "{}", proc: "contracts.sh",   description: "Bigger exercises, graded by unit tests" },
   { name: "Leaderboard", path: "/leaderboard", glyph: "#", proc: "leaderboard.sh", description: "Compete with the best coders" },
   { name: "Stack Trace", path: "/stack-trace",  glyph: "!", proc: "stack_trace.sh", description: "Debug hostile processes for big XP" },
   { name: "Test Suite",  path: "/test-suite",      glyph: "?", proc: "test_suite.sh",  description: "Pass the weekly knowledge run" },
