@@ -306,7 +306,7 @@ def test_harness_limits_and_isolation(app):
     # Neither the hidden test file nor its source is reachable from solution code.
     snoop = SOLUTION + (
         "\nimport os, sys\n"
-        "print(os.listdir('.'), sys.stdin.read())\n"
+        "assert sys.stdin.read() == ''\n"
         "assert not any('hidden' in f for f in os.listdir('.'))\n"
     )
     result = run(snoop)
