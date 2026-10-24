@@ -36,6 +36,7 @@ const LANGUAGES = [
 ];
 
 const SECTIONS = [
+  { name: "Contracts",   path: "/contracts",   glyph: "{}", proc: "contracts.sh",   description: "Build data structures to spec, unit-tested" },
   { name: "Leaderboard", path: "/leaderboard", glyph: "#", proc: "leaderboard.sh", description: "Compete with the best coders" },
   { name: "Stack Trace", path: "/stack-trace",  glyph: "!", proc: "stack_trace.sh", description: "Debug hostile processes for big XP" },
   { name: "Test Suite",  path: "/test-suite",      glyph: "?", proc: "test_suite.sh",  description: "Pass the weekly knowledge run" },
@@ -239,7 +240,7 @@ export default function Home() {
       {/* ── Explore ── */}
       <div>
         <SectionDivider title="Explore" />
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {SECTIONS.map((section) => (
             <Link key={section.name} to={section.path} style={{ textDecoration: "none" }}>
               <div className="group explore-card">

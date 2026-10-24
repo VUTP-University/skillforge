@@ -23,8 +23,13 @@ services:
     tmpfs:
       - /tmp:exec
     environment:
-      - PISTON_MAX_COMPILE_TIMEOUT=60000
-      - PISTON_MAX_RUN_TIMEOUT=15000
+      # Piston reads PISTON_<OPTION> (see /piston_api/src/config.js) — these are
+      # per-request ceilings; each request still passes its own timeout.
+      - PISTON_COMPILE_TIMEOUT=60000
+      - PISTON_RUN_TIMEOUT=15000
+      # Default is 1024 bytes per stdio buffer; going over SIGKILLs the run.
+      # Contracts return a compressed per-test report that can exceed that.
+      - PISTON_OUTPUT_MAX_SIZE=65536
 
 volumes:
   postgres_data:

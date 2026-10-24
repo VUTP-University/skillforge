@@ -8,6 +8,9 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import JobForm from "./pages/JobForm";
 import LanguageJobsPage from "./pages/LanguageJobsPage";
 import JobSolvePage from "./pages/JobSolvePage";
+import ContractsPage from "./pages/ContractsPage";
+import ContractSolvePage from "./pages/ContractSolvePage";
+import ContractForm from "./pages/ContractForm";
 import ProfilePage from "./pages/ProfilePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import StackTracePage from "./pages/StackTracePage";
@@ -206,6 +209,38 @@ function AppLayout() {
               element={
                 <RoleRoute roles={["admin", "moderator"]}>
                   <JobForm />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/contracts"
+              element={
+                <ProtectedRoute>
+                  <ContractsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/contracts/:contractId"
+              element={
+                <ProtectedRoute>
+                  <ContractSolvePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/contracts/new"
+              element={
+                <RoleRoute roles={["admin", "moderator"]}>
+                  <ContractForm />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/admin/contracts/:id/edit"
+              element={
+                <RoleRoute roles={["admin", "moderator"]}>
+                  <ContractForm />
                 </RoleRoute>
               }
             />
