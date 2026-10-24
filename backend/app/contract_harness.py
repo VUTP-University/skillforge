@@ -11,10 +11,18 @@ original stdout fd, prefixed with the token; everything the user prints is
 captured instead.
 
 Authors' test modules can `from contract import limits` to override the
-contract-wide time/memory limits on a single test method.
+contract-wide time/memory limits on a single test method. setUpModule /
+setUpClass run outside the per-test limits, so expensive input generation
+belongs there.
+
+Memory is measured as peak RSS growth per test (VmHWM reset through
+/proc/self/clear_refs), not with tracemalloc: tracing every allocation made
+allocation-heavy tests ~4-5x slower and pushed honest solutions over their
+time limits. tracemalloc remains the fallback where /proc isn't writable.
 """
 
 import base64
+import gc
 import io
 import json
 import linecache
@@ -91,6 +99,7 @@ def _main():
     del config
 
     def load_suite(suite_name, source):
+        """Return (module, TestSuite), or None after emitting an import error."""
         filename = f"{suite_name}_tests.py"
         module = types.ModuleType(f"{suite_name}_tests")
         module.__file__ = filename
@@ -103,7 +112,48 @@ def _main():
             emit({"status": "import_error", "suite": suite_name,
                   "error": clean_tb(type(exc), exc, exc.__traceback__)})
             return None
-        return unittest.defaultTestLoader.loadTestsFromModule(module)
+        return module, unittest.defaultTestLoader.loadTestsFromModule(module)
+
+    class RssMeter:
+        """Peak resident-memory growth since start(), in KB (Linux /proc)."""
+
+        @staticmethod
+        def _status_kb(field):
+            with open("/proc/self/status") as f:
+                for line in f:
+                    if line.startswith(field):
+                        return int(line.split()[1])
+            raise OSError(field)
+
+        def __init__(self):
+            self.start()  # raises OSError where /proc isn't available
+
+        def start(self):
+            gc.collect()
+            with open("/proc/self/clear_refs", "w") as f:
+                f.write("5")  # resets VmHWM to the current RSS
+            self.base = self._status_kb("VmRSS:")
+
+        def peak_kb(self):
+            return max(0, self._status_kb("VmHWM:") - self.base)
+
+        def stop(self):
+            pass
+
+    class TracemallocMeter:
+        def __init__(self):
+            tracemalloc.start()
+            self.start()
+
+        def start(self):
+            tracemalloc.reset_peak()
+            self.base = tracemalloc.get_traced_memory()[0]
+
+        def peak_kb(self):
+            return max(0, tracemalloc.get_traced_memory()[1] - self.base) // 1024
+
+        def stop(self):
+            tracemalloc.stop()
 
     def iter_tests(suite):
         for item in suite:
@@ -126,16 +176,55 @@ def _main():
         def addSkip(self, test, reason):
             self.outcome = ("skip", reason)
 
+    def doc_of(method):
+        return (method.__doc__ or "").strip().splitlines()[0] if method and method.__doc__ else None
+
+    def fixture_error(suite_name, test, method, exc_info, fixture):
+        return {
+            "suite": suite_name, "name": test._testMethodName, "class": type(test).__name__,
+            "doc": doc_of(method), "duration_ms": 0, "memory_kb": 0, "stdout": "",
+            "status": "error", "message": f"{fixture} failed:\n" + clean_tb(*exc_info),
+        }
+
+    def run_fixture(fn):
+        """Run a module/class fixture outside the per-test limits; return exc_info or None."""
+        try:
+            fn()
+        except BaseException:  # noqa: BLE001 — reported against every test that depends on it
+            return sys.exc_info()
+        return None
+
+    try:
+        meter = RssMeter()
+    except OSError:
+        meter = TracemallocMeter()
+
     results = []
-    tracemalloc.start()
     while pending:
         suite_name, source = pending.pop(0)
-        suite = load_suite(suite_name, source)
+        loaded = load_suite(suite_name, source)
         del source
-        if suite is None:
+        if loaded is None:
             return
+        module, suite = loaded
+
+        module_error = run_fixture(getattr(module, "setUpModule", lambda: None))
+        current_cls, class_error = None, None
+
         for test in iter_tests(suite):
-            method  = getattr(test, test._testMethodName, None)
+            method = getattr(test, test._testMethodName, None)
+            if module_error:
+                results.append(fixture_error(suite_name, test, method, module_error, "setUpModule"))
+                continue
+            if type(test) is not current_cls:
+                if current_cls is not None and class_error is None:
+                    run_fixture(current_cls.tearDownClass)
+                current_cls = type(test)
+                class_error = run_fixture(current_cls.setUpClass)
+            if class_error:
+                results.append(fixture_error(suite_name, test, method, class_error, "setUpClass"))
+                continue
+
             time_ms = getattr(method, "__contract_time_ms__", None) or default_time_ms
             mem_mb  = getattr(method, "__contract_memory_mb__", None)
             mem_kb  = mem_mb * 1024 if mem_mb else default_mem_kb
@@ -143,8 +232,7 @@ def _main():
             captured.seek(0)
             captured.truncate()
             result = Result()
-            tracemalloc.reset_peak()
-            mem_base = tracemalloc.get_traced_memory()[0]
+            meter.start()
             signal.setitimer(signal.ITIMER_REAL, time_ms / 1000)
             started = time.perf_counter()
             try:
@@ -154,13 +242,13 @@ def _main():
             finally:
                 signal.setitimer(signal.ITIMER_REAL, 0)
             duration_ms = round((time.perf_counter() - started) * 1000, 2)
-            peak_kb = max(0, tracemalloc.get_traced_memory()[1] - mem_base) // 1024
+            peak_kb = meter.peak_kb()
 
             entry = {
                 "suite":       suite_name,
                 "name":        test._testMethodName,
                 "class":       type(test).__name__,
-                "doc":         (method.__doc__ or "").strip().splitlines()[0] if method and method.__doc__ else None,
+                "doc":         doc_of(method),
                 "duration_ms": duration_ms,
                 "memory_kb":   peak_kb,
                 "time_limit_ms":   time_ms,
@@ -171,7 +259,8 @@ def _main():
             if outcome is None and peak_kb > mem_kb:
                 entry.update(status="memory", message=f"Memory limit exceeded: peak {peak_kb} KB > {mem_kb} KB")
             elif outcome is None:
-                entry.update(status="passed", message=None)
+                # Keeps the report small — Piston caps stdout (1 KB by default).
+                entry.update(status="passed", message=None, stdout="")
             elif outcome[0] == "skip":
                 entry.update(status="skipped", message=str(outcome[1]))
             elif outcome[0] is TimeLimitExceeded:
@@ -183,7 +272,12 @@ def _main():
             else:
                 entry.update(status="error", message=clean_tb(*outcome))
             results.append(entry)
-    tracemalloc.stop()
+
+        if current_cls is not None and class_error is None and module_error is None:
+            run_fixture(current_cls.tearDownClass)
+        if module_error is None:
+            run_fixture(getattr(module, "tearDownModule", lambda: None))
+    meter.stop()
 
     emit({"status": "ok", "tests": results})
 

@@ -320,7 +320,7 @@ def test_harness_limits_and_isolation(app):
 class _FakeOpenAI:
     def __init__(self, content):
         message = type("Msg", (), {"content": content})
-        choice  = type("Choice", (), {"message": message})
+        choice  = type("Choice", (), {"message": message, "finish_reason": "stop"})
         self.chat = type("Chat", (), {"completions": self})()
         self._response = type("Resp", (), {"choices": [choice]})
         self.calls = []
@@ -332,7 +332,7 @@ class _FakeOpenAI:
 
 def _mock_ai(monkeypatch, payload):
     fake = _FakeOpenAI(json.dumps(payload))
-    monkeypatch.setattr("app.routes.contracts._get_openai_client", lambda: fake)
+    monkeypatch.setattr("app.routes.jobs._get_openai_client", lambda: fake)
     return fake
 
 
@@ -364,5 +364,131 @@ def test_ai_generate_returns_verified_draft(app, monkeypatch):
     assert draft["memory_limit_mb"] == 64
     assert draft["verification"]["ok"] is True
     assert "rate limiter" in fake.calls[0]["messages"][1]["content"]
+    assert fake.calls[0]["model"] == "gpt-6-luna"
+    assert fake.calls[0]["reasoning_effort"] == "high"
+    assert "max_tokens" not in fake.calls[0]
     # Generation only drafts — nothing is saved until the admin publishes.
     assert client.get("/api/contracts/").get_json()["total"] == 0
+
+
+# ── Piston server limits ─────────────────────────────────────────────────────
+
+class _FakeResp:
+    def __init__(self, status, body):
+        self.status_code, self.ok, self._body = status, 200 <= status < 300, body
+        self.text = json.dumps(body)
+
+    def json(self):
+        return self._body
+
+
+def test_execute_learns_server_timeout_ceiling(app, monkeypatch):
+    from app import contract_runner
+
+    sent = []
+
+    def fake_post(url, json, timeout):
+        sent.append(json["run_timeout"])
+        if json["run_timeout"] > 3000:
+            return _FakeResp(400, {"message": "run_timeout cannot exceed the configured limit of 3000"})
+        return _FakeResp(200, {"run": {"stdout": "", "stderr": "", "code": 0}})
+
+    monkeypatch.setattr(contract_runner.requests, "post", fake_post)
+    monkeypatch.setattr(contract_runner, "_server_ceiling_ms", {})
+    _, _, effective = contract_runner._execute("x = 1", [], 1000, 64, "http://piston.test", 10000)
+    assert effective == 3000
+    assert sent == [10000, 3000]
+
+    # Remembered: the next run goes straight to the ceiling.
+    contract_runner._execute("x = 1", [], 1000, 64, "http://piston.test", 10000)
+    assert sent == [10000, 3000, 3000]
+
+
+def test_summarise_reports_truncated_output():
+    run_stage = {"stdout": "tokeJx9truncated", "stderr": "", "code": None, "signal": "SIGKILL"}
+    result = _summarise("tok", run_stage, 3000)
+    assert result["status"] == "crash"
+    assert "PISTON_OUTPUT_MAX_SIZE" in result["error"]
+
+
+# ── Harness fixtures & measurement ───────────────────────────────────────────
+
+FIND_SOLUTION = '''
+import bisect
+
+def find(values, target):
+    data = sorted(values)
+    i = bisect.bisect_left(data, target)
+    return i if i < len(data) and data[i] == target else -1
+'''
+
+FIND_STARTER = "def find(values, target):\n    raise NotImplementedError\n"
+
+FIND_PUBLIC = '''
+import unittest
+from solution import find
+
+
+class TestFind(unittest.TestCase):
+    def test_duplicates(self):
+        self.assertEqual(find([4, 2, 4, 3, 1], 4), 3)  # sorted: [1, 2, 3, 4, 4]
+'''
+
+# Mirrors a real contract that hit TLE: a large input built inside a 1000 ms
+# test. Under the old tracemalloc meter, building 500k ints alone took ~1.1 s.
+FIND_HIDDEN = '''
+import bisect
+import random
+import unittest
+from solution import find
+
+
+class TestFindLarge(unittest.TestCase):
+    def test_find_in_large_list(self):
+        rng = random.Random(42)
+        values = [rng.randint(0, 10**6) for _ in range(500_000)]
+        target = values[12_345]
+        self.assertEqual(find(values, target), bisect.bisect_left(sorted(values), target))
+
+
+class TestWithClassFixture(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        rng = random.Random(7)
+        cls.values = [rng.randint(0, 10**6) for _ in range(500_000)]
+
+    def test_uses_class_fixture(self):
+        """input built once in setUpClass, outside the per-test limits"""
+        target = self.values[0]
+        self.assertEqual(find(self.values, target), bisect.bisect_left(sorted(self.values), target))
+'''
+
+
+@needs_piston
+def test_large_inputs_fit_time_limit_and_class_fixtures_run(app):
+    admin, _ = _client_for(app, "admin", RoleName.admin)
+    resp = admin.post("/api/contracts/verify", json=_payload(
+        starter_code=FIND_STARTER, example_solution=FIND_SOLUTION,
+        public_tests=FIND_PUBLIC, hidden_tests=FIND_HIDDEN, time_limit_ms=1000, memory_limit_mb=128,
+    ))
+    report = resp.get_json()
+    assert report["ok"], report
+    tests = {t["name"]: t for t in report["solution"]["tests"]}
+    assert tests["test_uses_class_fixture"]["duration_ms"] < tests["test_find_in_large_list"]["duration_ms"]
+    assert tests["test_find_in_large_list"]["memory_kb"] > 1024  # RSS growth is actually measured
+
+
+@needs_piston
+def test_setup_class_failure_is_reported_per_test(app):
+    admin, _ = _client_for(app, "admin", RoleName.admin)
+    broken = FIND_PUBLIC.replace(
+        "class TestFind(unittest.TestCase):\n",
+        "class TestFind(unittest.TestCase):\n    @classmethod\n    def setUpClass(cls):\n        raise RuntimeError('boom')\n\n",
+    )
+    report = admin.post("/api/contracts/verify", json=_payload(
+        starter_code=FIND_STARTER, example_solution=FIND_SOLUTION,
+        public_tests=broken, hidden_tests=FIND_HIDDEN,
+    )).get_json()
+    public = [t for t in report["solution"]["tests"] if t["suite"] == "public"]
+    assert [t["status"] for t in public] == ["error"]
+    assert "setUpClass failed" in public[0]["message"] and "boom" in public[0]["message"]

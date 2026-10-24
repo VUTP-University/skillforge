@@ -1,4 +1,3 @@
-import json
 from datetime import UTC, datetime
 
 from flask import Blueprint, current_app, jsonify, request
@@ -21,7 +20,7 @@ from app.models import (
     Language,
     User,
 )
-from app.routes.jobs import _caller_id, _caller_role, _get_openai_client
+from app.routes.jobs import _ai_assistant_json, _caller_id, _caller_role
 from app.utils import require_role
 
 contracts_bp = Blueprint("contracts", __name__)
@@ -319,9 +318,16 @@ def _ai_contract_system_prompt(difficulty):
         "- hidden_tests: 5-8 tests covering edge cases, error handling (assertRaises), invariants and at least "
         "one performance test on a large input. For per-test limits use `from contract import limits` and "
         "decorate with `@limits(time_ms=..., memory_mb=...)`. Leave generous headroom: the reference solution "
-        "should use under a third of any limit. Note the memory limit counts the test's own data too.\n"
+        "should use under a third of any limit. Build large inputs in a `setUpClass` classmethod (it runs "
+        "outside the per-test time/memory limits) so each performance test times only the code under test, "
+        "and keep each input under ~500k elements — all tests share one sandbox run of a few seconds.\n"
         "- Tests must be deterministic: seed any randomness (random.Random(42)), never depend on wall-clock "
         "time, network, files or printing.\n"
+        "- Expected values: only hard-code an expected value for a tiny input you have traced by hand step by "
+        "step (write the intermediate state, e.g. the sorted list, in a comment first). For anything larger or "
+        "generated, compute the expected value inside the test with an obviously-correct standard-library "
+        "oracle or brute force (sorted(), bisect, collections.Counter, a naive loop) — never a literal number "
+        "you did not compute.\n"
         "- time_limit_ms (50-5000) and memory_limit_mb (8-512) are the defaults applied to every test.\n"
         "- Use only the Python 3.12 standard library.\n"
         "- Do not include any commentary outside the JSON object."
@@ -343,17 +349,9 @@ def ai_generate_contract():
         else "No specific topic given — invent an original, interesting contract appropriate for the difficulty."
     )
     try:
-        client   = _get_openai_client()
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            response_format={"type": "json_object"},
-            max_tokens=8000,
-            messages=[
-                {"role": "system", "content": _ai_contract_system_prompt(difficulty)},
-                {"role": "user",   "content": user_prompt},
-            ],
+        payload = _ai_assistant_json(
+            _ai_contract_system_prompt(difficulty), user_prompt, max_completion_tokens=48_000
         )
-        payload = json.loads(response.choices[0].message.content)
     except Exception as exc:  # noqa: BLE001 — any OpenAI/SDK failure must fall back to a graceful error
         current_app.logger.error("AI contract generation failed: %s", exc)
         return jsonify({"error": "Failed to generate contract — the AI Assistant is momentarily unreachable"}), 502

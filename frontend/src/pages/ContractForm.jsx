@@ -42,6 +42,10 @@ from solution import ...
 
 
 class TestEdgeCases(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):          # untimed: build large inputs here
+        cls.data = ...
+
     @limits(time_ms=2000, memory_mb=64)
     def test_large_input(self):
         """Handles 100k operations within the limits"""
@@ -289,7 +293,7 @@ export default function ContractForm() {
               <input type="number" min={50} max={5000} className="sf-input" value={form.time_limit_ms} onChange={(e) => setField("time_limit_ms", e.target.value)} />
             </div>
             <div>
-              <FieldLabel required hint="Peak Python allocations per test, test data included (8–512).">Memory limit (MB)</FieldLabel>
+              <FieldLabel required hint="Peak memory growth per test (8–512). Data built in setUpClass doesn't count.">Memory limit (MB)</FieldLabel>
               <input type="number" min={8} max={512} className="sf-input" value={form.memory_limit_mb} onChange={(e) => setField("memory_limit_mb", e.target.value)} />
             </div>
             <div className="glass-card p-4 text-center" style={{ border: "1px solid var(--color-green-border)", alignSelf: "end" }}>
@@ -346,7 +350,7 @@ export default function ContractForm() {
           />
           <CodeField
             label="Hidden tests"
-            hint="Run only on Submit. Solvers see each test's name, docstring and pass/fail — never its source or assertion message. Use `@limits(time_ms=…, memory_mb=…)` from `contract` for per-test limits."
+            hint="Run only on Submit. Solvers see each test's name, docstring and pass/fail — never its source or assertion message. Use `@limits(time_ms=…, memory_mb=…)` from `contract` for per-test limits, and build large inputs in `setUpClass` — it runs outside the limits."
             value={form.hidden_tests}
             placeholder={PLACEHOLDER.hidden_tests}
             onChange={(v) => setField("hidden_tests", v)}
