@@ -1,6 +1,6 @@
 import json
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from flask import Blueprint, jsonify, request
@@ -78,7 +78,7 @@ def _prepare(q: dict) -> dict:
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _last_used_run(user_id: int) -> TestRun | None:
-    cutoff = datetime.now(timezone.utc) - timedelta(days=COOLDOWN_DAYS)
+    cutoff = datetime.now(UTC) - timedelta(days=COOLDOWN_DAYS)
     return (
         TestRun.query
         .filter(
@@ -92,7 +92,7 @@ def _last_used_run(user_id: int) -> TestRun | None:
 
 
 def _active_run(user_id: int) -> TestRun | None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return (
         TestRun.query
         .filter(
@@ -124,7 +124,7 @@ def get_status():
             "questions": [_strip_correct(q) for q in active.questions],
         }
     elif used:
-        next_at = used.started_at.replace(tzinfo=timezone.utc) + timedelta(days=COOLDOWN_DAYS)
+        next_at = used.started_at.replace(tzinfo=UTC) + timedelta(days=COOLDOWN_DAYS)
         payload["next_available_at"] = next_at.isoformat()
         payload["last_run"] = used.to_dict()
 
@@ -154,7 +154,7 @@ def start_run():
     # Block if already played this week
     used = _last_used_run(user_id)
     if used:
-        next_at = used.started_at.replace(tzinfo=timezone.utc) + timedelta(days=COOLDOWN_DAYS)
+        next_at = used.started_at.replace(tzinfo=UTC) + timedelta(days=COOLDOWN_DAYS)
         return jsonify({
             "error":            "You have already completed your weekly run.",
             "next_available_at": next_at.isoformat(),
@@ -162,7 +162,7 @@ def start_run():
 
     pool       = _build_pool(language)
     questions  = [_prepare(q) for q in _pick_questions(pool)]
-    now        = datetime.now(timezone.utc)
+    now        = datetime.now(UTC)
     expires_at = now + timedelta(seconds=DURATION_SECONDS)
 
     run = TestRun(
@@ -195,10 +195,10 @@ def submit_run(run_id):
     if run.status != TestRunStatus.active:
         return jsonify({"error": "Run is no longer active"}), 409
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Mark expired if time ran out (client submitted late)
-    timed_out = now > run.expires_at.replace(tzinfo=timezone.utc)
+    timed_out = now > run.expires_at.replace(tzinfo=UTC)
 
     data    = request.get_json(silent=True) or {}
     answers = data.get("answers", [])   # [{id, selected}]

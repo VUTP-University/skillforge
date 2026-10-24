@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import UTC
 
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -65,7 +65,7 @@ def create_app(config_class=Config):
         if user.password_changed_at:
             changed_at = user.password_changed_at
             if changed_at.tzinfo is None:
-                changed_at = changed_at.replace(tzinfo=timezone.utc)
+                changed_at = changed_at.replace(tzinfo=UTC)
             # iat is a JWT-standard integer-second timestamp (fractional part
             # truncated at issuance), while changed_at keeps microsecond
             # precision — comparing them directly means a token issued in the

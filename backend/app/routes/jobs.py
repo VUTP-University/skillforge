@@ -1,6 +1,6 @@
 import json
 import types
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
@@ -255,7 +255,7 @@ def update_job(job_id):
     job.language         = Language(data["language"])
     job.difficulty       = diff
     job.xp_reward        = XP_BY_JOB_DIFFICULTY[diff]
-    job.updated_at       = datetime.now(timezone.utc)
+    job.updated_at       = datetime.now(UTC)
 
     # Replace all test cases
     TestCase.query.filter_by(job_id=job.id).delete(synchronize_session=False)

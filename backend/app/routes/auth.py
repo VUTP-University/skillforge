@@ -2,7 +2,7 @@ import hashlib
 import re
 import secrets
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
@@ -164,7 +164,7 @@ def logout():
     # (the refresh token) is guaranteed to have already expired on its own,
     # so it's safe to drop regardless of which token it was for. Keeps this
     # table from growing forever without needing a separate scheduled job.
-    stale_cutoff = datetime.now(timezone.utc) - current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    stale_cutoff = datetime.now(UTC) - current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
     TokenBlocklist.query.filter(TokenBlocklist.created_at < stale_cutoff).delete()
 
     access_claims = get_jwt()
@@ -219,13 +219,13 @@ def forgot_password():
         user = User.query.filter(User.email == email).first()
         if user:
             # Invalidate any outstanding links before issuing a new one.
-            PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
+            PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(UTC)})
 
             raw_token = secrets.token_urlsafe(32)
             db.session.add(PasswordResetToken(
                 user_id=user.id,
                 token_hash=_hash_reset_token(raw_token),
-                expires_at=datetime.now(timezone.utc) + PASSWORD_RESET_TOKEN_TTL,
+                expires_at=datetime.now(UTC) + PASSWORD_RESET_TOKEN_TTL,
             ))
             db.session.commit()
 
@@ -256,11 +256,11 @@ def reset_password():
 
     reset_token = PasswordResetToken.query.filter_by(token_hash=_hash_reset_token(token)).first()
     if reset_token:
-        expires_at = reset_token.expires_at.replace(tzinfo=timezone.utc) if reset_token.expires_at.tzinfo is None else reset_token.expires_at
+        expires_at = reset_token.expires_at.replace(tzinfo=UTC) if reset_token.expires_at.tzinfo is None else reset_token.expires_at
     if (
         not reset_token
         or reset_token.used_at is not None
-        or expires_at < datetime.now(timezone.utc)
+        or expires_at < datetime.now(UTC)
     ):
         return jsonify({"error": "This reset link is invalid or has expired"}), 400
 
@@ -268,10 +268,10 @@ def reset_password():
     user.password_hash = generate_password_hash(password)
     # Any token issued before now is treated as revoked (see
     # check_if_token_revoked) so a hijacked session doesn't survive the reset.
-    user.password_changed_at = datetime.now(timezone.utc)
-    reset_token.used_at = datetime.now(timezone.utc)
+    user.password_changed_at = datetime.now(UTC)
+    reset_token.used_at = datetime.now(UTC)
     # Invalidate any other outstanding links for this user.
-    PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(timezone.utc)})
+    PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).update({"used_at": datetime.now(UTC)})
     db.session.commit()
 
     return jsonify({"message": "Password updated. You can now sign in with your new password."})

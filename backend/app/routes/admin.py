@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
@@ -128,7 +128,7 @@ def update_user_ban(user_id):
             return jsonify({"error": "A ban reason is required"}), 400
         user.is_banned  = True
         user.ban_reason = reason
-        user.banned_at  = datetime.now(timezone.utc)
+        user.banned_at  = datetime.now(UTC)
     else:
         user.is_banned  = False
         user.ban_reason = None
